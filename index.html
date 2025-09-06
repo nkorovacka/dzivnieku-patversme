@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dzīvnieku patversme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: bordes-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: "🐾";
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .main-content {
+            background: white;
+            margin: 2rem auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><path d="M0,100 C200,50 400,150 600,100 C800,50 1000,150 1200,100 L1200,400 L0,400 Z" fill="%23f8f9ff"/></svg>');
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 2rem;
+            background: #f8f9ff;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filter-select {
+            padding: 1rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .pets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .pet-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .pet-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .pet-info {
+            padding: 1.5rem;
+        }
+
+        .pet-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .pet-details {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .pet-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-reserved {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-adopted {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .close {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .admin-panel {
+            background: white;
+            border-radius: 16px;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .admin-content {
+            padding: 2rem;
+        }
+
+        .admin-tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e6ed;
+            margin-bottom: 2rem;
+        }
+
+        .admin-tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
+        }
+
+        .table th {
+            background: #f8f9ff;
+            font-weight: 600;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .favorite-btn:hover {
+            background: white;
+            transform: scale(1.1);
+        }
+
+        .favorite-btn.active {
+            color: #e74c3c;
+        }
+
+        .donation-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .donation-amount {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .amount-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .amount-btn.active,
+        .amount-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">SirdsPaws</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="showSection('home')">Sākums</a></li>
+                <li><a href="#" onclick="showSection('pets')">Dzīvnieki</a></li>
+                <li><a href="#" onclick="showSection('favorites')">Favorīti</a></li>
+                <li><a href="#" onclick="showSection('applications')">Mani pieteikumi</a></li>
+                <li><a href="#" onclick="showSection('events')">Pasākumi</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <button class="btn btn-secondary" onclick="showModal('loginModal')">Pieslēgties</button>
+                <button class="btn btn-primary" onclick="showModal('registerModal')">Reģistrēties</button>
+                <button id="adminBtn" class="btn btn-primary hidden" onclick="showSection('admin')">Admin</button>
+                <button id="logoutBtn" class="btn btn-secondary hidden" onclick="logout()">Iziet</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Sākuma lapa -->
+        <section id="homeSection" class="main-content">
+            <div class="hero">
+                <h1>Atrodi savu nākamo labāko draugu!</h1>
+                <p>Palīdzi dzīvniekiem atrast jaunu māju un iegūsti mūža draugu</p>
+                <button class="btn btn-primary" onclick="showSection('pets')">Skatīt dzīvniekus</button>
+            </div>
+
+            <div class="donation-section">
+                <h2>Atbalsti mūsu misiju</h2>
+                <p>Tavi ziedojumi palīdz rūpēties par dzīvniekiem un atrast viņiem mājas</p>
+                <div class="donation-amount">
+                    <button class="amount-btn" data-amount="5">€5</button>
+                    <button class="amount-btn" data-amount="10">€10</button>
+                    <button class="amount-btn" data-amount="25">€25</button>
+                    <button class="amount-btn" data-amount="50">€50</button>
+                    <button class="amount-btn" data-amount="custom">Cita summa</button>
+                </div>
+                <button class="btn btn-primary" onclick="processDonation()">Ziedot</button>
+            </div>
+        </section>
+
+        <!-- Dzīvnieku saraksts -->
+        <section id="petsSection" class="main-content hidden">
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Meklēt dzīvniekus pēc vārda..." onkeyup="searchPets()">
+                    <select class="filter-select" onchange="filterPets('type')">
+                        <option value="">Visi dzīvnieki</option>
+                        <option value="suns">Suņi</option>
+                        <option value="kaķis">Kaķi</option>
+                        <option value="trusis">Trušu</option>
+                    </select>
+                    <select class="filter-select" onchange="filterPets('age')">
+                        <option value="">Jebkurš vecums</option>
+                        <option value="mazulis">Mazuļi (0-1 gads)</option>
+                        <option value="jauns">Jauni (1-3 gadi)</option>
+                        <option value="pieaudzis">Pieauguši (3+ gadi)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pets-grid" id="petsGrid"></div>
+        </section>
+
+        <!-- Favorīti -->
+        <section id="favoritesSection" class="main-content hidden">
+            <div class="hero">
+                <h1>Mani favorītie dzīvnieki</h1>
+                <p>Šeit Tu vari redzēt visus dzīvniekus, kurus esi pievienojis favorītos</p>
+            </div>
+            <div class="pets-grid" id="favoritesGrid"></div>
+        </section>
+
+        <!-- Pieteikumi -->
+        <section id="applicationsSection" class="main-content hidden">
+            <div class="hero">
+                <h1>Mani adopcijas pieteikumi</h1>
+                <p>Seko līdzi savu pieteikumu statusam</p>
+            </div>
+            <div class="admin-content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Dzīvnieka vārds</th>
+                            <th>Pieteikuma datums</th>
+                            <th>Statuss</th>
+                            <th>Darbības</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTable"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Pasākumi -->
+        <section id="eventsSection" class="main-content hidden">
+            <div class="hero">
+                <h1>Gaidāmie pasākumi</h1>
+                <p>Pieslēdzies mūsu pasākumiem un atbalsti dzīvniekus</p>
+            </div>
+            <div class="admin-content">
+                <div class="pets-grid" id="eventsGrid"></div>
+            </div>
+        </section>
+
+        <!-- Admin panelis -->
+        <section id="adminSection" class="main-content admin-panel hidden">
+            <div class="admin-header">
+                <h1>Administratora panelis</h1>
+                <p>Pārvaldi dzīvniekus, lietotājus un pieteikumus</p>
+            </div>
+            <div class="admin-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPets">0</div>
+                        <div>Kopā dzīvnieku</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="availablePets">0</div>
+                        <div>Pieejami adopcijai</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adoptedPets">0</div>
+                        <div>Adoptēti</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingApplications">0</div>
+                        <div>Gaida apstiprināšanu</div>
+                    </div>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="showAdminTab('pets')">Dzīvnieku pārvaldība</button>
+                    <button class="admin-tab" onclick="showAdminTab('applications')">Pieteikumi</button>
+                    <button class="admin-tab" onclick="showAdminTab('users')">Lietotāji</button>
+                    <button class="admin-tab" onclick="showAdminTab('events')">Pasākumi</button>
+                </div>
+
+                <div id="adminPetsTab" class="tab-content active">
+                    <button class="btn btn-primary" onclick="showModal('addPetModal')" style="margin-bottom: 1rem;">Pievienot dzīvnieku</button>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vārds</th>
+                                <th>Suga</th>
+                                <th>Vecums</th>
+                                <th>Statuss</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPetsTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminApplicationsTab" class="tab-content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Lietotājs</th>
+                                <th>Dzīvnieks</th>
+                                <th>Datums</th>
+                                <th>Statuss</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminApplicationsTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminUsersTab" class="tab-content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vārds</th>
+                                <th>E-pasts</th>
+                                <th>Reģistrācijas datums</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminEventsTab" class="tab-content">
+                    <button class="btn btn-primary" onclick="showModal('addEventModal')" style="margin-bottom: 1rem;">Pievienot pasākumu</button>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nosaukums</th>
+                                <th>Datums</th>
+                                <th>Vieta</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminEventsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Pieslēgšanās modalais logs -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('loginModal')">&times;</span>
+                <h2>Pieslēgties</h2>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="login(event)">
+                    <div class="form-group">
+                        <label>E-pasts:</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Parole:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pieslēgties</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reģistrācijas modalais logs -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('registerModal')">&times;</span>
+                <h2>Izveidot kontu</h2>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="register(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Vārds:</label>
+                            <input type="text" id="registerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Uzvārds:</label>
+                            <input type="text" id="registerSurname" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>E-pasts:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Telefons:</label>
+                        <input type="tel" id="registerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Parole:</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Apstiprināt paroli:</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Izveidot kontu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dzīvnieka profila modalais logs -->
+    <div id="petModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('petModal')">&times;</span>
+                <h2 id="petModalName"></h2>
+            </div>
+            <div class="modal-body">
+                <div id="petModalContent"></div>
+                <div class="donation-section">
+                    <h3>Atbalsti <span id="donationPetName"></span></h3>
+                    <p>Palīdzi ar dziedniecības un aprūpes izmaksām</p>
+                    <div class="donation-amount">
+                        <button class="amount-btn" data-amount="5">€5</button>
+                        <button class="amount-btn" data-amount="10">€10</button>
+                        <button class="amount-btn" data-amount="25">€25</button>
+                        <button class="amount-btn" data-amount="50">€50</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="processPetDonation()">Ziedot</button>
+                </div>
+                <button class="btn btn-primary" onclick="showModal('adoptModal')" style="width: 100%; margin-top: 1rem;">Pieteikties adopcijai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adopcijas pieteikuma modalais logs -->
+    <div id="adoptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('adoptModal')">&times;</span>
+                <h2>Adopcijas pieteikums</h2>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="submitAdoption(event)">
+                    <div class="form-group">
+                        <label>Dzīvesvieta (adrese):</label>
+                        <input type="text" id="adoptAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dzīvokļa/mājas tips:</label>
+                        <select id="adoptHousing" required>
+                            <option value="">Izvēlies...</option>
+                            <option value="dzivoklis">Dzīvoklis</option>
+                            <option value="maja">Māja</option>
+                            <option value="maja-ar-darzu">Māja ar dārzu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pieredze ar dzīvniekiem:</label>
+                        <textarea id="adoptExperience" rows="3" placeholder="Apraksti savu pieredzi ar dzīvniekiem..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ģimenes sastāvs:</label>
+                        <textarea id="adoptFamily" rows="3" placeholder="Cik cilvēku dzīvo mājās, vai ir bērni, citi dzīvnieki..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivācija:</label>
+                        <textarea id="adoptMotivation" rows="3" placeholder="Kāpēc vēlies adoptēt šo dzīvnieku?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Nosūtīt pieteik
