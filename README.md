@@ -1,6 +1,6 @@
-# dzivnieku-patversme instrukcija meitenem
+# dzivnieku-patversme instrukcija 
 1. solis: Nepieciešamo rīku uzstādīšana
-Lai strādātu ar šo projektu, katrai meitenei jāpārliecinās, ka viņas datorā ir instalēti šie rīki:
+Lai strādātu ar šo projektu, katram jāpārliecinās, ka viņas datorā ir instalēti šie rīki:
 
 Git: Versiju kontroles sistēma.
 
