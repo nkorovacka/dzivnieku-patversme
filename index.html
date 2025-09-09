@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dzīvnieku patversme</title>
+    <title>Dzīvnieku patversme "Mājīgā sirds" - Sākums</title>
     <style>
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box; /* Fixed: was "bordes-box" */
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            color: #2d3748;
+            background-color: #f7fafc;
         }
 
         .container {
@@ -25,26 +24,24 @@
             padding: 0 20px;
         }
 
+        /* Header */
         header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
             padding: 1rem 0;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        nav {
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .logo {
             font-size: 1.8rem;
             font-weight: bold;
-            color: #667eea;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -55,158 +52,178 @@
             font-size: 2rem;
         }
 
-        .nav-links {
+        nav ul {
             display: flex;
             list-style: none;
             gap: 2rem;
+            flex-wrap: wrap;
         }
 
-        .nav-links a {
+        nav a {
+            color: white;
             text-decoration: none;
-            color: #333;
             font-weight: 500;
-            transition: color 0.3s ease;
+            transition: color 0.3s;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 5px;
         }
 
-        .nav-links a:hover {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
+        nav a:hover, nav a.active {
+            background-color: rgba(255,255,255,0.2);
         }
 
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .main-content {
-            background: white;
-            margin: 2rem auto;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
+        /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)),
-                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><path d="M0,100 C200,50 400,150 600,100 C800,50 1000,150 1200,100 L1200,400 L0,400 Z" fill="%23f8f9ff"/></svg>');
+            background: linear-gradient(rgba(72, 187, 120, 0.8), rgba(56, 161, 105, 0.8)), url('/placeholder.svg?height=600&width=1200') center/cover;
             color: white;
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 6rem 0;
         }
 
         .hero h1 {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #e53e3e;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .btn:hover {
+            background: #c53030;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid white;
+            margin-left: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #48bb78;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #2d3748;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: #48bb78;
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.2rem;
             opacity: 0.9;
         }
 
-        .search-section {
-            padding: 2rem;
-            background: #f8f9ff;
-            border-bottom: 1px solid #e0e6ed;
-        }
-
-        .search-container {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 1rem;
-            border: 2px solid #e0e6ed;
-            border-radius: 12px;
-            font-size: 1rem;
-            min-width: 250px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .filter-select {
-            padding: 1rem;
-            border: 2px solid #e0e6ed;
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
+        /* Recent Pets Section */
+        .recent-pets {
+            padding: 5rem 0;
+            background: #f7fafc;
         }
 
         .pets-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
-            padding: 2rem;
+            margin-top: 3rem;
         }
 
         .pet-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
         }
 
         .pet-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .pet-image {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
+            height: 250px;
+            background-size: cover;
+            background-position: center;
         }
 
         .pet-info {
@@ -217,2178 +234,260 @@
             font-size: 1.3rem;
             font-weight: bold;
             margin-bottom: 0.5rem;
-            color: #333;
+            color: #2d3748;
         }
 
         .pet-details {
-            color: #666;
+            color: #718096;
             margin-bottom: 1rem;
         }
 
         .pet-status {
             display: inline-block;
-            padding: 0.3rem 0.8rem;
+            padding: 0.3rem 1rem;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-bottom: 1rem;
         }
 
         .status-available {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-reserved {
-            background: #fff3cd;
-            color: #856404;
+            background: #c6f6d5;
+            color: #22543d;
         }
 
         .status-adopted {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fed7d7;
+            color: #742a2a;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 2% auto;
-            padding: 0;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        /* Footer */
+        footer {
+            background: #2d3748;
             color: white;
-            padding: 2rem;
-            text-align: center;
+            padding: 3rem 0 1rem;
         }
 
-        .close {
-            position: absolute;
-            right: 1rem;
-            top: 1rem;
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1;
-        }
-
-        .close:hover {
-            opacity: 0.7;
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e0e6ed;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-grid {
+        .footer-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        .admin-panel {
-            background: white;
-            border-radius: 16px;
-            margin: 2rem 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .admin-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 2rem;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .admin-content {
-            padding: 2rem;
-        }
-
-        .admin-tabs {
-            display: flex;
-            border-bottom: 2px solid #e0e6ed;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
             margin-bottom: 2rem;
         }
 
-        .admin-tab {
-            padding: 1rem 2rem;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-weight: 500;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #48bb78;
         }
 
-        .admin-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
+        .footer-section ul {
+            list-style: none;
         }
 
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
+        .footer-section ul li {
             margin-bottom: 0.5rem;
         }
 
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            transition: color 0.3s;
         }
 
-        .table th,
-        .table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #e0e6ed;
+        .footer-section a:hover {
+            color: #48bb78;
         }
 
-        .table th {
-            background: #f8f9ff;
-            font-weight: 600;
-        }
-
-        .favorite-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255,255,255,0.9);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-
-        .favorite-btn:hover {
-            background: white;
-            transform: scale(1.1);
-        }
-
-        .favorite-btn.active {
-            color: #e74c3c;
-        }
-
-        .donation-section {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            padding: 2rem;
-            border-radius: 16px;
-            margin: 2rem 0;
+        .footer-bottom {
+            border-top: 1px solid #4a5568;
+            padding-top: 1rem;
             text-align: center;
+            color: #a0aec0;
         }
 
-        .donation-amount {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin: 1rem 0;
-            flex-wrap: wrap;
-        }
-
-        .amount-btn {
-            padding: 0.8rem 1.5rem;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .amount-btn.active,
-        .amount-btn:hover {
-            background: #667eea;
-            color: white;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .search-container {
+            .header-content {
                 flex-direction: column;
+                gap: 1rem;
             }
-            
-            .search-input {
-                min-width: 100%;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-        }
 
-        .hidden {
-            display: none !important;
+            nav ul {
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .btn-secondary {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="container">
-            <div class="logo">SirdsPaws</div>
-            <ul class="nav-links">
-                <li><a href="#" onclick="showSection('home')">Sākums</a></li>
-                <li><a href="#" onclick="showSection('pets')">Dzīvnieki</a></li>
-                <li><a href="#" onclick="showSection('favorites')">Favorīti</a></li>
-                <li><a href="#" onclick="showSection('applications')">Mani pieteikumi</a></li>
-                <li><a href="#" onclick="showSection('events')">Pasākumi</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <button class="btn btn-secondary" onclick="showModal('loginModal')">Pieslēgties</button>
-                <button class="btn btn-primary" onclick="showModal('registerModal')">Reģistrēties</button>
-                <button id="adminBtn" class="btn btn-primary hidden" onclick="showSection('admin')">Admin</button>
-                <button id="logoutBtn" class="btn btn-secondary hidden" onclick="logout()">Iziet</button>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Mājīgā sirds</div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="active">Sākums</a></li>
+                        <li><a href="animals.html">Dzīvnieki</a></li>
+                        <li><a href="about.html">Par mums</a></li>
+                        <li><a href="adopt.html">Adoptēt</a></li>
+                        <li><a href="volunteer.html">Brīvprātīgie</a></li>
+                        <li><a href="contact.html">Kontakti</a></li>
+                    </ul>
+                </nav>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main class="container">
-        <!-- Sākuma lapa -->
-        <section id="homeSection" class="main-content">
-            <div class="hero">
-                <h1>Atrodi savu nākamo labāko draugu!</h1>
-                <p>Palīdzi dzīvniekiem atrast jaunu māju un iegūsti mūža draugu</p>
-                <button class="btn btn-primary" onclick="showSection('pets')">Skatīt dzīvniekus</button>
-            </div>
-
-            <div class="donation-section">
-                <h2>Atbalsti mūsu misiju</h2>
-                <p>Tavi ziedojumi palīdz rūpēties par dzīvniekiem un atrast viņiem mājas</p>
-                <div class="donation-amount">
-                    <button class="amount-btn" data-amount="5">€5</button>
-                    <button class="amount-btn" data-amount="10">€10</button>
-                    <button class="amount-btn" data-amount="25">€25</button>
-                    <button class="amount-btn" data-amount="50">€50</button>
-                    <button class="amount-btn" data-amount="custom">Cita summa</button>
-                </div>
-                <button class="btn btn-primary" onclick="processDonation()">Ziedot</button>
-            </div>
-        </section>
-
-        <!-- Dzīvnieku saraksts -->
-        <section id="petsSection" class="main-content hidden">
-            <div class="search-section">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Meklēt dzīvniekus pēc vārda..." onkeyup="searchPets()">
-                    <select class="filter-select" onchange="filterPets('type')">
-                        <option value="">Visi dzīvnieki</option>
-                        <option value="suns">Suņi</option>
-                        <option value="kaķis">Kaķi</option>
-                        <option value="trusis">Truši</option> <!-- Fixed: was "Trušu" -->
-                    </select>
-                    <select class="filter-select" onchange="filterPets('age')">
-                        <option value="">Jebkurš vecums</option>
-                        <option value="mazulis">Mazuļi (0-1 gads)</option>
-                        <option value="jauns">Jauni (1-3 gadi)</option>
-                        <option value="pieaudzis">Pieauguši (3+ gadi)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="pets-grid" id="petsGrid"></div>
-        </section>
-
-        <!-- Favorīti -->
-        <section id="favoritesSection" class="main-content hidden">
-            <div class="hero">
-                <h1>Mani favorītie dzīvnieki</h1>
-                <p>Šeit Tu vari redzēt visus dzīvniekus, kurus esi pievienojis favorītos</p>
-            </div>
-            <div class="pets-grid" id="favoritesGrid"></div>
-        </section>
-
-        <!-- Pieteikumi -->
-        <section id="applicationsSection" class="main-content hidden">
-            <div class="hero">
-                <h1>Mani adopcijas pieteikumi</h1>
-                <p>Seko līdzi savu pieteikumu statusam</p>
-            </div>
-            <div class="admin-content">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Dzīvnieka vārds</th>
-                            <th>Pieteikuma datums</th>
-                            <th>Statuss</th>
-                            <th>Darbības</th>
-                        </tr>
-                    </thead>
-                    <tbody id="applicationsTable"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Pasākumi -->
-        <section id="eventsSection" class="main-content hidden">
-            <div class="hero">
-                <h1>Gaidāmie pasākumi</h1>
-                <p>Pieslēdzies mūsu pasākumiem un atbalsti dzīvniekus</p>
-            </div>
-            <div class="admin-content">
-                <div class="pets-grid" id="eventsGrid"></div>
-            </div>
-        </section>
-
-        <!-- Admin panelis -->
-        <section id="adminSection" class="main-content admin-panel hidden">
-            <div class="admin-header">
-                <h1>Administratora panelis</h1>
-                <p>Pārvaldi dzīvniekus, lietotājus un pieteikumus</p>
-            </div>
-            <div class="admin-content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalPets">0</div>
-                        <div>Kopā dzīvnieku</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="availablePets">0</div>
-                        <div>Pieejami adopcijai</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="adoptedPets">0</div>
-                        <div>Adoptēti</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="pendingApplications">0</div>
-                        <div>Gaida apstiprināšanu</div>
-                    </div>
-                </div>
-
-                <div class="admin-tabs">
-                    <button class="admin-tab active" onclick="showAdminTab('pets')">Dzīvnieku pārvaldība</button>
-                    <button class="admin-tab" onclick="showAdminTab('applications')">Pieteikumi</button>
-                    <button class="admin-tab" onclick="showAdminTab('users')">Lietotāji</button>
-                    <button class="admin-tab" onclick="showAdminTab('events')">Pasākumi</button>
-                </div>
-
-                <div id="adminPetsTab" class="tab-content active">
-                    <button class="btn btn-primary" onclick="showModal('addPetModal')" style="margin-bottom: 1rem;">Pievienot dzīvnieku</button>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Vārds</th>
-                                <th>Suga</th>
-                                <th>Vecums</th>
-                                <th>Statuss</th>
-                                <th>Darbības</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminPetsTable"></tbody>
-                    </table>
-                </div>
-
-                <div id="adminApplicationsTab" class="tab-content">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Lietotājs</th>
-                                <th>Dzīvnieks</th>
-                                <th>Datums</th>
-                                <th>Statuss</th>
-                                <th>Darbības</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminApplicationsTable"></tbody>
-                    </table>
-                </div>
-
-                <div id="adminUsersTab" class="tab-content">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Vārds</th>
-                                <th>E-pasts</th>
-                                <th>Reģistrācijas datums</th>
-                                <th>Darbības</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUsersTable"></tbody>
-                    </table>
-                </div>
-
-                <div id="adminEventsTab" class="tab-content">
-                    <button class="btn btn-primary" onclick="showModal('addEventModal')" style="margin-bottom: 1rem;">Pievienot pasākumu</button>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Nosaukums</th>
-                                <th>Datums</th>
-                                <th>Vieta</th>
-                                <th>Darbības</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminEventsTable"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer style="background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 3rem 0 1rem 0; margin-top: 3rem;">
+    <section class="hero">
         <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
-                <!-- Kontaktinformācija -->
-                <div>
-                    <h3 style="color: #667eea; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        🐾 SirdsPaws
-                    </h3>
-                    <p style="margin-bottom: 1rem; line-height: 1.6;">
-                        Mēs esam dzīvnieku patversme, kas palīdz dzīvniekiem atrast jaunu māju un mīlošu ģimeni.
-                    </p>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>📍 Adrese:</strong><br>
-                        Daugavgrīvas iela 123, Rīga, LV-1007
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>📞 Telefons:</strong><br>
-                        +371 26 123 456
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>✉️ E-pasts:</strong><br>
-                        info@sirdspaws.lv
+            <h1>Dod mājvietu dzīvniekam</h1>
+            <p>Mūsu patversmē gaida mīļi dzīvnieki, kuriem nepieciešama jūsu mīlestība un aprūpe. Katrs dzīvnieks ir pelnījis laimi un mājīgu sirdi.</p>
+            <a href="animals.html" class="btn">Apskatīt dzīvniekus</a>
+            <a href="adopt.html" class="btn btn-secondary">Kā adoptēt?</a>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Kāpēc izvēlēties mūs?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🏥</div>
+                    <h3>Medicīniskā aprūpe</h3>
+                    <p>Visi mūsu dzīvnieki saņem pilnīgu veterināro aprūpi, vakcinācijas un nepieciešamo ārstēšanu.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">❤️</div>
+                    <h3>Mīlestība un aprūpe</h3>
+                    <p>Katrs dzīvnieks saņem individuālu uzmanību un mīlestību no mūsu pieredzējušajiem darbiniekiem.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>Socializācija</h3>
+                    <p>Mēs palīdzam dzīvniekiem adaptēties un sagatavojam tos dzīvei jaunajās mājās.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Atbalsts pēc adopcijas</h3>
+                    <p>Mēs sniedzam konsultācijas un atbalstu arī pēc dzīvnieka adoptēšanas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Adoptēti dzīvnieki</p>
+                </div>
+                <div class="stat-item">
+                    <h3>15</h3>
+                    <p>Gadi darbībā</p>
+                </div>
+                <div class="stat-item">
+                    <h3>50+</h3>
+                    <p>Brīvprātīgie</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p>Aprūpe</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="recent-pets">
+        <div class="container">
+            <h2 class="section-title">Mūsu dzīvnieki</h2>
+            <div class="pets-grid">
+                <div class="pet-card">
+                    <div class="pet-image" style="background-image: url('/placeholder.svg?height=250&width=300')"></div>
+                    <div class="pet-info">
+                        <div class="pet-name">Reks</div>
+                        <div class="pet-details">Suns • 3 gadi • Draudzīgs</div>
+                        <span class="pet-status status-available">Pieejams adopcijai</span>
                     </div>
                 </div>
+                <div class="pet-card">
+                    <div class="pet-image" style="background-image: url('/placeholder.svg?height=250&width=300')"></div>
+                    <div class="pet-info">
+                        <div class="pet-name">Minka</div>
+                        <div class="pet-details">Kaķe • 2 gadi • Mīļa</div>
+                        <span class="pet-status status-available">Pieejama adopcijai</span>
+                    </div>
+                </div>
+                <div class="pet-card">
+                    <div class="pet-image" style="background-image: url('/placeholder.svg?height=250&width=300')"></div>
+                    <div class="pet-info">
+                        <div class="pet-name">Bērijs</div>
+                        <div class="pet-details">Suns • 1 gads • Rotaļīgs</div>
+                        <span class="pet-status status-adopted">Adoptēts</span>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="animals.html" class="btn">Apskatīt visus dzīvniekus</a>
+            </div>
+        </div>
+    </section>
 
-                <!-- Ātras saites -->
-                <div>
-                    <h3 style="color: #667eea; margin-bottom: 1rem;">Ātras saites</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="showSection('home')" style="color: white; text-decoration: none; transition: color 0.3s;">
-                                🏠 Sākums
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="showSection('pets')" style="color: white; text-decoration: none; transition: color 0.3s;">
-                                🐾 Dzīvnieki
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" onclick="showSection('events')" style="color: white; text-decoration: none; transition: color 0.3s;">
-                                📅 Pasākumi
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" style="color: white; text-decoration: none; transition: color 0.3s;">
-                                ℹ️ Par mums
-                            </a>
-                        </li>
-                        <li style="margin-bottom: 0.5rem;">
-                            <a href="#" style="color: white; text-decoration: none; transition: color 0.3s;">
-                                🤝 Kā palīdzēt
-                            </a>
-                        </li>
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Kontaktinformācija</h3>
+                    <ul>
+                        <li>📍 Brīvības iela 123, Rīga</li>
+                        <li>📞 +371 20 123 456</li>
+                        <li>✉️ info@majigasirds.lv</li>
+                        <li>🕒 P-Sv: 9:00-18:00</li>
                     </ul>
                 </div>
-
-                <!-- Darba laiks -->
-                <div>
-                    <h3 style="color: #667eea; margin-bottom: 1rem;">Darba laiks</h3>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>Pirmdiena - Piektdiena:</strong><br>
-                        9:00 - 18:00
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>Sestdiena:</strong><br>
-                        10:00 - 16:00
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <strong>Svētdiena:</strong><br>
-                        10:00 - 14:00
-                    </div>
-                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(102, 126, 234, 0.2); border-radius: 8px;">
-                        <strong>⚠️ Svarīgi:</strong><br>
-                        Lūdzu, iepriekš sazinies ar mums, lai norunātu tikšanos!
-                    </div>
+                <div class="footer-section">
+                    <h3>Ātras saites</h3>
+                    <ul>
+                        <li><a href="animals.html">Dzīvnieki</a></li>
+                        <li><a href="adopt.html">Adopcijas process</a></li>
+                        <li><a href="volunteer.html">Kļūt par brīvprātīgo</a></li>
+                        <li><a href="donate.html">Ziedot</a></li>
+                    </ul>
                 </div>
-
-                <!-- Sociālie tīkli un ziedojumi -->
-                <div>
-                    <h3 style="color: #667eea; margin-bottom: 1rem;">Seko mums</h3>
-                    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                        <a href="#" style="color: white; font-size: 1.5rem; transition: transform 0.3s;" 
-                           onmouseover="this.style.transform='scale(1.2)'" 
-                           onmouseout="this.style.transform='scale(1)'">📘</a>
-                        <a href="#" style="color: white; font-size: 1.5rem; transition: transform 0.3s;"
-                           onmouseover="this.style.transform='scale(1.2)'" 
-                           onmouseout="this.style.transform='scale(1)'">📷</a>
-                        <a href="#" style="color: white; font-size: 1.5rem; transition: transform 0.3s;"
-                           onmouseover="this.style.transform='scale(1.2)'" 
-                           onmouseout="this.style.transform='scale(1)'">🐦</a>
-                    </div>
-                    
-                    <h4 style="color: #667eea; margin-bottom: 0.5rem;">💝 Atbalsti mūs</h4>
-                    <p style="margin-bottom: 1rem; font-size: 0.9rem;">
-                        Katrs ziedojums palīdz mums rūpēties par dzīvniekiem
-                    </p>
-                    <button class="btn btn-primary" onclick="document.querySelector('.donation-section').scrollIntoView()" 
-                            style="width: 100%;">
-                        Ziedot tagad
-                    </button>
+                <div class="footer-section">
+                    <h3>Pakalpojumi</h3>
+                    <ul>
+                        <li><a href="#">Veterinārā aprūpe</a></li>
+                        <li><a href="#">Dzīvnieku apmācība</a></li>
+                        <li><a href="#">Konsultācijas</a></li>
+                        <li><a href="#">Pagaidu aprūpe</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Sekojiet mums</h3>
+                    <ul>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">YouTube</a></li>
+                    </ul>
                 </div>
             </div>
-
-            <!-- Apakšējā daļa -->
-            <div style="border-top: 1px solid rgba(255,255,255,0.2); padding-top: 2rem; text-align: center;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                    <div>
-                        <p style="margin: 0; font-size: 0.9rem;">
-                            © 2024 SirdsPaws. Visas tiesības aizsargātas.
-                        </p>
-                    </div>
-                    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                        <a href="#" style="color: white; text-decoration: none; font-size: 0.9rem;">Privātuma politika</a>
-                        <a href="#" style="color: white; text-decoration: none; font-size: 0.9rem;">Lietošanas noteikumi</a>
-                        <a href="#" style="color: white; text-decoration: none; font-size: 0.9rem;">Sīkdatnes</a>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 1rem; padding: 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
-                    <p style="margin: 0; font-size: 0.9rem; font-style: italic;">
-                        "Dzīvnieki nav mūsu visa pasaule, bet viņi padara mūsu pasauli pilnīgu." 🐾
-                    </p>
-                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Dzīvnieku patversme "Mājīgā sirds". Visas tiesības aizsargātas.</p>
             </div>
         </div>
     </footer>
-
-    <!-- Pieslēgšanās modalais logs -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('loginModal')">&times;</span>
-                <h2>Pieslēgties</h2>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="login(event)">
-                    <div class="form-group">
-                        <label>E-pasts:</label>
-                        <input type="email" id="loginEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Parole:</label>
-                        <input type="password" id="loginPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pieslēgties</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reģistrācijas modalais logs -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('registerModal')">&times;</span>
-                <h2>Izveidot kontu</h2>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="register(event)">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Vārds:</label>
-                            <input type="text" id="registerName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Uzvārds:</label>
-                            <input type="text" id="registerSurname" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>E-pasts:</label>
-                        <input type="email" id="registerEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Telefons:</label>
-                        <input type="tel" id="registerPhone" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Parole:</label>
-                        <input type="password" id="registerPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Apstiprināt paroli:</label>
-                        <input type="password" id="registerConfirmPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Izveidot kontu</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dzīvnieka profila modalais logs -->
-    <div id="petModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('petModal')">&times;</span>
-                <h2 id="petModalName"></h2>
-            </div>
-            <div class="modal-body">
-                <div id="petModalContent"></div>
-                <div class="donation-section">
-                    <h3>Atbalsti <span id="donationPetName"></span></h3>
-                    <p>Palīdzi ar dziedniecības un aprūpes izmaksām</p>
-                    <div class="donation-amount">
-                        <button class="amount-btn" data-amount="5">€5</button>
-                        <button class="amount-btn" data-amount="10">€10</button>
-                        <button class="amount-btn" data-amount="25">€25</button>
-                        <button class="amount-btn" data-amount="50">€50</button>
-                    </div>
-                    <button class="btn btn-primary" onclick="processPetDonation()">Ziedot</button>
-                </div>
-                <button class="btn btn-primary" onclick="showModal('adoptModal')" style="width: 100%; margin-top: 1rem;">Pieteikties adopcijai</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Adopcijas pieteikuma modalais logs -->
-    <div id="adoptModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('adoptModal')">&times;</span>
-                <h2>Adopcijas pieteikums</h2>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="submitAdoption(event)">
-                    <div class="form-group">
-                        <label>Dzīvesvieta (adrese):</label>
-                        <input type="text" id="adoptAddress" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Dzīvokļa/mājas tips:</label>
-                        <select id="adoptHousing" required>
-                            <option value="">Izvēlies...</option>
-                            <option value="dzivoklis">Dzīvoklis</option>
-                            <option value="maja">Māja</option>
-                            <option value="maja-ar-darzu">Māja ar dārzu</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Pieredze ar dzīvniekiem:</label>
-                        <textarea id="adoptExperience" rows="3" placeholder="Apraksti savu pieredzi ar dzīvniekiem..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Ģimenes sastāvs:</label>
-                        <textarea id="adoptFamily" rows="3" placeholder="Cik cilvēku dzīvo mājās, vai ir bērni, citi dzīvnieki..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Motivācija:</label>
-                        <textarea id="adoptMotivation" rows="3" placeholder="Kāpēc vēlies adoptēt šo dzīvnieku?" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Nosūtīt pieteikumu</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Dzīvnieka pievienošanas modalais logs -->
-    <div id="addPetModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('addPetModal')">&times;</span>
-                <h2>Pievienot jaunu dzīvnieku</h2>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="addPet(event)">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Vārds:</label>
-                            <input type="text" id="petName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Suga:</label>
-                            <select id="petType" required>
-                                <option value="">Izvēlies...</option>
-                                <option value="suns">Suns</option>
-                                <option value="kaķis">Kaķis</option>
-                                <option value="trusis">Trusis</option>
-                                <option value="cits">Cits</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Vecums:</label>
-                            <input type="text" id="petAge" placeholder="piem. 2 gadi" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Dzimums:</label>
-                            <select id="petGender" required>
-                                <option value="">Izvēlies...</option>
-                                <option value="tēviņš">Tēviņš</option>
-                                <option value="mātīte">Mātīte</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Apraksts:</label>
-                        <textarea id="petDescription" rows="4" placeholder="Apraksti dzīvnieka raksturu un īpašības..." required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Veselības stāvoklis:</label>
-                        <textarea id="petHealth" rows="3" placeholder="Informācija par veselību, vakcinācijām utt."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Statuss:</label>
-                        <select id="petStatus" required>
-                            <option value="pieejams">Pieejams adopcijai</option>
-                            <option value="rezervēts">Rezervēts</option>
-                            <option value="adoptēts">Adoptēts</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pievienot dzīvnieku</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pasākuma pievienošanas modalais logs -->
-    <div id="addEventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="hideModal('addEventModal')">&times;</span>
-                <h2>Pievienot jaunu pasākumu</h2>
-            </div>
-            <div class="modal-body">
-                <form onsubmit="addEvent(event)">
-                    <div class="form-group">
-                        <label>Pasākuma nosaukums:</label>
-                        <input type="text" id="eventTitle" required>
-                    </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Datums:</label>
-                            <input type="date" id="eventDate" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Laiks:</label>
-                            <input type="time" id="eventTime" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Vieta:</label>
-                        <input type="text" id="eventLocation" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Apraksts:</label>
-                        <textarea id="eventDescription" rows="4" placeholder="Apraksti pasākumu..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pievienot pasākumu</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Globālie mainīgie
-        let currentUser = null;
-        let pets = [];
-        let applications = [];
-        let users = [];
-        let events = [];
-        let favorites = [];
-        let selectedDonationAmount = 0;
-        let currentPetForDonation = null;
-
-        // Inicializācija
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeData();
-            showSection('home');
-            updateStats();
-        });
-
-        // Datu inicializācija
-        function initializeData() {
-            pets = [
-                {
-                    id: 1,
-                    name: 'Bella',
-                    type: 'suns',
-                    age: 'mazulis',
-                    gender: 'mātīte',
-                    description: 'Bella ir ļoti draudzīga un aktīva kucēna. Viņa mīl spēlēties un ir lieliski piemērota ģimenēm ar bērniem.',
-                    health: 'Vakcinēta, sterilizēta, čipēta',
-                    status: 'pieejams',
-                    emoji: '🐕'
-                },
-                {
-                    id: 2,
-                    name: 'Whiskers',
-                    type: 'kaķis',
-                    age: 'pieaudzis',
-                    gender: 'tēviņš',
-                    description: 'Whiskers ir mierīgs un neatkarīgs kaķis. Viņš mīl gulēt saulē un tikt glāstīts.',
-                    health: 'Vakcinēts, kastrēts, čipēts',
-                    status: 'pieejams',
-                    emoji: '🐱'
-                },
-                {
-                    id: 3,
-                    name: 'Luna',
-                    type: 'kaķis',
-                    age: 'jauns',
-                    gender: 'mātīte',
-                    description: 'Luna ir rotaļīga un ziņkārīga kaķenīte. Viņa ir sociāla un labi sadzīvo ar citiem dzīvniekiem.',
-                    health: 'Vakcinēta, sterilizēta, čipēta',
-                    status: 'rezervēts',
-                    emoji: '🐱'
-                },
-                {
-                    id: 4,
-                    name: 'Buddy',
-                    type: 'suns',
-                    age: 'pieaudzis',
-                    gender: 'tēviņš',
-                    description: 'Buddy ir uzticīgs un aizsargājošs suns. Viņš ir lielisks apsargs un kompanjons.',
-                    health: 'Vakcinēts, kastrēts, čipēts',
-                    status: 'adoptēts',
-                    emoji: '🐕'
-                },
-                {
-                    id: 5,
-                    name: 'Snowball',
-                    type: 'trusis',
-                    age: 'jauns',
-                    gender: 'mātīte',
-                    description: 'Snowball ir maigs un kluss trusis. Viņa mīl burkānus un ir ļoti sociāla.',
-                    health: 'Vakcinēta, sterilizēta',
-                    status: 'pieejams',
-                    emoji: '🐰'
-                },
-                {
-                    id: 6,
-                    name: 'Max',
-                    type: 'suns',
-                    age: 'jauns',
-                    gender: 'tēviņš',
-                    description: 'Max ir enerģisks un gudrs suns. Viņš mīl skriet un spēlēties ar bumbiņu.',
-                    health: 'Vakcinēts, kastrēts, čipēts',
-                    status: 'pieejams',
-                    emoji: '🐕‍🦺'
-                },
-                {
-                    id: 7,
-                    name: 'Mittens',
-                    type: 'kaķis',
-                    age: 'mazulis',
-                    gender: 'mātīte',
-                    description: 'Mittens ir maza un rotaļīga kaķenīte. Viņa ir ļoti mīļa un mīl tikt glāstīta.',
-                    health: 'Vakcinēta, čipēta',
-                    status: 'pieejams',
-                    emoji: '🐱'
-                },
-                {
-                    id: 8,
-                    name: 'Charlie',
-                    type: 'suns',
-                    age: 'pieaudzis',
-                    gender: 'tēviņš',
-                    description: 'Charlie ir mierīgs un gudrs suns. Viņš ir perfekts kompanjons senioriem.',
-                    health: 'Vakcinēts, kastrēts, čipēts',
-                    status: 'pieejams',
-                    emoji: '🐕'
-                },
-                {
-                    id: 9,
-                    name: 'Fluffy',
-                    type: 'trusis',
-                    age: 'pieaudzis',
-                    gender: 'tēviņš',
-                    description: 'Fluffy ir liels un mīksts trusis. Viņš ir ļoti draudzīgs un mīl uzmanību.',
-                    health: 'Vakcinēts, kastrēts',
-                    status: 'rezervēts',
-                    emoji: '🐰'
-                },
-                {
-                    id: 10,
-                    name: 'Shadow',
-                    type: 'kaķis',
-                    age: 'jauns',
-                    gender: 'tēviņš',
-                    description: 'Shadow ir noslēpumains un elegants kaķis. Viņš mīl klusas vietas un novērošanu.',
-                    health: 'Vakcinēts, kastrēts, čipēts',
-                    status: 'pieejams',
-                    emoji: '🐈‍⬛'
-                },
-                {
-                    id: 11,
-                    name: 'Daisy',
-                    type: 'suns',
-                    age: 'mazulis',
-                    gender: 'mātīte',
-                    description: 'Daisy ir skaista un rotaļīga kucēna. Viņa mīl bērnus un ir ļoti sociāla.',
-                    health: 'Vakcinēta, čipēta',
-                    status: 'pieejams',
-                    emoji: '🐕'
-                },
-                {
-                    id: 12,
-                    name: 'Ginger',
-                    type: 'kaķis',
-                    age: 'pieaudzis',
-                    gender: 'mātīte',
-                    description: 'Ginger ir skaista rudā kaķe. Viņa ir neatkarīga, bet mīl glāstīšanu.',
-                    health: 'Vakcinēta, sterilizēta, čipēta',
-                    status: 'pieejams',
-                    emoji: '🐱'
-                }
-            ];
-
-            events = [
-                {
-                    id: 1,
-                    title: 'Dzīvnieku adopcijas diena',
-                    date: '2024-03-15',
-                    time: '10:00',
-                    location: 'Daugavgrīvas parks',
-                    description: 'Liels pasākums, kur varēsi iepazīties ar mūsu dzīvniekiem un atrast savu nākamo labāko draugu!'
-                },
-                {
-                    id: 2,
-                    title: 'Labdarības skrējiens suņiem',
-                    date: '2024-03-22',
-                    time: '09:00',
-                    location: 'Mežaparks',
-                    description: 'Piedalies skrējienā kopā ar savu suni un atbalsti patversmi!'
-                }
-            ];
-
-            users = [
-                {
-                    id: 1,
-                    name: 'Anna',
-                    surname: 'Bērziņa',
-                    email: 'admin@sirdspaws.lv',
-                    phone: '+371 26123456',
-                    password: 'admin123',
-                    role: 'admin',
-                    registrationDate: '2024-01-01'
-                }
-            ];
-
-            applications = [
-                {
-                    id: 1,
-                    userId: 1,
-                    petId: 1,
-                    status: 'izskatīšanā',
-                    date: '2024-03-01',
-                    address: 'Rīga, Brīvības iela 123',
-                    housing: 'dzivoklis',
-                    experience: 'Man ir bijuši suņi jau 10 gadus',
-                    family: 'Dzīvoju ar vīru un diviem bērniem',
-                    motivation: 'Vēlamies dot mājvietu un mīlestību'
-                }
-            ];
-        }
-
-        // Sekciju pārslēgšana
-        function showSection(sectionName) {
-            const sections = document.querySelectorAll('section');
-            sections.forEach(section => section.classList.add('hidden'));
-            
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
-            
-            if (sectionName === 'pets') {
-                displayPets();
-            } else if (sectionName === 'favorites') {
-                displayFavorites();
-            } else if (sectionName === 'applications') {
-                displayUserApplications();
-            } else if (sectionName === 'events') {
-                displayEvents();
-            } else if (sectionName === 'admin') {
-                displayAdminData();
-                updateStats();
-            }
-        }
-
-        // Modālo logu funkcijas
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-
-        function hideModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Pieslēgšanās
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (user) {
-                currentUser = user;
-                updateAuthButtons();
-                hideModal('loginModal');
-                alert('Veiksmīgi pieslēdzies!');
-            } else {
-                alert('Nepareizs e-pasts vai parole!');
-            }
-        }
-
-        // Reģistrācija
-        function register(event) {
-            event.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const surname = document.getElementById('registerSurname').value;
-            const email = document.getElementById('registerEmail').value;
-            const phone = document.getElementById('registerPhone').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                alert('Paroles nesakrīt!');
-                return;
-            }
-            
-            if (users.find(u => u.email === email)) {
-                alert('Lietotājs ar šo e-pastu jau eksistē!');
-                return;
-            }
-            
-            const newUser = {
-                id: users.length + 1,
-                name: name,
-                surname: surname,
-                email: email,
-                phone: phone,
-                password: password,
-                role: 'user',
-                registrationDate: new Date().toISOString().split('T')[0]
-            };
-            
-            users.push(newUser);
-            currentUser = newUser;
-            updateAuthButtons();
-            hideModal('registerModal');
-            alert('Konts veiksmīgi izveidots!');
-        }
-
-        // Izrakstīšanās
-        function logout() {
-            currentUser = null;
-            favorites = [];
-            updateAuthButtons();
-            showSection('home');
-            alert('Tu esi veiksmīgi izrakstījies!');
-        }
-
-        // Autentifikācijas pogu atjaunošana
-        function updateAuthButtons() {
-            const loginBtn = document.querySelector('.btn-secondary');
-            const registerBtn = document.querySelector('.btn-primary');
-            const adminBtn = document.getElementById('adminBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            
-            if (currentUser) {
-                loginBtn.classList.add('hidden');
-                registerBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                
-                if (currentUser.role === 'admin') {
-                    adminBtn.classList.remove('hidden');
-                }
-            } else {
-                loginBtn.classList.remove('hidden');
-                registerBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                adminBtn.classList.add('hidden');
-            }
-        }
-
-        // Dzīvnieku attēlošana
-        function displayPets(filteredPets = null) {
-            const grid = document.getElementById('petsGrid');
-            const petsToShow = filteredPets || pets;
-            
-            grid.innerHTML = '';
-            
-            petsToShow.forEach(pet => {
-                const petCard = createPetCard(pet);
-                grid.appendChild(petCard);
-            });
-        }
-
-        // Dzīvnieka kartes izveide
-        function createPetCard(pet) {
-            const card = document.createElement('div');
-            card.className = 'pet-card';
-            card.style.position = 'relative';
-            
-            const statusClass = pet.status === 'pieejams' ? 'status-available' : 
-                               pet.status === 'rezervēts' ? 'status-reserved' : 'status-adopted';
-            const statusText = pet.status === 'pieejams' ? 'Pieejams' : 
-                              pet.status === 'rezervēts' ? 'Rezervēts' : 'Adoptēts';
-            
-            card.innerHTML = `
-                <button class="favorite-btn ${favorites.includes(pet.id) ? 'active' : ''}" 
-                        onclick="toggleFavorite(${pet.id})">
-                    ${favorites.includes(pet.id) ? '❤️' : '🤍'}
-                </button>
-                <div class="pet-image">${pet.emoji}</div>
-                <div class="pet-info">
-                    <div class="pet-name">${pet.name}</div>
-                    <div class="pet-details">
-                        ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)} • 
-                        ${pet.age === 'mazulis' ? 'Mazulis' : pet.age === 'jauns' ? 'Jauns' : 'Pieaudzis'} • 
-                        ${pet.gender}
-                    </div>
-                    <div class="pet-status ${statusClass}">${statusText}</div>
-                    <p>${pet.description.substring(0, 100)}...</p>
-                </div>
-            `;
-            
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('favorite-btn')) {
-                    showPetDetails(pet);
-                }
-            });
-            
-            return card;
-        }
-
-        // Dzīvnieka detalizētas informācijas rādīšana
-        function showPetDetails(pet) {
-            document.getElementById('petModalName').textContent = pet.name;
-            document.getElementById('donationPetName').textContent = pet.name;
-            currentPetForDonation = pet;
-            
-            const content = document.getElementById('petModalContent');
-            content.innerHTML = `
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">${pet.emoji}</div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                    <div><strong>Suga:</strong> ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}</div>
-                    <div><strong>Vecums:</strong> ${pet.age === 'mazulis' ? 'Mazulis' : pet.age === 'jauns' ? 'Jauns' : 'Pieaudzis'}</div>
-                    <div><strong>Dzimums:</strong> ${pet.gender}</div>
-                    <div><strong>Statuss:</strong> ${pet.status}</div>
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <h3>Apraksts</h3>
-                    <p>${pet.description}</p>
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <h3>Veselības informācija</h3>
-                    <p>${pet.health}</p>
-                </div>
-            `;
-            
-            showModal('petModal');
-        }
-
-        // Meklēšana
-        function searchPets() {
-            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
-            const filteredPets = pets.filter(pet => 
-                pet.name.toLowerCase().includes(searchTerm) ||
-                pet.description.toLowerCase().includes(searchTerm)
-            );
-            displayPets(filteredPets);
-        }
-
-        // Filtrēšana
-        function filterPets(filterType) {
-            const filters = document.querySelectorAll('.filter-select');
-            let filteredPets = pets;
-            
-            filters.forEach(filter => {
-                const value = filter.value;
-                if (value) {
-                    if (filter.onchange.toString().includes('type')) {
-                        filteredPets = filteredPets.filter(pet => pet.type === value);
-                    } else if (filter.onchange.toString().includes('age')) {
-                        filteredPets = filteredPets.filter(pet => pet.age === value);
-                    }
-                }
-            });
-            
-            displayPets(filteredPets);
-        }
-
-        // Favorītu pārvaldība
-        function toggleFavorite(petId) {
-            if (!currentUser) {
-                alert('Lai pievienotu favorītos, vispirms pieslēdzies!');
-                return;
-            }
-            
-            const index = favorites.indexOf(petId);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(petId);
-            }
-            
-            // Atjaunojam kartes
-            displayPets();
-            if (document.getElementById('favoritesSection').classList.contains('hidden') === false) {
-                displayFavorites();
-            }
-        }
-
-        // Favorītu attēlošana
-        function displayFavorites() {
-            const grid = document.getElementById('favoritesGrid');
-            const favoritePets = pets.filter(pet => favorites.includes(pet.id));
-            
-            if (favoritePets.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nav pievienotu favorītu dzīvnieku.</p>';
-                return;
-            }
-            
-            grid.innerHTML = '';
-            favoritePets.forEach(pet => {
-                const petCard = createPetCard(pet);
-                grid.appendChild(petCard);
-            });
-        }
-
-        // Adopcijas pieteikums
-        function submitAdoption(event) {
-            event.preventDefault();
-            
-            if (!currentUser) {
-                alert('Lai pieteiktos adopcijai, vispirms pieslēdzies!');
-                return;
-            }
-            
-            const newApplication = {
-                id: applications.length + 1,
-                userId: currentUser.id,
-                petId: currentPetForDonation.id,
-                status: 'izskatīšanā',
-                date: new Date().toISOString().split('T')[0],
-                address: document.getElementById('adoptAddress').value,
-                housing: document.getElementById('adoptHousing').value,
-                experience: document.getElementById('adoptExperience').value,
-                family: document.getElementById('adoptFamily').value,
-                motivation: document.getElementById('adoptMotivation').value
-            };
-            
-            applications.push(newApplication);
-            hideModal('adoptModal');
-            hideModal('petModal');
-            alert('Pieteikums veiksmīgi nosūtīts! Mēs ar Tevi sazināsimies tuvākajā laikā.');
-            
-            // Notīrām formu
-            document.getElementById('adoptAddress').value = '';
-            document.getElementById('adoptHousing').value = '';
-            document.getElementById('adoptExperience').value = '';
-            document.getElementById('adoptFamily').value = '';
-            document.getElementById('adoptMotivation').value = '';
-        }
-
-        // Lietotāja pieteikumu attēlošana
-        function displayUserApplications() {
-            const table = document.getElementById('applicationsTable');
-            
-            if (!currentUser) {
-                table.innerHTML = '<tr><td colspan="4">Pieslēdzies, lai redzētu savus pieteikumus</td></tr>';
-                return;
-            }
-            
-            const userApplications = applications.filter(app => app.userId === currentUser.id);
-            
-            if (userApplications.length === 0) {
-                table.innerHTML = '<tr><td colspan="4">Nav pieteikumu</td></tr>';
-                return;
-            }
-            
-            table.innerHTML = '';
-            userApplications.forEach(app => {
-                const pet = pets.find(p => p.id === app.petId);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${pet ? pet.name : 'Nav atrasts'}</td>
-                    <td>${app.date}</td>
-                    <td>${app.status}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="viewApplication(${app.id})">Skatīt</button>
-                    </td>
-                `;
-                table.appendChild(row);
-            });
-        }
-
-        // Pasākumu attēlošana
-        function displayEvents() {
-            const grid = document.getElementById('eventsGrid');
-            grid.innerHTML = '';
-            
-            events.forEach(event => {
-                const eventCard = document.createElement('div');
-                eventCard.className = 'pet-card';
-                eventCard.innerHTML = `
-                    <div class="pet-image">📅</div>
-                    <div class="pet-info">
-                        <div class="pet-name">${event.title}</div>
-                        <div class="pet-details">
-                            ${event.date} • ${event.time} • ${event.location}
-                        </div>
-                        <p>${event.description}</p>
-                        <button class="btn btn-primary" onclick="registerForEvent(${event.id})" style="width: 100%; margin-top: 1rem;">
-                            Pieteikties
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(eventCard);
-            });
-        }
-
-        // Ziedojumu funkcionalitāte
-document.addEventListener('DOMContentLoaded', function() {
-    let selectedDonationAmount = 0;
-    
-    // Ziedojumu summas pogas
-    document.querySelectorAll('.amount-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            selectedDonationAmount = this.dataset.amount === 'custom' ? 0 : parseInt(this.dataset.amount);
-            
-            if (this.dataset.amount === 'custom') {
-                const customAmount = prompt('Ievadi ziedojuma summu (EUR):');
-                if (customAmount && !isNaN(customAmount) && parseFloat(customAmount) > 0) {
-                    selectedDonationAmount = parseFloat(customAmount);
-                    this.textContent = `€${selectedDonationAmount}`;
-                } else {
-                    // Ja netika ievadīta derīga summa, atceļam izvēli
-                    this.classList.remove('active');
-                    selectedDonationAmount = 0;
-                    this.textContent = 'Cita summa';
-                }
-            }
-            
-            // Atjauno ziedojuma summas displejs
-            updateDonationDisplay();
-        });
-    });
-    
-    // Atjauno ziedojuma summas attēlojumu
-    function updateDonationDisplay() {
-        const displayElement = document.querySelector('#donation-amount-display');
-        if (displayElement) {
-            displayElement.textContent = selectedDonationAmount > 0 ? `€${selectedDonationAmount}` : '€0';
-        }
-        
-        // Aktivizē vai deaktivizē ziedot pogu
-        const donateButton = document.querySelector('#donate-button');
-        if (donateButton) {
-            donateButton.disabled = selectedDonationAmount <= 0;
-            donateButton.classList.toggle('disabled', selectedDonationAmount <= 0);
-        }
-    }
-    
-    // Ziedojuma formas apstrāde
-    const donationForm = document.querySelector('#donation-form');
-    if (donationForm) {
-        donationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (selectedDonationAmount <= 0) {
-                alert('Lūdzu, izvēlieties ziedojuma summu!');
-                return;
-            }
-            
-            // Savāc formas datus
-            const formData = new FormData(donationForm);
-            const donationData = {
-                amount: selectedDonationAmount,
-                name: formData.get('donor-name') || 'Anonīms',
-                email: formData.get('donor-email'),
-                message: formData.get('donor-message'),
-                recurring: formData.get('recurring') === 'on',
-                anonymous: formData.get('anonymous') === 'on'
-            };
-            
-            // Validācija
-            if (!donationData.anonymous && !donationData.name.trim()) {
-                alert('Lūdzu, ievadiet savu vārdu vai izvēlieties anonīmo ziedojumu!');
-                return;
-            }
-            
-            if (donationData.email && !validateEmail(donationData.email)) {
-                alert('Lūdzu, ievadiet derīgu e-pasta adresi!');
-                return;
-            }
-            
-            // Apstrādā ziedojumu
-            processDonation(donationData);
-        });
-    }
-    
-    // E-pasta validācija
-    function validateEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-    
-    // Ziedojuma apstrāde
-    function processDonation(donationData) {
-        // Rāda loading stāvokli
-        const submitButton = document.querySelector('#donate-button');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = 'Apstrādā...';
-        submitButton.disabled = true;
-        
-        // Simulē API pieprasījumu (aizstāj ar īsto API)
-        setTimeout(() => {
-            try {
-                // Šeit būtu īstais maksājumu sistēmas izsaukums
-                console.log('Ziedojuma dati:', donationData);
-                
-                // Pārvirza uz maksājumu sistēmu vai parāda pateicības ziņojumu
-                showThankYouMessage(donationData);
-                
-            } catch (error) {
-                console.error('Kļūda ziedojuma apstrādē:', error);
-                alert('Radās kļūda ziedojuma apstrādē. Lūdzu, mēģiniet vēlreiz.');
-            } finally {
-                // Atjauno pogu
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-            }
-        }, 2000);
-    }
-    
-    // Pateicības ziņojuma attēlošana
-    function showThankYouMessage(donationData) {
-        const modal = document.createElement('div');
-        modal.className = 'donation-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>🎉 Paldies par ziedojumu!</h2>
-                    <button class="modal-close">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Jūsu ziedojums €${donationData.amount} ir saņemts!</p>
-                    ${donationData.recurring ? '<p><em>Atkārtots ziedojums aktivizēts</em></p>' : ''}
-                    ${donationData.email ? '<p>Apstiprinājums nosūtīts uz jūsu e-pastu.</p>' : ''}
-                    <p>Jūsu atbalsts palīdz mums turpināt mūsu darbu. Paldies!</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="this.closest('.donation-modal').remove()">Aizvērt</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Modal aizvēršanas funkcionalitāte
-        modal.querySelector('.modal-close').addEventListener('click', () => {
-            modal.remove();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
-        
-        // Nodzēš formu
-        if (donationForm) {
-            donationForm.reset();
-            selectedDonationAmount = 0;
-            document.querySelectorAll('.amount-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.amount === 'custom') {
-                    btn.textContent = 'Cita summa';
-                }
-            });
-            updateDonationDisplay();
-        }
-    }
-    
-    // Atkārtotu ziedojumu pārvaldība
-    const recurringCheckbox = document.querySelector('#recurring-donation');
-    if (recurringCheckbox) {
-        recurringCheckbox.addEventListener('change', function() {
-            const recurringInfo = document.querySelector('#recurring-info');
-            if (recurringInfo) {
-                recurringInfo.style.display = this.checked ? 'block' : 'none';
-            }
-        });
-    }
-    
-    // Anonīmo ziedojumu pārvaldība
-    const anonymousCheckbox = document.querySelector('#anonymous-donation');
-    if (anonymousCheckbox) {
-        anonymousCheckbox.addEventListener('change', function() {
-            const nameField = document.querySelector('#donor-name');
-            const emailField = document.querySelector('#donor-email');
-            
-            if (nameField) {
-                nameField.disabled = this.checked;
-            }
-            if (emailField) {
-                emailField.disabled = this.checked;
-            }
-        });
-    }
-    
-    // Inicializācija
-    updateDonationDisplay();
-});
-
-        // Sekciju pārslēgšana
-        function showSection(sectionName) {
-            const sections = document.querySelectorAll('section');
-            sections.forEach(section => section.classList.add('hidden'));
-            
-            document.getElementById(sectionName + 'Section').classList.remove('hidden');
-            
-            if (sectionName === 'pets') {
-                displayPets();
-            } else if (sectionName === 'favorites') {
-                displayFavorites();
-            } else if (sectionName === 'applications') {
-                displayUserApplications();
-            } else if (sectionName === 'events') {
-                displayEvents();
-            } else if (sectionName === 'admin') {
-                displayAdminData();
-                updateStats();
-            }
-        }
-
-        // Modālo logu funkcijas
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-
-        function hideModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Pieslēgšanās
-        function login(event) {
-            event.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const user = users.find(u => u.email === email && u.password === password);
-            
-            if (user) {
-                currentUser = user;
-                updateAuthButtons();
-                hideModal('loginModal');
-                alert('Veiksmīgi pieslēdzies!');
-            } else {
-                alert('Nepareizs e-pasts vai parole!');
-            }
-        }
-
-        // Reģistrācija
-        function register(event) {
-            event.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const surname = document.getElementById('registerSurname').value;
-            const email = document.getElementById('registerEmail').value;
-            const phone = document.getElementById('registerPhone').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                alert('Paroles nesakrīt!');
-                return;
-            }
-            
-            if (users.find(u => u.email === email)) {
-                alert('Lietotājs ar šo e-pastu jau eksistē!');
-                return;
-            }
-            
-            const newUser = {
-                id: users.length + 1,
-                name: name,
-                surname: surname,
-                email: email,
-                phone: phone,
-                password: password,
-                role: 'user',
-                registrationDate: new Date().toISOString().split('T')[0]
-            };
-            
-            users.push(newUser);
-            currentUser = newUser;
-            updateAuthButtons();
-            hideModal('registerModal');
-            alert('Konts veiksmīgi izveidots!');
-        }
-
-        // Izrakstīšanās
-        function logout() {
-            currentUser = null;
-            favorites = [];
-            updateAuthButtons();
-            showSection('home');
-            alert('Tu esi veiksmīgi izrakstījies!');
-        }
-
-        // Autentifikācijas pogu atjaunošana
-        function updateAuthButtons() {
-            const loginBtn = document.querySelector('.btn-secondary');
-            const registerBtn = document.querySelector('.btn-primary');
-            const adminBtn = document.getElementById('adminBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            
-            if (currentUser) {
-                loginBtn.classList.add('hidden');
-                registerBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                
-                if (currentUser.role === 'admin') {
-                    adminBtn.classList.remove('hidden');
-                }
-            } else {
-                loginBtn.classList.remove('hidden');
-                registerBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                adminBtn.classList.add('hidden');
-            }
-        }
-
-        // Dzīvnieku attēlošana
-        function displayPets(filteredPets = null) {
-            const grid = document.getElementById('petsGrid');
-            const petsToShow = filteredPets || pets;
-            
-            grid.innerHTML = '';
-            
-            petsToShow.forEach(pet => {
-                const petCard = createPetCard(pet);
-                grid.appendChild(petCard);
-            });
-        }
-
-        // Dzīvnieka kartes izveide
-        function createPetCard(pet) {
-            const card = document.createElement('div');
-            card.className = 'pet-card';
-            card.style.position = 'relative';
-            
-            const statusClass = pet.status === 'pieejams' ? 'status-available' : 
-                               pet.status === 'rezervēts' ? 'status-reserved' : 'status-adopted';
-            const statusText = pet.status === 'pieejams' ? 'Pieejams' : 
-                              pet.status === 'rezervēts' ? 'Rezervēts' : 'Adoptēts';
-            
-            card.innerHTML = `
-                <button class="favorite-btn ${favorites.includes(pet.id) ? 'active' : ''}" 
-                        onclick="toggleFavorite(${pet.id})">
-                    ${favorites.includes(pet.id) ? '❤️' : '🤍'}
-                </button>
-                <div class="pet-image">${pet.emoji}</div>
-                <div class="pet-info">
-                    <div class="pet-name">${pet.name}</div>
-                    <div class="pet-details">
-                        ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)} • 
-                        ${pet.age === 'mazulis' ? 'Mazulis' : pet.age === 'jauns' ? 'Jauns' : 'Pieaudzis'} • 
-                        ${pet.gender}
-                    </div>
-                    <div class="pet-status ${statusClass}">${statusText}</div>
-                    <p>${pet.description.substring(0, 100)}...</p>
-                </div>
-            `;
-            
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('favorite-btn')) {
-                    showPetDetails(pet);
-                }
-            });
-            
-            return card;
-        }
-
-        // Dzīvnieka detalizētas informācijas rādīšana
-        function showPetDetails(pet) {
-            document.getElementById('petModalName').textContent = pet.name;
-            document.getElementById('donationPetName').textContent = pet.name;
-            currentPetForDonation = pet;
-            
-            const content = document.getElementById('petModalContent');
-            content.innerHTML = `
-                <div style="text-align: center; margin-bottom: 2rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">${pet.emoji}</div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                    <div><strong>Suga:</strong> ${pet.type.charAt(0).toUpperCase() + pet.type.slice(1)}</div>
-                    <div><strong>Vecums:</strong> ${pet.age === 'mazulis' ? 'Mazulis' : pet.age === 'jauns' ? 'Jauns' : 'Pieaudzis'}</div>
-                    <div><strong>Dzimums:</strong> ${pet.gender}</div>
-                    <div><strong>Statuss:</strong> ${pet.status}</div>
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <h3>Apraksts</h3>
-                    <p>${pet.description}</p>
-                </div>
-                <div style="margin-bottom: 2rem;">
-                    <h3>Veselības informācija</h3>
-                    <p>${pet.health}</p>
-                </div>
-            `;
-            
-            showModal('petModal');
-        }
-
-        // Meklēšana
-        function searchPets() {
-            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
-            const filteredPets = pets.filter(pet => 
-                pet.name.toLowerCase().includes(searchTerm) ||
-                pet.description.toLowerCase().includes(searchTerm)
-            );
-            displayPets(filteredPets);
-        }
-
-        // Filtrēšana
-        function filterPets(filterType) {
-            const filters = document.querySelectorAll('.filter-select');
-            let filteredPets = pets;
-            
-            filters.forEach(filter => {
-                const value = filter.value;
-                if (value) {
-                    if (filter.onchange.toString().includes('type')) {
-                        filteredPets = filteredPets.filter(pet => pet.type === value);
-                    } else if (filter.onchange.toString().includes('age')) {
-                        filteredPets = filteredPets.filter(pet => pet.age === value);
-                    }
-                }
-            });
-            
-            displayPets(filteredPets);
-        }
-
-        // Favorītu pārvaldība
-        function toggleFavorite(petId) {
-            if (!currentUser) {
-                alert('Lai pievienotu favorītos, vispirms pieslēdzies!');
-                return;
-            }
-            
-            const index = favorites.indexOf(petId);
-            if (index > -1) {
-                favorites.splice(index, 1);
-            } else {
-                favorites.push(petId);
-            }
-            
-            // Atjaunojam kartes
-            displayPets();
-            if (document.getElementById('favoritesSection').classList.contains('hidden') === false) {
-                displayFavorites();
-            }
-        }
-
-        // Favorītu attēlošana
-        function displayFavorites() {
-            const grid = document.getElementById('favoritesGrid');
-            const favoritePets = pets.filter(pet => favorites.includes(pet.id));
-            
-            if (favoritePets.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; grid-column: 1/-1;">Nav pievienotu favorītu dzīvnieku.</p>';
-                return;
-            }
-            
-            grid.innerHTML = '';
-            favoritePets.forEach(pet => {
-                const petCard = createPetCard(pet);
-                grid.appendChild(petCard);
-            });
-        }
-
-        // Adopcijas pieteikums
-        function submitAdoption(event) {
-            event.preventDefault();
-            
-            if (!currentUser) {
-                alert('Lai pieteiktos adopcijai, vispirms pieslēdzies!');
-                return;
-            }
-            
-            const newApplication = {
-                id: applications.length + 1,
-                userId: currentUser.id,
-                petId: currentPetForDonation.id,
-                status: 'izskatīšanā',
-                date: new Date().toISOString().split('T')[0],
-                address: document.getElementById('adoptAddress').value,
-                housing: document.getElementById('adoptHousing').value,
-                experience: document.getElementById('adoptExperience').value,
-                family: document.getElementById('adoptFamily').value,
-                motivation: document.getElementById('adoptMotivation').value
-            };
-            
-            applications.push(newApplication);
-            hideModal('adoptModal');
-            hideModal('petModal');
-            alert('Pieteikums veiksmīgi nosūtīts! Mēs ar Tevi sazināsimies tuvākajā laikā.');
-            
-            // Notīrām formu
-            document.getElementById('adoptAddress').value = '';
-            document.getElementById('adoptHousing').value = '';
-            document.getElementById('adoptExperience').value = '';
-            document.getElementById('adoptFamily').value = '';
-            document.getElementById('adoptMotivation').value = '';
-        }
-
-        // Lietotāja pieteikumu attēlošana
-        function displayUserApplications() {
-            const table = document.getElementById('applicationsTable');
-            
-            if (!currentUser) {
-                table.innerHTML = '<tr><td colspan="4">Pieslēdzies, lai redzētu savus pieteikumus</td></tr>';
-                return;
-            }
-            
-            const userApplications = applications.filter(app => app.userId === currentUser.id);
-            
-            if (userApplications.length === 0) {
-                table.innerHTML = '<tr><td colspan="4">Nav pieteikumu</td></tr>';
-                return;
-            }
-            
-            table.innerHTML = '';
-            userApplications.forEach(app => {
-                const pet = pets.find(p => p.id === app.petId);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${pet ? pet.name : 'Nav atrasts'}</td>
-                    <td>${app.date}</td>
-                    <td>${app.status}</td>
-                    <td>
-                        <button class="btn btn-secondary" onclick="viewApplication(${app.id})">Skatīt</button>
-                    </td>
-                `;
-                table.appendChild(row);
-            });
-        }
-
-        // Pasākumu attēlošana
-        function displayEvents() {
-            const grid = document.getElementById('eventsGrid');
-            grid.innerHTML = '';
-            
-            events.forEach(event => {
-                const eventCard = document.createElement('div');
-                eventCard.className = 'pet-card';
-                eventCard.innerHTML = `
-                    <div class="pet-image">📅</div>
-                    <div class="pet-info">
-                        <div class="pet-name">${event.title}</div>
-                        <div class="pet-details">
-                            ${event.date} • ${event.time} • ${event.location}
-                        </div>
-                        <p>${event.description}</p>
-                        <button class="btn btn-primary" onclick="registerForEvent(${event.id})" style="width: 100%; margin-top: 1rem;">
-                            Pieteikties
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(eventCard);
-            });
-        }
-
-        // Ziedojumu funkcionalitāte
-document.addEventListener('DOMContentLoaded', function() {
-    let selectedDonationAmount = 0;
-    
-    // Ziedojumu summas pogas
-    document.querySelectorAll('.amount-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            selectedDonationAmount = this.dataset.amount === 'custom' ? 0 : parseInt(this.dataset.amount);
-            
-            if (this.dataset.amount === 'custom') {
-                const customAmount = prompt('Ievadi ziedojuma summu (EUR):');
-                if (customAmount && !isNaN(customAmount) && parseFloat(customAmount) > 0) {
-                    selectedDonationAmount = parseFloat(customAmount);
-                    this.textContent = `€${selectedDonationAmount}`;
-                } else {
-                    // Ja netika ievadīta derīga summa, atceļam izvēli
-                    this.classList.remove('active');
-                    selectedDonationAmount = 0;
-                    this.textContent = 'Cita summa';
-                }
-            }
-            
-            // Atjauno ziedojuma summas displejs
-            updateDonationDisplay();
-        });
-    });
-    
-    // Atjauno ziedojuma summas attēlojumu
-    function updateDonationDisplay() {
-        const displayElement = document.querySelector('#donation-amount-display');
-        if (displayElement) {
-            displayElement.textContent = selectedDonationAmount > 0 ? `€${selectedDonationAmount}` : '€0';
-        }
-        
-        // Aktivizē vai deaktivizē ziedot pogu
-        const donateButton = document.querySelector('#donate-button');
-        if (donateButton) {
-            donateButton.disabled = selectedDonationAmount <= 0;
-            donateButton.classList.toggle('disabled', selectedDonationAmount <= 0);
-        }
-    }
-    
-    // Ziedojuma formas apstrāde
-    const donationForm = document.querySelector('#donation-form');
-    if (donationForm) {
-        donationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (selectedDonationAmount <= 0) {
-                alert('Lūdzu, izvēlieties ziedojuma summu!');
-                return;
-            }
-            
-            // Savāc formas datus
-            const formData = new FormData(donationForm);
-            const donationData = {
-                amount: selectedDonationAmount,
-                name: formData.get('donor-name') || 'Anonīms',
-                email: formData.get('donor-email'),
-                message: formData.get('donor-message'),
-                recurring: formData.get('recurring') === 'on',
-                anonymous: formData.get('anonymous') === 'on'
-            };
-            
-            // Validācija
-            if (!donationData.anonymous && !donationData.name.trim()) {
-                alert('Lūdzu, ievadiet savu vārdu vai izvēlieties anonīmo ziedojumu!');
-                return;
-            }
-            
-            if (donationData.email && !validateEmail(donationData.email)) {
-                alert('Lūdzu, ievadiet derīgu e-pasta adresi!');
-                return;
-            }
-            
-            // Apstrādā ziedojumu
-            processDonation(donationData);
-        });
-    }
-    
-    // E-pasta validācija
-    function validateEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
-    
-    // Ziedojuma apstrāde
-    function processDonation(donationData) {
-        // Rāda loading stāvokli
-        const submitButton = document.querySelector('#donate-button');
-        const originalText = submitButton.textContent;
-        submitButton.textContent = 'Apstrādā...';
-        submitButton.disabled = true;
-        
-        // Simulē API pieprasījumu (aizstāj ar īsto API)
-        setTimeout(() => {
-            try {
-                // Šeit būtu īstais maksājumu sistēmas izsaukums
-                console.log('Ziedojuma dati:', donationData);
-                
-                // Pārvirza uz maksājumu sistēmu vai parāda pateicības ziņojumu
-                showThankYouMessage(donationData);
-                
-            } catch (error) {
-                console.error('Kļūda ziedojuma apstrādē:', error);
-                alert('Radās kļūda ziedojuma apstrādē. Lūdzu, mēģiniet vēlreiz.');
-            } finally {
-                // Atjauno pogu
-                submitButton.textContent = originalText;
-                submitButton.disabled = false;
-            }
-        }, 2000);
-    }
-    
-    // Pateicības ziņojuma attēlošana
-    function showThankYouMessage(donationData) {
-        const modal = document.createElement('div');
-        modal.className = 'donation-modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>🎉 Paldies par ziedojumu!</h2>
-                    <button class="modal-close">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Jūsu ziedojums €${donationData.amount} ir saņemts!</p>
-                    ${donationData.recurring ? '<p><em>Atkārtots ziedojums aktivizēts</em></p>' : ''}
-                    ${donationData.email ? '<p>Apstiprinājums nosūtīts uz jūsu e-pastu.</p>' : ''}
-                    <p>Jūsu atbalsts palīdz mums turpināt mūsu darbu. Paldies!</p>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" onclick="this.closest('.donation-modal').remove()">Aizvērt</button>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Modal aizvēršanas funkcionalitāte
-        modal.querySelector('.modal-close').addEventListener('click', () => {
-            modal.remove();
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
-        
-        // Nodzēš formu
-        if (donationForm) {
-            donationForm.reset();
-            selectedDonationAmount = 0;
-            document.querySelectorAll('.amount-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.amount === 'custom') {
-                    btn.textContent = 'Cita summa';
-                }
-            });
-            updateDonationDisplay();
-        }
-    }
-    
-    // Atkārtotu ziedojumu pārvaldība
-    const recurringCheckbox = document.querySelector('#recurring-donation');
-    if (recurringCheckbox) {
-        recurringCheckbox.addEventListener('change', function() {
-            const recurringInfo = document.querySelector('#recurring-info');
-            if (recurringInfo) {
-                recurringInfo.style.display = this.checked ? 'block' : 'none';
-            }
-        });
-    }
-    
-    // Anonīmo ziedojumu pārvaldība
-    const anonymousCheckbox = document.querySelector('#anonymous-donation');
-    if (anonymousCheckbox) {
-        anonymousCheckbox.addEventListener('change', function() {
-            const nameField = document.querySelector('#donor-name');
-            const emailField = document.querySelector('#donor-email');
-            
-            if (nameField) {
-                nameField.disabled = this.checked;
-            }
-            if (emailField) {
-                emailField.disabled = this.checked;
-            }
-        });
-    }
-    
-    // Inicializācija
-    updateDonationDisplay();
-});
-    </script>
-
-    <!-- Pievienoju CSS stilus footer hover efektiem -->
-    <style>
-        footer a:hover {
-            color: #667eea !important;
-        }
-        
-        @media (max-width: 768px) {
-            footer .container > div {
-                grid-template-columns: 1fr !important;
-                text-align: center;
-            }
-            
-            footer .container > div:last-child > div {
-                flex-direction: column !important;
-                text-align: center;
-            }
-        }
-    </style>
 </body>
 </html>
