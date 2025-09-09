@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasākumi - SirdsPaws</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">SirdsPaws</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Sākums</a></li>
+                <li><a href="pets.html">Dzīvnieki</a></li>
+                <li><a href="favorites.html">Favorīti</a></li>
+                <li><a href="applications.html">Mani pieteikumi</a></li>
+                <li><a href="events.html" class="active">Pasākumi</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="login.html" class="btn btn-secondary">Pieslēgties</a>
+                <a href="register.html" class="btn btn-primary">Reģistrēties</a>
+                <button id="adminBtn" class="btn btn-primary hidden" onclick="window.location.href='admin.html'">Admin</button>
+                <button id="logoutBtn" class="btn btn-secondary hidden" onclick="logout()">Iziet</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="main-content">
+            <div class="hero">
+                <h1>Gaidāmie pasākumi</h1>
+                <p>Pieslēdzies mūsu pasākumiem un atbalsti dzīvniekus</p>
+            </div>
+            <div class="admin-content">
+                <div class="pets-grid" id="eventsGrid"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            displayEvents();
+            updateAuthButtons();
+        });
+    </script>
+</body>
+</html>
