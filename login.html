@@ -8,46 +8,25 @@
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <header class="main-header">
-    <div class="container nav-container">
-      <a href="index.html" class="logo">🐾 SirdsPaws</a>
-
-      <nav>
-        <ul class="nav-links">
-          <li><a href="index.html">Sākums</a></li>
-          <li><a href="pets.html">Dzīvnieki</a></li>
-          <li><a href="favorites.html">Favorīti</a></li>
-          <li><a href="applications.html">Mani pieteikumi</a></li>
-          <li><a href="events.html">Pasākumi</a></li>
-        </ul>
-      </nav>
-
-      <div class="auth-links">
-        <a href="register.html">Reģistrēties</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- ===== LOGIN FORM ===== -->
-  <section class="auth-hero">
+  <section class="auth-section">
     <div class="auth-container">
       <div class="auth-card">
         <h2>Pieslēgties</h2>
         <p class="auth-subtitle">Ievadi savu e-pastu un paroli, lai turpinātu</p>
 
-        <form onsubmit="login(event)" class="auth-form">
+        <!-- Forma sūta datus uz login.php -->
+        <form action="login.php" method="POST" class="auth-form">
           <div class="form-group">
-            <label for="loginEmail">E-pasts</label>
-            <input type="email" id="loginEmail" placeholder="ievadi savu e-pastu" required>
+            <label for="epasts">E-pasts</label>
+            <input type="email" id="epasts" name="epasts" placeholder="ievadi savu e-pastu" required>
           </div>
 
           <div class="form-group">
-            <label for="loginPassword">Parole</label>
-            <input type="password" id="loginPassword" placeholder="ievadi paroli" required>
+            <label for="parole">Parole</label>
+            <input type="password" id="parole" name="parole" placeholder="ievadi paroli" required>
           </div>
 
-          <button type="submit" class="btn btn-primary full-width">Pieslēgties</button>
+          <button type="submit" class="btn-primary">Pieslēgties</button>
         </form>
 
         <p class="auth-footer">
@@ -57,10 +36,5 @@
     </div>
   </section>
 
-  <footer class="auth-footer-section">
-    <p>© 2025 SirdsPaws. Ar mīlestību pret dzīvniekiem 🐾</p>
-  </footer>
-
-  <script src="script.js"></script>
 </body>
 </html>

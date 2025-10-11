@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["epasts"] = $epasts;
         $_SESSION["admin"] = 0;
 
-        echo "<script>alert('✅ Reģistrācija veiksmīga!'); window.location.href = 'index.html';</script>";
+        header("Location: index.php");
         exit;
     } else {
         echo "<script>alert('❌ Kļūda saglabājot lietotāju: " . $conn->error . "'); window.history.back();</script>";

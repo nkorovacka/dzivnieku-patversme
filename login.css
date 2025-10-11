@@ -10,64 +10,9 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-}
-
-/* ===== HEADER ===== */
-header {
-  background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem 0;
-  position: relative;
-  z-index: 2;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #6366f1;
-}
-
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-links a {
-  color: #475569;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 10px;
-  transition: 0.2s;
-}
-
-.nav-links a:hover {
-  background: #f1f5ff;
-  color: #6366f1;
-}
-
-.auth-links a {
-  color: white;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.auth-links a:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
 }
 
 /* ===== LOGIN SEKCIJA ===== */
@@ -76,18 +21,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4rem 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* ✅ šis nodrošina, ka forma ir vertikāli centrā zem header */
-.auth-container {
+  padding: 3rem 1rem;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 100px); /* atņem header augstumu */
 }
 
 /* ===== LOGIN KARTE ===== */
@@ -100,7 +35,18 @@ header {
   width: 100%;
   text-align: center;
   position: relative;
-  z-index: 3;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-card h2 {
@@ -117,9 +63,13 @@ header {
 }
 
 /* ===== FORMA ===== */
-.form-group {
+.auth-form {
   text-align: left;
-  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 1.3rem;
 }
 
 .form-group label {
@@ -127,6 +77,7 @@ header {
   color: #475569;
   font-weight: 600;
   margin-bottom: 0.4rem;
+  font-size: 0.95rem;
 }
 
 .form-group input {
@@ -153,7 +104,7 @@ header {
   font-weight: 600;
   border: none;
   border-radius: 10px;
-  padding: 0.8rem 0;
+  padding: 0.9rem 0;
   cursor: pointer;
   transition: 0.2s;
   font-size: 1rem;
@@ -169,26 +120,17 @@ header {
   margin-top: 1.5rem;
   color: #475569;
   font-size: 0.95rem;
+  text-align: center;
 }
 
 .auth-footer a {
   color: #6366f1;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .auth-footer a:hover {
   text-decoration: underline;
-}
-
-/* ===== LAPAS FOOTER ===== */
-footer {
-  background: #1e293b;
-  color: #cbd5e1;
-  text-align: center;
-  padding: 1.5rem 0;
-  font-size: 0.9rem;
-  z-index: 2;
-  position: relative;
 }
 
 /* ===== RESPONSIVE ===== */

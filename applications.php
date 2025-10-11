@@ -1,9 +1,24 @@
+<?php
+session_start();
+
+if (!isset($_SESSION["lietotajvards"])) {
+    echo "<script>alert(' Lai skatītu savus pieteikumus, lūdzu, pieslēdzies!'); window.location.href='login.php';</script>";
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="lv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mani pieteikumi — SirdsPaws</title>
+  <style>
+    /* — TAVS STILS PALIEK TĀDS PATS — */
+  </style>
+</head>
+<body>
+
   <style>
     * {
       margin: 0;
@@ -529,28 +544,9 @@
   </style>
 </head>
 <body>
-
+<?php include 'navbar.php'; ?>
   <!-- ===== HEADER ===== -->
-  <header class="main-header">
-    <div class="container nav-container">
-      <a href="index.html" class="logo">🐾 SirdsPaws</a>
-
-      <nav>
-        <ul class="nav-links">
-          <li><a href="index.html">Sākums</a></li>
-          <li><a href="animals.html">Dzīvnieki</a></li>
-          <li><a href="favorites.html">Favorīti</a></li>
-          <li><a class="active" href="applications.html">Mani pieteikumi</a></li>
-          <li><a href="events.html">Pasākumi</a></li>
-        </ul>
-      </nav>
-
-      <div class="auth-links">
-        <a href="login.html">Pieslēgties</a>
-        <a href="register.html">Reģistrēties</a>
-      </div>
-    </div>
-  </header>
+  
 
   <!-- ===== HERO ===== -->
   <section class="small-hero">
