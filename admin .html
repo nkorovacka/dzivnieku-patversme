@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin panelis - SirdsPaws</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">SirdsKepa</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Sākums</a></li>
+                <li><a href="pets.html">Dzīvnieki</a></li>
+                <li><a href="events.html">Pasākumi</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <button id="logoutBtn" class="btn btn-secondary" onclick="logout()">Iziet</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="main-content admin-panel">
+            <div class="admin-header">
+                <h1>Administratora panelis</h1>
+                <p>Pārvaldi dzīvniekus, lietotājus un pieteikumus</p>
+            </div>
+            <div class="admin-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalPets">0</div>
+                        <div>Kopā dzīvnieku</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="availablePets">0</div>
+                        <div>Pieejami adopcijai</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="adoptedPets">0</div>
+                        <div>Adoptēti</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="pendingApplications">0</div>
+                        <div>Gaida apstiprināšanu</div>
+                    </div>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="showAdminTab('pets')">Dzīvnieku pārvaldība</button>
+                    <button class="admin-tab" onclick="showAdminTab('applications')">Pieteikumi</button>
+                    <button class="admin-tab" onclick="showAdminTab('users')">Lietotāji</button>
+                    <button class="admin-tab" onclick="showAdminTab('events')">Pasākumi</button>
+                </div>
+
+                <div id="adminPetsTab" class="tab-content active">
+                    <button class="btn btn-primary" onclick="showModal('addPetModal')" style="margin-bottom: 1rem;">Pievienot dzīvnieku</button>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vārds</th>
+                                <th>Suga</th>
+                                <th>Vecums</th>
+                                <th>Statuss</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPetsTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminApplicationsTab" class="tab-content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Lietotājs</th>
+                                <th>Dzīvnieks</th>
+                                <th>Datums</th>
+                                <th>Statuss</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminApplicationsTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminUsersTab" class="tab-content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vārds</th>
+                                <th>E-pasts</th>
+                                <th>Reģistrācijas datums</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTable"></tbody>
+                    </table>
+                </div>
+
+                <div id="adminEventsTab" class="tab-content">
+                    <button class="btn btn-primary" onclick="showModal('addEventModal')" style="margin-bottom: 1rem;">Pievienot pasākumu</button>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nosaukums</th>
+                                <th>Datums</th>
+                                <th>Vieta</th>
+                                <th>Darbības</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminEventsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Admin modālie logi -->
+    <div id="addPetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('addPetModal')">&times;</span>
+                <h2>Pievienot jaunu dzīvnieku</h2>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="addPet(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Vārds:</label>
+                            <input type="text" id="petName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Suga:</label>
+                            <select id="petType" required>
+                                <option value="">Izvēlies...</option>
+                                <option value="suns">Suns</option>
+                                <option value="kaķis">Kaķis</option>
+                                <option value="trusis">Trusis</option>
+                                <option value="cits">Cits</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Vecums:</label>
+                            <input type="text" id="petAge" placeholder="piem. 2 gadi" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Dzimums:</label>
+                            <select id="petGender" required>
+                                <option value="">Izvēlies...</option>
+                                <option value="tēviņš">Tēviņš</option>
+                                <option value="mātīte">Mātīte</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Apraksts:</label>
+                        <textarea id="petDescription" rows="4" placeholder="Apraksti dzīvnieka raksturu un īpašības..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Veselības stāvoklis:</label>
+                        <textarea id="petHealth" rows="3" placeholder="Informācija par veselību, vakcinācijām utt."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Statuss:</label>
+                        <select id="petStatus" required>
+                            <option value="pieejams">Pieejams adopcijai</option>
+                            <option value="rezervēts">Rezervēts</option>
+                            <option value="adoptēts">Adoptēts</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pievienot dzīvnieku</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close" onclick="hideModal('addEventModal')">&times;</span>
+                <h2>Pievienot jaunu pasākumu</h2>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="addEvent(event)">
+                    <div class="form-group">
+                        <label>Pasākuma nosaukums:</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Datums:</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Laiks:</label>
+                            <input type="time" id="eventTime" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Vieta:</label>
+                        <input type="text" id="eventLocation" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Apraksts:</label>
+                        <textarea id="eventDescription" rows="4" placeholder="Apraksti pasākumu..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Pievienot pasākumu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pārbauda vai lietotājs ir admin
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert('Nav piekļuves tiesību!');
+                window.location.href = 'index.html';
+                return;
+            }
+            displayAdminData();
+            updateStats();
+            updateAuthButtons();
+        });
+    </script>
+</body>
+</html>

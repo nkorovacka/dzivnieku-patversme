@@ -1,0 +1,203 @@
+/* ===== BĀZES ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+}
+
+/* ===== HEADER ===== */
+header {
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-links a {
+  color: #475569;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  background: #f1f5ff;
+  color: #6366f1;
+}
+
+.auth-links a {
+  color: white;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.auth-links a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+}
+
+/* ===== LOGIN SEKCIJA ===== */
+.auth-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ✅ šis nodrošina, ka forma ir vertikāli centrā zem header */
+.auth-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 100px); /* atņem header augstumu */
+}
+
+/* ===== LOGIN KARTE ===== */
+.auth-card {
+  background: #fff;
+  padding: 3rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 3;
+}
+
+.auth-card h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* ===== FORMA ===== */
+.form-group {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  color: #475569;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+/* ===== POGA ===== */
+.btn-primary {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 0;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 1rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+/* ===== TEKSTS APAKŠĀ ===== */
+.auth-footer {
+  margin-top: 1.5rem;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.auth-footer a {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===== LAPAS FOOTER ===== */
+footer {
+  background: #1e293b;
+  color: #cbd5e1;
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: 0.9rem;
+  z-index: 2;
+  position: relative;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 2rem;
+  }
+
+  .auth-card h2 {
+    font-size: 1.6rem;
+  }
+}
