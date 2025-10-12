@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dzīvnieku patversme</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1>Dzīvnieku patversme</h1>
+            <div class="nav-links">
+                <a href="index.html">Sākums</a>
+                <a href="pets.html">Dzīvnieki</a>
+                <a href="applications.html">Pieteikumi</a>
+                <a href="login.html">Pieslēgties</a>
+                <button id="adminBtn" class="admin-btn" style="display: none;">Admin panelis</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Laipni lūdzam dzīvnieku patversmē!</h2>
+            <p>Mēs palīdzam dzīvniekiem atrast jaunas mājas</p>
+        </section>
+    </main>
+
+    <script>
+        // Check if user is admin
+        fetch('check_session.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.isAdmin) {
+                    document.getElementById('adminBtn').style.display = 'block';
+                    document.getElementById('adminBtn').addEventListener('click', () => {
+                        window.location.href = 'admin.html';
+                    });
+                }
+            });
+    </script>
+</body>
+</html>
