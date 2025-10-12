@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dzīvnieki - SirdsPaws</title>
     <style>
-        /* Основные стили */
         * {
             margin: 0;
             padding: 0;
@@ -19,75 +18,130 @@
             line-height: 1.6;
         }
 
-        /* Header и Navigation */
-        header {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        nav {
+        /* ==========================
+           HEADER
+        ========================== */
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .main-header::after {
+            content: "";
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
+        }
+
+        .nav-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 20px 32px;
+            min-height: 80px;
+            flex-wrap: nowrap;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 28px;
+            font-weight: 700;
+            color: #6366f1;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: transform 0.2s;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .logo::before {
-            content: "🐾";
-            font-size: 2rem;
-            -webkit-text-fill-color: initial;
+        .logo:hover {
+            transform: scale(1.05);
         }
 
         .nav-links {
-            display: flex;
             list-style: none;
-            gap: 0.5rem;
+            display: flex;
+            gap: 24px;
+            margin: 0;
+            padding: 0;
+            flex: 1;
+            justify-content: center;
         }
 
         .nav-links a {
+            color: #475569;
             text-decoration: none;
-            color: #555;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            padding: 0.7rem 1.3rem;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
         }
 
         .nav-links a:hover {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.08);
-            transform: translateY(-2px);
+            background: #f1f5ff;
+            color: #6366f1;
         }
 
         .nav-links a.active {
-            color: white;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
         }
 
-        .auth-buttons {
+        /* ===== AUTH LINKS ===== */
+        .auth-links {
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
         }
 
-        /* Buttons */
+        .auth-links a {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .auth-links a:first-child {
+            color: #6366f1;
+            border: 2px solid #6366f1;
+        }
+
+        .auth-links a:last-child {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+            border: none;
+        }
+
+        .auth-links a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ==========================
+           BUTTONS
+        ========================== */
         .btn {
             padding: 0.7rem 1.5rem;
             border: none;
@@ -111,35 +165,33 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-secondary {
-            background: white;
+        .btn-adopt {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-favorite {
+            background: #f8f9ff;
             color: #667eea;
             border: 2px solid #667eea;
         }
 
-        .btn-secondary:hover {
+        .btn-favorite.favorited {
             background: #667eea;
             color: white;
-            transform: translateY(-2px);
         }
 
-        /* Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
+        /* ==========================
+           MAIN CONTENT
+        ========================== */
         .main-content {
             padding: 2rem 0;
             min-height: calc(100vh - 200px);
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* Search Section */
+        /* ==========================
+           SEARCH SECTION
+        ========================== */
         .search-section {
             background: white;
             padding: 2rem;
@@ -187,14 +239,18 @@
             color: #555;
         }
 
-        /* Pets Grid */
+        /* ==========================
+           PETS GRID
+        ========================== */
         .pets-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
         }
 
-        /* Pet Card */
+        /* ==========================
+           PET CARD
+        ========================== */
         .pet-card {
             background: white;
             border-radius: 20px;
@@ -302,23 +358,9 @@
             font-size: 0.9rem;
         }
 
-        .btn-adopt {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-favorite {
-            background: #f8f9ff;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-favorite.favorited {
-            background: #667eea;
-            color: white;
-        }
-
-        /* Modal */
+        /* ==========================
+           MODAL
+        ========================== */
         .modal {
             display: none;
             position: fixed;
@@ -403,7 +445,9 @@
             padding: 2.5rem;
         }
 
-        /* Form */
+        /* ==========================
+           FORMS
+        ========================== */
         .form-group {
             margin-bottom: 1.8rem;
         }
@@ -443,7 +487,9 @@
             min-height: 100px;
         }
 
-        /* Pet Modal Details */
+        /* ==========================
+           PET MODAL DETAILS
+        ========================== */
         .pet-modal-image {
             width: 100%;
             height: 400px;
@@ -484,7 +530,9 @@
             font-weight: 700;
         }
 
-        /* Empty State */
+        /* ==========================
+           EMPTY STATE
+        ========================== */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -507,7 +555,99 @@
             font-size: 1.1rem;
         }
 
-        /* Responsive Design */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==========================
+           FOOTER
+        ========================== */
+        footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 3rem 0 1rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .footer-section h4 {
+            color: white;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section p,
+        .footer-section div {
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            color: #b8b8c8;
+        }
+
+        .footer-section a {
+            color: #b8b8c8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            text-align: center;
+            color: #b8b8c8;
+        }
+
+        .footer-bottom p {
+            margin: 0;
+        }
+
+        /* ==========================
+           RESPONSIVE DESIGN
+        ========================== */
+        @media (max-width: 900px) {
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 16px;
+                order: 3;
+                width: 100%;
+            }
+
+            .auth-links {
+                justify-content: center;
+                width: 100%;
+                order: 4;
+                gap: 10px;
+            }
+
+            .logo {
+                order: 1;
+            }
+        }
+
         @media (max-width: 1024px) {
             .pets-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -516,10 +656,6 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
             .search-container {
                 grid-template-columns: 1fr;
                 gap: 0.8rem;
@@ -551,6 +687,11 @@
             .pet-actions {
                 flex-direction: column;
             }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -558,11 +699,7 @@
                 font-size: 1.4rem;
             }
 
-            .auth-buttons {
-                gap: 0.5rem;
-            }
-
-            .auth-buttons .btn {
+            .auth-links a {
                 padding: 0.6rem 1rem;
                 font-size: 0.85rem;
             }
@@ -578,23 +715,23 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <div class="logo">SirdsKepa</div>
+    <header class="main-header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🐾 SirdsPaws</a>
+            
             <ul class="nav-links">
-                <li><a href="index.html">Sākums</a></li>
-                <li><a href="pets.html" class="active">Dzīvnieki</a></li>
-                <li><a href="favorites.html">Favorīti</a></li>
-                <li><a href="applications.html">Mani pieteikumi</a></li>
-                <li><a href="events.html">Pasākumi</a></li>
+                <li><a href="/index.php">Sākums</a></li>
+                <li><a href="./pets.html" class="active">Dzīvnieki</a></li>
+                <li><a href="./favorites.html">Favorīti</a></li>
+                <li><a href="./applications.html">Mani pieteikumi</a></li>
+                <li><a href="./events.html">Pasākumi</a></li>
             </ul>
-            <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Pieslēgties</a>
-                <a href="register.html" class="btn btn-primary">Reģistrēties</a>
-                <button id="adminBtn" class="btn btn-primary hidden" onclick="window.location.href='admin.html'">Admin</button>
-                <button id="logoutBtn" class="btn btn-secondary hidden" onclick="logout()">Iziet</button>
-            </div>
-        </nav>
+
+            <ul class="auth-links">
+                <li><a href="./login.html">Pieslēgties</a></li>
+                <li><a href="./register.html">Reģistrēties</a></li>
+            </ul>
+        </div>
     </header>
 
     <main class="container">
@@ -620,7 +757,7 @@
         </section>
     </main>
 
-    <!-- Dzīvnieka profila modalais logs -->
+     
     <div id="petModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -631,7 +768,7 @@
         </div>
     </div>
 
-    <!-- Adopcijas pieteikuma modalais logs -->
+      
     <div id="adoptModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -671,195 +808,149 @@
         </div>
     </div>
 
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>🐾 SirdsPaws</h3>
+                    <p>Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Kontakti</h4>
+                    <div>📍 Daugavgrīvas iela 123, Rīga</div>
+                    <div>📞 +371 26 123 456</div>
+                    <div>✉️ info@sirdspaws.lv</div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Saites</h4>
+                    <div><a href="pets.html">Dzīvnieki</a></div>
+                    <div><a href="events.html">Pasākumi</a></div>
+                    <div><a href="register.html">Reģistrēties</a></div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Darba laiks</h4>
+                    <div>P-Pk: 9:00 - 18:00</div>
+                    <div>S: 10:00 - 16:00</div>
+                    <div>Sv: 10:00 - 14:00</div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // Примеры данных о животных
-const samplePets = [
-    {
-        id: 1,
-        name: 'Reksīts',
-        type: 'suns',
-        age: '2 gadi',
-        breed: 'Labradoru retrivers',
-        gender: 'Tēviņš',
-        description: 'Draudzīgs un enerģisks suns, kas mīl spēlēties un iet pastaigās.',
-        emoji: '🐕'
-    },
-    {
-        id: 2,
-        name: 'Minka',
-        type: 'kaķis',
-        age: '1 gads',
-        breed: 'Britu īsspalvainā',
-        gender: 'Mātīte',
-        description: 'Maiga un mīļa kaķīte, kas mīl gulēt un ļauties.',
-        emoji: '🐱'
-    },
-    {
-        id: 3,
-        name: 'Bounce',
-        type: 'trusis',
-        age: '6 mēneši',
-        breed: 'Holandes pundurtrušis',
-        gender: 'Tēviņš',
-        description: 'Aktīvs un ziņkārīgs trušītis, kas mīl burkānus un zaļumus.',
-        emoji: '🐰'
-    },
-    {
-        id: 4,
-        name: 'Bella',
-        type: 'suns',
-        age: '5 gadi',
-        breed: 'Vācu aitu suns',
-        gender: 'Mātīte',
-        description: 'Uzticīga un gudra suņa meitene, lieliski piemērota ģimenēm ar bērniem.',
-        emoji: '🐕'
-    },
-    {
-        id: 5,
-        name: 'Pusītis',
-        type: 'kaķis',
-        age: '3 gadi',
-        breed: 'Maine Coon',
-        gender: 'Tēviņš',
-        description: 'Liels un mīlīgs kaķis ar maigu raksturu, mīl uzmanību.',
-        emoji: '🐱'
-    },
-    {
-        id: 6,
-        name: 'Luna',
-        type: 'kaķis',
-        age: '4 mēneši',
-        breed: 'Persiešu kaķis',
-        gender: 'Mātīte',
-        description: 'Rotaļīga un jautra kaķēns, kas meklē mīlošu māju.',
-        emoji: '🐱'
-    },
-    {
-        id: 7,
-        name: 'Makss',
-        type: 'suns',
-        age: '7 gadi',
-        breed: 'Bīgls',
-        gender: 'Tēviņš',
-        description: 'Mierīgs un piedzīvojis suns, kas mīl ilgas pastaigās un smaržot.',
-        emoji: '🐕'
-    },
-    {
-        id: 8,
-        name: 'Sniegpārsliņa',
-        type: 'trusis',
-        age: '1 gads',
-        breed: 'Lionhead trusis',
-        gender: 'Mātīte',
-        description: 'Baltā un pūkaina trušīte ar lielām ausīm, ļoti sociāla.',
-        emoji: '🐰'
-    },
-    {
-        id: 9,
-        name: 'Čārlis',
-        type: 'suns',
-        age: '3 gadi',
-        breed: 'Franču buldogs',
-        gender: 'Tēviņš',
-        description: 'Kompakts un mīļš sunītis, ideāls dzīvoklim.',
-        emoji: '🐕'
-    },
-    {
-        id: 10,
-        name: 'Zosja',
-        type: 'kaķis',
-        age: '6 gadi',
-        breed: 'Siāmas kaķis',
-        gender: 'Mātīte',
-        description: 'Eleganta un runīga kaķene, kas mīl būt uzmanības centrā.',
-        emoji: '🐱'
-    },
-    {
-        id: 11,
-        name: 'Tedijs',
-        type: 'suns',
-        age: '1 gads',
-        breed: 'Zeltainais retrivers',
-        gender: 'Tēviņš',
-        description: 'Ļoti draudzīgs un enerģisks jauneklis, mīl ūdeni un peldēšanu.',
-        emoji: '🐕'
-    },
-    {
-        id: 12,
-        name: 'Pūkainītis',
-        type: 'trusis',
-        age: '8 mēneši',
-        breed: 'Angoras trusis',
-        gender: 'Tēviņš',
-        description: 'Ļoti pūkains un maigs trusis, nepieciešama regulāra kopšana.',
-        emoji: '🐰'
-    },
-    {
-        id: 13,
-        name: 'Dzintars',
-        type: 'kaķis',
-        age: '2 gadi',
-        breed: 'Oranžais tabby',
-        gender: 'Tēviņš',
-        description: 'Rotaļīgs un draudzīgs rūsganais kaķis, kas mīl medīt rotaļlietas.',
-        emoji: '🐱'
-    },
-    {
-        id: 14,
-        name: 'Daisy',
-        type: 'suns',
-        age: '4 gadi',
-        breed: 'Kokerspaniels',
-        gender: 'Mātīte',
-        description: 'Skaista un maiga suņa meitene ar garām ausīm un lielām acīm.',
-        emoji: '🐕'
-    },
-    {
-        id: 15,
-        name: 'Muris',
-        type: 'kaķis',
-        age: '5 gadi',
-        breed: 'Krievu zilā',
-        gender: 'Tēviņš',
-        description: 'Klusais un neatkarīgais kaķis ar skaisti pelēku kažoku.',
-        emoji: '🐱'
-    },
-    {
-        id: 16,
-        name: 'Lotte',
-        type: 'trusis',
-        age: '2 gadi',
-        breed: 'Mini Lop',
-        gender: 'Mātīte',
-        description: 'Maza un mīļa trušīte ar karājošām ausīm, ļoti sabiedriska.',
-        emoji: '🐰'
-    },
-    {
-        id: 17,
-        name: 'Bruno',
-        type: 'suns',
-        age: '6 gadi',
-        breed: 'Bokseris',
-        gender: 'Tēviņš',
-        description: 'Spēcīgs un uzticīgs suns, labs sargātājs un ģimenes draugs.',
-        emoji: '🐕'
-    },
-    {
-        id: 18,
-        name: 'Smilga',
-        type: 'kaķis',
-        age: '3 mēneši',
-        breed: 'Savvaļas krāsas kaķēns',
-        gender: 'Mātīte',
-        description: 'Mazs un rotaļīgs kaķēns, kas meklē pirmo māju.',
-        emoji: '🐱'
-    }
-];
+        const samplePets = [
+            {
+                id: 1,
+                name: 'Reksīts',
+                type: 'suns',
+                age: '2 gadi',
+                breed: 'Labradoru retrivers',
+                gender: 'Tēviņš',
+                description: 'Draudzīgs un enerģisks suns, kas mīl spēlēties un iet pastaigās.',
+                emoji: '🐕'
+            },
+            {
+                id: 2,
+                name: 'Minka',
+                type: 'kaķis',
+                age: '1 gads',
+                breed: 'Britu īsspalvainā',
+                gender: 'Mātīte',
+                description: 'Maiga un mīļa kaķīte, kas mīl gulēt un ļauties.',
+                emoji: '🐱'
+            },
+            {
+                id: 3,
+                name: 'Bounce',
+                type: 'trusis',
+                age: '6 mēneši',
+                breed: 'Holandes pundurtrušis',
+                gender: 'Tēviņš',
+                description: 'Aktīvs un ziņkārīgs trušītis, kas mīl burkānus un zaļumus.',
+                emoji: '🐰'
+            },
+            {
+                id: 4,
+                name: 'Bella',
+                type: 'suns',
+                age: '5 gadi',
+                breed: 'Vācu aitu suns',
+                gender: 'Mātīte',
+                description: 'Uzticīga un gudra suņa meitene, lieliski piemērota ģimenēm ar bērniem.',
+                emoji: '🐕'
+            },
+            {
+                id: 5,
+                name: 'Pusītis',
+                type: 'kaķis',
+                age: '3 gadi',
+                breed: 'Maine Coon',
+                gender: 'Tēviņš',
+                description: 'Liels un mīlīgs kaķis ar maigu raksturu, mīl uzmanību.',
+                emoji: '🐱'
+            },
+            {
+                id: 6,
+                name: 'Luna',
+                type: 'kaķis',
+                age: '4 mēneši',
+                breed: 'Persiešu kaķis',
+                gender: 'Mātīte',
+                description: 'Rotaļīga un jautra kaķēns, kas meklē mīlošu māju.',
+                emoji: '🐱'
+            },
+            {
+                id: 7,
+                name: 'Makss',
+                type: 'suns',
+                age: '7 gadi',
+                breed: 'Bīgls',
+                gender: 'Tēviņš',
+                description: 'Mierīgs un piedzīvojis suns, kas mīl ilgas pastaigās un smaržot.',
+                emoji: '🐕'
+            },
+            {
+                id: 8,
+                name: 'Sniegpārsliņa',
+                type: 'trusis',
+                age: '1 gads',
+                breed: 'Lionhead trusis',
+                gender: 'Mātīte',
+                description: 'Baltā un pūkaina trušīte ar lielām ausīm, ļoti sociāla.',
+                emoji: '🐰'
+            },
+            {
+                id: 9,
+                name: 'Čārlis',
+                type: 'suns',
+                age: '3 gadi',
+                breed: 'Franču buldogs',
+                gender: 'Tēviņš',
+                description: 'Kompakts un mīļš sunītis, ideāls dzīvoklim.',
+                emoji: '🐕'
+            },
+            {
+                id: 10,
+                name: 'Zosja',
+                type: 'kaķis',
+                age: '6 gadi',
+                breed: 'Siāmas kaķis',
+                gender: 'Mātīte',
+                description: 'Eleganta un runīga kaķene, kas mīl būt uzmanības centrā.',
+                emoji: '🐱'
+            }
+        ];
 
-let allPets = [...samplePets];
-let currentFilters = { type: '', age: '', search: '' };
+        let allPets = [...samplePets];
+        let currentFilters = { type: '', age: '', search: '' };
 
-        // Показать животных
         function displayPets() {
             const grid = document.getElementById('petsGrid');
             const filteredPets = filterPetsList();
@@ -898,7 +989,6 @@ let currentFilters = { type: '', age: '', search: '' };
             `).join('');
         }
 
-        
         function filterPetsList() {
             return allPets.filter(pet => {
                 const matchType = !currentFilters.type || pet.type === currentFilters.type;
@@ -923,7 +1013,6 @@ let currentFilters = { type: '', age: '', search: '' };
             displayPets();
         }
 
-        // Показать детали животного
         function showPetDetails(petId) {
             const pet = allPets.find(p => p.id === petId);
             if (!pet) return;
@@ -1000,27 +1089,14 @@ let currentFilters = { type: '', age: '', search: '' };
             document.getElementById(modalId).style.display = 'none';
         }
 
-        function updateAuthButtons() {
-            // Эта функция будет обновлять кнопки авторизации
-            // В реальном приложении здесь будет проверка статуса пользователя
-        }
-
-        function logout() {
-            alert('Вы вышли из системы');
-            updateAuthButtons();
-        }
-
-        // Закрытие модального окна при клике вне его
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
         }
 
-        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', function() {
             displayPets();
-            updateAuthButtons();
         });
     </script>
 </body>
