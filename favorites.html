@@ -4,27 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favorīti - SirdsKepa</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <div class="logo">SirdsPaws</div>
-            <ul class="nav-links">
-                <li><a href="index.php">Sākums</a></li>
-                <li><a href="pets.html">Dzīvnieki</a></li>
-                <li><a href="favorites.html" class="active">Favorīti</a></li>
-                <li><a href="applications.html">Mani pieteikumi</a></li>
-                <li><a href="events.html">Pasākumi</a></li>
-            </ul>
-            <div class="auth-buttons">
-                <a href="login.html" class="btn btn-secondary">Pieslēgties</a>
-                <a href="register.html" class="btn btn-primary">Reģistrēties</a>
-                <button id="adminBtn" class="btn btn-primary hidden" onclick="window.location.href='admin.html'">Admin</button>
-                <button id="logoutBtn" class="btn btn-secondary hidden" onclick="logout()">Iziet</button>
+    <!-- Header sākums -->
+    <header class="main-header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">🐾 SirdsPaws</a>
+
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html" class="active">Sākums</a></li>
+                    <li><a href="pets.html">Dzīvnieki</a></li>
+                    <li><a href="favorites.html">Favorīti</a></li>
+                    <li><a href="applications.html">Mani pieteikumi</a></li>
+                    <li><a href="events.html">Pasākumi</a></li>
+                </ul>
+            </nav>
+
+            <div class="auth-links">
+                <a href="login.html">Pieslēgties</a>
+                <a href="register.html">Reģistrēties</a>
             </div>
-        </nav>
+        </div>
     </header>
+    <!-- Header beigas -->
 
     <main class="container">
         <section class="main-content">
@@ -32,16 +36,81 @@
                 <h1>Mani favorītie dzīvnieki</h1>
                 <p>Šeit Tu vari redzēt visus dzīvniekus, kurus esi pievienojis favorītos</p>
             </div>
-            <div class="pets-grid" id="favoritesGrid"></div>
+
+            <!-- Favorītu dzīvnieku attēlojums -->
+            <div class="pets-grid">
+                <div class="pet-card">
+                    <img src="images/cat1.jpg" alt="Kaķis" />
+                    <h3>Riks</h3>
+                    <p>Kaķis</p>
+                </div>
+                <div class="pet-card">
+                    <img src="images/dog1.jpg" alt="Suns" />
+                    <h3>Baksis</h3>
+                    <p>Suns</p>
+                </div>
+                <div class="pet-card">
+                    <img src="images/cat2.jpg" alt="Kaķis" />
+                    <h3>Murziks</h3>
+                    <p>Kaķis</p>
+                </div>
+                <div class="pet-card">
+                    <img src="images/dog2.jpg" alt="Suns" />
+                    <h3>Žaks</h3>
+                    <p>Suns</p>
+                </div>
+            </div>
         </section>
     </main>
 
+    <!-- Footer sākums -->
+    <footer style="background: #1a1a2e; color: white; padding: 3rem 0 1rem 0;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 2rem;">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 700;">
+                        🐾 SirdsPaws
+                    </h3>
+                    <p style="margin-bottom: 1.5rem; line-height: 1.8; color: #b8b8c8;">
+                        Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Kontakti</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div>📍 Daugavgrīvas iela 123, Rīga</div>
+                        <div>📞 +371 26 123 456</div>
+                        <div>✉️ info@sirdspaws.lv</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Saites</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div><a href="pets.html" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
+                        <div><a href="events.html" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
+                        <div><a href="register.html" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Darba laiks</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div>P-Pk: 9:00 - 18:00</div>
+                        <div>S: 10:00 - 16:00</div>
+                        <div>Sv: 10:00 - 14:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; text-align: center; color: #b8b8c8;">
+                <p style="margin: 0;">© 2024 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer beigas -->
+
     <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            displayFavorites();
-            updateAuthButtons();
-        });
-    </script>
 </body>
 </html>
