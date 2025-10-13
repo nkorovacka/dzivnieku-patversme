@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dzīvnieku Patversme - Pasākumi</title>
+    <title>Pasākumi - SirdsPaws</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #ffffff;
+            background: #f5f7fa;
             color: #1a1a1a;
             line-height: 1.6;
         }
@@ -93,7 +93,6 @@
             box-shadow: 0 2px 8px rgba(99,102,241,0.3);
         }
 
-        /* ===== AUTH LINKS ===== */
         .auth-links {
             display: flex;
             align-items: center;
@@ -126,210 +125,265 @@
         }
 
         /* ==========================
-           CONTENT FROM PROFILE PAGE
+           HERO SECTION
         ========================== */
-        .profile-header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin: 30px auto;
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            max-width: 1200px;
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
+            top: -200px;
+            right: -100px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==========================
+           TABS
+        ========================== */
+        .tabs-container {
+            background: white;
+            padding: 2rem;
+            margin: -50px auto 3rem;
+            max-width: 1100px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 10;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 30px;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+        }
+
+        /* ==========================
+           EVENTS GRID
+        ========================== */
+        .events-section {
+            padding: 2rem 0 5rem;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(99,102,241,0.2);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 200px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            font-size: 4rem;
+            position: relative;
+        }
+
+        .event-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-upcoming {
+            background: #10b981;
             color: white;
-            font-weight: bold;
         }
 
-        .profile-info h1 {
-            color: #333;
-            margin-bottom: 10px;
+        .badge-full {
+            background: #ef4444;
+            color: white;
         }
 
-        .profile-info p {
-            color: #666;
-            margin-bottom: 5px;
+        .badge-spots-left {
+            background: #f59e0b;
+            color: white;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 0 auto 30px;
-            max-width: 1200px;
-            padding: 0 20px;
+        .event-content {
+            padding: 1.8rem;
         }
 
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            text-align: center;
-            transition: transform 0.3s;
+        .event-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f1f5ff;
+            color: #6366f1;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 1rem;
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
+        .event-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
         }
 
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
-        .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .content-section {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin: 0 auto 30px;
-            max-width: 1200px;
-        }
-
-        .section-title {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-        }
-
-        .event-list, .walk-list {
+        .event-meta {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 0.7rem;
+            margin-bottom: 1.2rem;
+            color: #64748b;
+            font-size: 0.95rem;
         }
 
-        .event-item, .walk-item {
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s;
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .event-item:hover, .walk-item:hover {
-            background: #e9ecef;
-            transform: translateX(5px);
+        .event-description {
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
         }
 
-        .event-header, .walk-header {
+        .event-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
         }
 
-        .event-title, .walk-title {
-            font-weight: bold;
-            color: #333;
-            font-size: 18px;
-        }
-
-        .event-date, .walk-date {
-            color: #666;
+        .participants-info {
             font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
         }
 
-        .event-description, .walk-description {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .badge {
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            text-decoration: none;
             display: inline-block;
-            padding: 5px 15px;
-            background: #667eea;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(99,102,241,0.3);
         }
 
-        .badge.completed {
-            background: #28a745;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99,102,241,0.4);
         }
 
-        .badge.upcoming {
-            background: #ffc107;
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
         }
 
-        .points-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-registered {
+            background: #10b981;
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 0 auto 30px;
-            max-width: 1200px;
         }
 
-        .points-number {
-            font-size: 72px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .points-label {
-            font-size: 20px;
-            opacity: 0.9;
-        }
-
-        .progress-bar-container {
-            background: rgba(255,255,255,0.3);
-            height: 10px;
-            border-radius: 5px;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            background: white;
-            height: 100%;
-            border-radius: 5px;
-            transition: width 1s ease;
-        }
-
-        .dog-icon {
-            display: inline-block;
-            margin-right: 8px;
-        }
-
+        /* ==========================
+           FOOTER
+        ========================== */
         footer {
             background: #1a1a2e;
             color: white;
             padding: 3rem 0 1rem 0;
-        }
-
-        footer .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
         }
 
         .footer-grid {
@@ -369,6 +423,9 @@
             color: #b8b8c8;
         }
 
+        /* ==========================
+           RESPONSIVE
+        ========================== */
         @media (max-width: 900px) {
             .nav-container {
                 flex-wrap: wrap;
@@ -376,20 +433,16 @@
                 gap: 12px;
             }
 
-            .auth-links {
-                justify-content: center;
+            .hero h1 {
+                font-size: 2.5rem;
             }
 
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
+            .events-grid {
+                grid-template-columns: 1fr;
             }
-        }
 
-        @media (max-width: 768px) {
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
+            .tabs-container {
+                margin: -30px 20px 2rem;
             }
         }
     </style>
@@ -399,13 +452,13 @@
     <!-- HEADER -->
     <header class="main-header">
         <div class="nav-container">
-            <a href="index.html" class="logo">🐾 SirdsPaws</a>
+            <a href="index.php" class="logo">🐾 SirdsPaws</a>
             
             <ul class="nav-links">
                 <li><a href="/index.php">Sākums</a></li>
-                <li><a href="./pets.html">Dzīvnieki</a></li>
+                <li><a href="./pets.php">Dzīvnieki</a></li>
                 <li><a href="./favorites.html">Favorīti</a></li>
-                <li><a href="./applications.php">Mani pieteikumi</a></li>
+                <li><a href="./applications.html">Mani pieteikumi</a></li>
                 <li><a href="./events.html" class="active">Pasākumi</a></li>
             </ul>
 
@@ -416,159 +469,274 @@
         </div>
     </header>
 
-    <!-- CONTENT -->
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <h1>🎉 Pasākumi un Aktivitātes</h1>
+            <p>Pievienojies mūsu pasākumiem un palīdzi dzīvniekiem atrast mājas!</p>
+        </div>
+    </section>
+
+    <!-- TABS -->
     <div class="container">
-        <div class="profile-header">
-            <div class="profile-avatar">AM</div>
-            <div class="profile-info">
-                <h1>Test User</h1>
-                <p>📧 test.user@example.lv</p>
-                <p>📞 +371 29123456</p>
-                <p>🎂 Brīvprātīgais kopš 2024. gada janvāra</p>
-            </div>
-        </div>
-
-        <div class="points-display">
-            <div class="points-number">2,450</div>
-            <div class="points-label">Bonusa Punkti</div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" style="width: 73%;"></div>
-            </div>
-            <p style="margin-top: 15px; font-size: 14px;">Līdz nākamajam līmenim: 550 punkti</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">🎉</div>
-                <div class="stat-number">24</div>
-                <div class="stat-label">Pasākumi</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🐕</div>
-                <div class="stat-number">89</div>
-                <div class="stat-label">Suņu Pastaigas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⏱️</div>
-                <div class="stat-number">156</div>
-                <div class="stat-label">Stundas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">❤️</div>
-                <div class="stat-number">42</div>
-                <div class="stat-label">Palīdzēti Dzīvnieki</div>
-            </div>
-        </div>
-
-        <div class="content-section">
-            <h2 class="section-title">📅 Mani Pasākumi</h2>
-            <div class="event-list">
-                <div class="event-item">
-                    <div class="event-header">
-                        <div class="event-title">Rudens Talka Patversmē</div>
-                        <span class="badge completed">Pabeigts</span>
-                    </div>
-                    <div class="event-date">2025. gada 4. oktobris</div>
-                    <div class="event-description">
-                        Piedalījos teritorijas sakopšanā un būdu sagatavošanā ziemas sezonai. Nopelnīti 150 bonusa punkti!
-                    </div>
-                </div>
-
-                <div class="event-item">
-                    <div class="event-header">
-                        <div class="event-title">Adopcijas Diena</div>
-                        <span class="badge completed">Pabeigts</span>
-                    </div>
-                    <div class="event-date">2025. gada 20. septembris</div>
-                    <div class="event-description">
-                        Palīdzēju organizēt adopcijas pasākumu, kur 8 dzīvnieki atrada jaunas mājas. +200 punkti
-                    </div>
-                </div>
-
-                <div class="event-item">
-                    <div class="event-header">
-                        <div class="event-title">Brīvprātīgo Apmācība</div>
-                        <span class="badge upcoming">Gaidāms</span>
-                    </div>
-                    <div class="event-date">2025. gada 25. oktobris</div>
-                    <div class="event-description">
-                        Apmācība par dzīvnieku uzvedības pamiem un drošības noteikumiem. Reģistrēts!
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="content-section">
-            <h2 class="section-title">🐾 Pēdējās Suņu Pastaigas</h2>
-            <div class="walk-list">
-                <div class="walk-item">
-                    <div class="walk-header">
-                        <div class="walk-title"><span class="dog-icon">🐕</span>Reksis</div>
-                        <div class="walk-date">2025. gada 12. oktobris, 14:30</div>
-                    </div>
-                    <div class="walk-description">
-                        Ilgums: 45 minūtes | Distance: 3.2 km | +50 punkti<br>
-                        Pastaiga parkā, Reksis bija ļoti aktīvs un draudzīgs pret citiem suņiem.
-                    </div>
-                </div>
-
-                <div class="walk-item">
-                    <div class="walk-header">
-                        <div class="walk-title"><span class="dog-icon">🐕</span>Bella</div>
-                        <div class="walk-date">2025. gada 11. oktobris, 16:00</div>
-                    </div>
-                    <div class="walk-description">
-                        Ilgums: 30 minūtes | Distance: 2.1 km | +35 punkti<br>
-                        Mierīga pastaiga apkārtnē, Bella iemācījās jaunu komandu "sēdi".
-                    </div>
-                </div>
-
-                <div class="walk-item">
-                    <div class="walk-header">
-                        <div class="walk-title"><span class="dog-icon">🐕</span>Makss</div>
-                        <div class="walk-date">2025. gada 10. oktobris, 10:00</div>
-                    </div>
-                    <div class="walk-description">
-                        Ilgums: 60 minūtes | Distance: 4.5 km | +75 punkti<br>
-                        Gara pastaiga mežā, Makss baudīja brīvību un spēlējās ar bumbu.
-                    </div>
-                </div>
-
-                <div class="walk-item">
-                    <div class="walk-header">
-                        <div class="walk-title"><span class="dog-icon">🐕</span>Luna</div>
-                        <div class="walk-date">2025. gada 9. oktobris, 18:00</div>
-                    </div>
-                    <div class="walk-description">
-                        Ilgums: 40 minūtes | Distance: 2.8 km | +45 punkti<br>
-                        Vakara pastaiga, Luna bija mierīga un labi klausīja komandas.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="content-section">
-            <h2 class="section-title">📊 Mēneša Statistika</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
-                <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <div style="font-size: 36px; color: #667eea; font-weight: bold;">12</div>
-                    <div style="color: #666;">Pastaigas šomēnes</div>
-                </div>
-                <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <div style="font-size: 36px; color: #667eea; font-weight: bold;">8.5</div>
-                    <div style="color: #666;">Vidējais stundu skaits</div>
-                </div>
-                <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <div style="font-size: 36px; color: #667eea; font-weight: bold;">425</div>
-                    <div style="color: #666;">Nopelnīti punkti</div>
-                </div>
-                <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <div style="font-size: 36px; color: #667eea; font-weight: bold;">5</div>
-                    <div style="color: #666;">Dažādi suņi</div>
-                </div>
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="filterEvents('all')">Visi Pasākumi</button>
+                <button class="tab-btn" onclick="filterEvents('adoption')">Adopcijas Dienas</button>
+                <button class="tab-btn" onclick="filterEvents('volunteer')">Brīvprātīgo Darbs</button>
+                <button class="tab-btn" onclick="filterEvents('training')">Apmācības</button>
+                <button class="tab-btn" onclick="filterEvents('fundraising')">Labdarība</button>
             </div>
         </div>
     </div>
+
+    <!-- EVENTS GRID -->
+    <section class="events-section">
+        <div class="container">
+            <div class="events-grid" id="eventsGrid">
+                
+                <!-- Event 1 -->
+                <div class="event-card" data-category="adoption">
+                    <div class="event-image">
+                        🐕🐈
+                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Adopcijas Diena</span>
+                        <h3 class="event-title">Liela Adopcijas Diena</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>20. oktobris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>10:00 - 16:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Patversmes teritorija</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Pievienojies mūsu lielākajam adopcijas pasākumam! Satiec mūsu dzīvniekus, uzzini par viņu stāstiem un palīdzi atrast viņiem mīlošas mājas.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 28/50 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Liela Adopcijas Diena')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 2 -->
+                <div class="event-card" data-category="volunteer">
+                    <div class="event-image">
+                        🧹🏡
+                        <span class="event-badge badge-spots-left">Maz vietu</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Brīvprātīgie</span>
+                        <h3 class="event-title">Ziemas Talka</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>27. oktobris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>09:00 - 15:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Patversmes teritorija</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Palīdzi mums sagatavoties ziemai! Kopā sakopsim teritoriju, sagatavosim būdas un izveidosim siltas vietas dzīvniekiem.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 18/20 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Ziemas Talka')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 3 -->
+                <div class="event-card" data-category="training">
+                    <div class="event-image">
+                        📚🎓
+                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Apmācība</span>
+                        <h3 class="event-title">Suņu Uzvedības Kurss</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>3. novembris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>14:00 - 17:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Apmācību telpa</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Uzzini par suņu uzvedību, komunikāciju un drošības noteikumiem. Ideāli brīvprātīgajiem un potenciālajiem adoptētājiem!
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 12/25 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Suņu Uzvedības Kurss')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 4 -->
+                <div class="event-card" data-category="fundraising">
+                    <div class="event-image">
+                        💝🎪
+                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Labdarība</span>
+                        <h3 class="event-title">Labdarības Tirdziņš</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>10. novembris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>11:00 - 18:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Rīgas Centrāltirgus</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Labdarības tirdziņš ar roku darbu izstrādājumiem! Visi ieņēmumi tiks ziedoti patversmes dzīvniekiem.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 35/60 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Labdarības Tirdziņš')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 5 -->
+                <div class="event-card" data-category="volunteer">
+                    <div class="event-image">
+                        🐾🚶
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Brīvprātīgie</span>
+                        <h3 class="event-title">Grupu Suņu Pastaiga</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>Katru sestdienu</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>10:00 - 12:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Mežaparks</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Katru nedēļas nogali dodamies uz grupu pastaigu! Lieliski socializācijai un aktīvam laikam kopā ar suņiem.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 Pastāvīgs</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Grupu Suņu Pastaiga')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 6 -->
+                <div class="event-card" data-category="adoption">
+                    <div class="event-image">
+                        🐱❤️
+                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Adopcijas Diena</span>
+                        <h3 class="event-title">Kaķēnu Adopcijas Pasākums</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>17. novembris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>12:00 - 17:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Patversmes teritorija</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Īpašs pasākums, kas veltīts kaķēniem! Satiec mūsu jaunākos iemītniekus un dod viņiem iespēju atrast mājvietu.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 15/40 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Kaķēnu Adopcijas Pasākums')">Pierakstīties</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 7 - FULL -->
+                <div class="event-card" data-category="training">
+                    <div class="event-image">
+                        🩺💉
+                        <span class="event-badge badge-full">Pilns</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Apmācība</span>
+                        <h3 class="event-title">Pirmās Palīdzības Kurss</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>5. novembris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>15:00 - 18:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Veterinārā klīnika</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Apgūsti pirmās palīdzības prasmes dzīvniekiem. Praktiski padomi un demonstrācijas no pieredzējušiem veterinārārstiem.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 15/15 dalībnieki</span>
+                            <button class="btn btn-disabled" disabled>Pilns</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event 8 -->
+                <div class="event-card" data-category="fundraising">
+                    <div class="event-image">
+                        🎵🎤
+                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-category">Labdarība</span>
+                        <h3 class="event-title">Labdarības Koncerts</h3>
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                📅 <strong>24. novembris, 2025</strong>
+                            </div>
+                            <div class="meta-item">
+                                🕐 <strong>18:00 - 22:00</strong>
+                            </div>
+                            <div class="meta-item">
+                                📍 <strong>Kultūras Centrs "Imanta"</strong>
+                            </div>
+                        </div>
+                        <p class="event-description">
+                            Muzikāls vakars labdarībai! Lieliski mākslinieki, laba mūzika un viss ieņēmums tiek ziedots mūsu patversmei.
+                        </p>
+                        <div class="event-footer">
+                            <span class="participants-info">👥 89/200 dalībnieki</span>
+                            <button class="btn btn-primary" onclick="registerEvent(this, 'Labdarības Koncerts')">Pirkt biļeti</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
     <!-- FOOTER -->
     <footer>
@@ -615,5 +783,40 @@
         </div>
     </footer>
 
+    <script>
+        // Filter events by category
+        function filterEvents(category) {
+            const cards = document.querySelectorAll('.event-card');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            // Update active tab
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter cards
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Register for event
+        function registerEvent(button, eventName) {
+            if (button.classList.contains('btn-registered')) {
+                button.textContent = 'Pierakstīties';
+                button.classList.remove('btn-registered');
+                button.classList.add('btn-primary');
+                alert(`Jūs atteicāties no pasākuma: ${eventName}`);
+            } else {
+                button.textContent = '✓ Reģistrēts';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-registered');
+                alert(`Jūs veiksmīgi piereģistrējāties pasākumam: ${eventName}`);
+            }
+        }
+    </script>
 </body>
 </html>
