@@ -1,19 +1,17 @@
 <?php
 session_start();
 
-// ✅ Pārbauda, vai lietotājs vispār ir ielogojies
+// ✅ Pārbauda, vai lietotājs ir ielogojies un ir admins
 if (!isset($_SESSION["epasts"])) {
     header("Location: login.html");
     exit;
 }
-
-// ✅ Pārbauda, vai lietotājs ir administrators
 if (!isset($_SESSION["admin"]) || $_SESSION["admin"] != 1) {
     header("Location: index.php");
     exit;
 }
 
-// ✅ Ielādē Dotenv (ja vajag DB datus)
+// ✅ DB pieslēgums
 require_once __DIR__ . '/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
@@ -29,7 +27,7 @@ if ($conn->connect_error) {
     die("Savienojuma kļūda: " . $conn->connect_error);
 }
 
-// ✅ Piemērs: nolasām visus lietotājus
+// ✅ Nolasām visus lietotājus
 $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji ORDER BY id ASC");
 ?>
 <!DOCTYPE html>
@@ -73,7 +71,18 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
         tr:hover { background: #f9fafb; }
         .admin { color: green; font-weight: bold; }
         .user { color: #6b7280; }
-        a.logout {
+        .delete-btn {
+            color: white;
+            background: #ef4444;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover { background: #dc2626; }
+        .logout {
             display: inline-block;
             margin: 20px auto;
             background: #ef4444;
@@ -83,7 +92,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             border-radius: 8px;
             font-weight: bold;
         }
-        a.logout:hover { background: #dc2626; }
+        .logout:hover { background: #dc2626; }
     </style>
 </head>
 <body>
@@ -102,6 +111,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             <th>Lietotājvārds</th>
             <th>E-pasts</th>
             <th>Loma</th>
+            <th>Darbība</th>
         </tr>
         <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
@@ -110,6 +120,16 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
                 <td><?= htmlspecialchars($row['epasts']) ?></td>
                 <td class="<?= $row['admin'] ? 'admin' : 'user' ?>">
                     <?= $row['admin'] ? 'Administrators' : 'Lietotājs' ?>
+                </td>
+                <td>
+                    <?php if ($row['admin'] != 1): ?>
+                        <form method="POST" action="delete_user.php" style="display:inline;">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Vai tiešām dzēst šo lietotāju?');">Dzēst</button>
+                        </form>
+                    <?php else: ?>
+                        <span style="color:#999;">—</span>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endwhile; ?>
