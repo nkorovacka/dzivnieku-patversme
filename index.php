@@ -20,7 +20,7 @@ session_start();
         <div class="hero-text">
             <h1>Atrodi savu labāko draugu</h1>
             <p>Simtiem dzīvnieku gaida savu otro iespēju. Kļūsti par viņu ceļa daļu un iegūsti uzticamu draugu uz visu mūžu.</p>
-            <a href="pets.html" class="btn btn-primary" style="background: white; color: #667eea; font-size: 1.1rem; padding: 1.2rem 2.5rem; display: inline-block;">Skatīt dzīvniekus</a>
+            <a href="pets.php" class="btn btn-primary" style="background: white; color: #667eea; font-size: 1.1rem; padding: 1.2rem 2.5rem; display: inline-block;">Skatīt dzīvniekus</a>
         </div>
         <img src="kitty.jpg" alt="Dzīvnieki">
     </div>
@@ -152,8 +152,8 @@ session_start();
         <h2>Sāc savu stāstu šodien</h2>
         <p>Tūkstošiem cilvēku jau ir atraduši savu labāko draugu. Tu vari būt nākamais!</p>
         <div class="cta-buttons">
-            <a href="pets.html" class="btn btn-white">Skatīt dzīvniekus</a>
-            <a href="register.html" class="btn btn-primary" style="background: rgba(255,255,255,0.2); border: 2px solid white;">Izveidot kontu</a>
+            <a href="pets.php" class="btn btn-white">Skatīt dzīvniekus</a>
+            <a href="register.php" class="btn btn-primary" style="background: rgba(255,255,255,0.2); border: 2px solid white;">Izveidot kontu</a>
         </div>
     </div>
 </section>
@@ -182,9 +182,9 @@ session_start();
             <div>
                 <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Saites</h4>
                 <div style="color: #b8b8c8; line-height: 2;">
-                    <div><a href="pets.html" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
-                    <div><a href="events.html" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
-                    <div><a href="register.html" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
+                    <div><a href="pets.php" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
+                    <div><a href="events.php" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
+                    <div><a href="register.php" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
                 </div>
             </div>
 
