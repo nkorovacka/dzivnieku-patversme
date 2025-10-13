@@ -10,7 +10,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
         <li><a href="pets.php">Dzīvnieki</a></li>
         <li><a href="favorites.php">Favorīti</a></li>
         <li><a href="applications.php">Mani pieteikumi</a></li>
-        <li><a href="events.html">Pasākumi</a></li>
+        <li><a href="events.php">Pasākumi</a></li>
       </ul>
     </nav>
 

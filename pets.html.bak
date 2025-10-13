@@ -1,15 +1,10 @@
-<?php
-session_start();
-?>
 <!DOCTYPE html>
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dzīvnieki - SirdsPaws</title>
-    <link rel="stylesheet" href="index.css">
     <style>
-        /* Основные стили */
         * {
             margin: 0;
             padding: 0;
@@ -23,23 +18,180 @@ session_start();
             line-height: 1.6;
         }
 
-        /* Container */
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
 
+        /* ==========================
+           HEADER
+        ========================== */
+        .main-header {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .main-header::after {
+            content: "";
+            display: block;
+            height: 3px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 20px 32px;
+            min-height: 80px;
+            flex-wrap: nowrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #6366f1;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 24px;
+            margin: 0;
+            padding: 0;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: #475569;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5ff;
+            color: #6366f1;
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+        }
+
+        /* ===== AUTH LINKS ===== */
+        .auth-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .auth-links a {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 10px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .auth-links a:first-child {
+            color: #6366f1;
+            border: 2px solid #6366f1;
+        }
+
+        .auth-links a:last-child {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+            border: none;
+        }
+
+        .auth-links a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* ==========================
+           BUTTONS
+        ========================== */
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-adopt {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-favorite {
+            background: #f8f9ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-favorite.favorited {
+            background: #667eea;
+            color: white;
+        }
+
+        /* ==========================
+           MAIN CONTENT
+        ========================== */
         .main-content {
             padding: 2rem 0;
             min-height: calc(100vh - 200px);
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        /* Search Section */
+        /* ==========================
+           SEARCH SECTION
+        ========================== */
         .search-section {
             background: white;
             padding: 2rem;
@@ -87,14 +239,18 @@ session_start();
             color: #555;
         }
 
-        /* Pets Grid */
+        /* ==========================
+           PETS GRID
+        ========================== */
         .pets-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 2rem;
         }
 
-        /* Pet Card */
+        /* ==========================
+           PET CARD
+        ========================== */
         .pet-card {
             background: white;
             border-radius: 20px;
@@ -202,33 +358,9 @@ session_start();
             font-size: 0.9rem;
         }
 
-        .btn {
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-adopt {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-favorite {
-            background: #f8f9ff;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-favorite.favorited {
-            background: #667eea;
-            color: white;
-        }
-
-        /* Modal */
+        /* ==========================
+           MODAL
+        ========================== */
         .modal {
             display: none;
             position: fixed;
@@ -313,7 +445,9 @@ session_start();
             padding: 2.5rem;
         }
 
-        /* Form */
+        /* ==========================
+           FORMS
+        ========================== */
         .form-group {
             margin-bottom: 1.8rem;
         }
@@ -353,7 +487,9 @@ session_start();
             min-height: 100px;
         }
 
-        /* Pet Modal Details */
+        /* ==========================
+           PET MODAL DETAILS
+        ========================== */
         .pet-modal-image {
             width: 100%;
             height: 400px;
@@ -394,7 +530,9 @@ session_start();
             font-weight: 700;
         }
 
-        /* Empty State */
+        /* ==========================
+           EMPTY STATE
+        ========================== */
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -417,7 +555,99 @@ session_start();
             font-size: 1.1rem;
         }
 
-        /* Responsive Design */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ==========================
+           FOOTER
+        ========================== */
+        footer {
+            background: #1a1a2e;
+            color: white;
+            padding: 3rem 0 1rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .footer-section h4 {
+            color: white;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section p,
+        .footer-section div {
+            margin-bottom: 0.5rem;
+            line-height: 1.8;
+            color: #b8b8c8;
+        }
+
+        .footer-section a {
+            color: #b8b8c8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 2rem;
+            text-align: center;
+            color: #b8b8c8;
+        }
+
+        .footer-bottom p {
+            margin: 0;
+        }
+
+        /* ==========================
+           RESPONSIVE DESIGN
+        ========================== */
+        @media (max-width: 900px) {
+            .nav-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px;
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 16px;
+                order: 3;
+                width: 100%;
+            }
+
+            .auth-links {
+                justify-content: center;
+                width: 100%;
+                order: 4;
+                gap: 10px;
+            }
+
+            .logo {
+                order: 1;
+            }
+        }
+
         @media (max-width: 1024px) {
             .pets-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -457,9 +687,23 @@ session_start();
             .pet-actions {
                 flex-direction: column;
             }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
         }
 
         @media (max-width: 480px) {
+            .logo {
+                font-size: 1.4rem;
+            }
+
+            .auth-links a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
             .pet-name {
                 font-size: 1.3rem;
             }
@@ -471,7 +715,24 @@ session_start();
     </style>
 </head>
 <body>
-    <?php include 'navbar.php'; ?>
+    <header class="main-header">
+        <div class="nav-container">
+            <a href="index.html" class="logo">🐾 SirdsPaws</a>
+            
+            <ul class="nav-links">
+                <li><a href="/index.php">Sākums</a></li>
+                <li><a href="./pets.html" class="active">Dzīvnieki</a></li>
+                <li><a href="./favorites.html">Favorīti</a></li>
+                <li><a href="./applications.html">Mani pieteikumi</a></li>
+                <li><a href="./events.html">Pasākumi</a></li>
+            </ul>
+
+            <ul class="auth-links">
+                <li><a href="./login.html">Pieslēgties</a></li>
+                <li><a href="./register.html">Reģistrēties</a></li>
+            </ul>
+        </div>
+    </header>
 
     <main class="container">
         <section class="main-content">
@@ -496,7 +757,7 @@ session_start();
         </section>
     </main>
 
-    <!-- Dzīvnieka profila modalais logs -->
+     Dzīvnieka profila modalais logs 
     <div id="petModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -507,7 +768,7 @@ session_start();
         </div>
     </div>
 
-    <!-- Adopcijas pieteikuma modalais logs -->
+     Adopcijas pieteikuma modalais logs 
     <div id="adoptModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -541,11 +802,47 @@ session_start();
                         <label>Motivācija:</label>
                         <textarea id="adoptMotivation" rows="3" placeholder="Kāpēc vēlies adoptēt šo dzīvnieku?" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-adopt" style="width: 100%; padding: 0.8rem;">Nosūtīt pieteikumu</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Nosūtīt pieteikumu</button>
                 </form>
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>🐾 SirdsPaws</h3>
+                    <p>Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Kontakti</h4>
+                    <div>📍 Daugavgrīvas iela 123, Rīga</div>
+                    <div>📞 +371 26 123 456</div>
+                    <div>✉️ info@sirdspaws.lv</div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Saites</h4>
+                    <div><a href="pets.html">Dzīvnieki</a></div>
+                    <div><a href="events.html">Pasākumi</a></div>
+                    <div><a href="register.html">Reģistrēties</a></div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Darba laiks</h4>
+                    <div>P-Pk: 9:00 - 18:00</div>
+                    <div>S: 10:00 - 16:00</div>
+                    <div>Sv: 10:00 - 14:00</div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
         const samplePets = [
@@ -554,7 +851,6 @@ session_start();
                 name: 'Reksīts',
                 type: 'suns',
                 age: '2 gadi',
-                ageCategory: 'jauns',
                 breed: 'Labradoru retrivers',
                 gender: 'Tēviņš',
                 description: 'Draudzīgs un enerģisks suns, kas mīl spēlēties un iet pastaigās.',
@@ -565,7 +861,6 @@ session_start();
                 name: 'Minka',
                 type: 'kaķis',
                 age: '1 gads',
-                ageCategory: 'jauns',
                 breed: 'Britu īsspalvainā',
                 gender: 'Mātīte',
                 description: 'Maiga un mīļa kaķīte, kas mīl gulēt un ļauties.',
@@ -576,7 +871,6 @@ session_start();
                 name: 'Bounce',
                 type: 'trusis',
                 age: '6 mēneši',
-                ageCategory: 'mazulis',
                 breed: 'Holandes pundurtrušis',
                 gender: 'Tēviņš',
                 description: 'Aktīvs un ziņkārīgs trušītis, kas mīl burkānus un zaļumus.',
@@ -587,7 +881,6 @@ session_start();
                 name: 'Bella',
                 type: 'suns',
                 age: '5 gadi',
-                ageCategory: 'pieaudzis',
                 breed: 'Vācu aitu suns',
                 gender: 'Mātīte',
                 description: 'Uzticīga un gudra suņa meitene, lieliski piemērota ģimenēm ar bērniem.',
@@ -598,7 +891,6 @@ session_start();
                 name: 'Pusītis',
                 type: 'kaķis',
                 age: '3 gadi',
-                ageCategory: 'pieaudzis',
                 breed: 'Maine Coon',
                 gender: 'Tēviņš',
                 description: 'Liels un mīlīgs kaķis ar maigu raksturu, mīl uzmanību.',
@@ -609,7 +901,6 @@ session_start();
                 name: 'Luna',
                 type: 'kaķis',
                 age: '4 mēneši',
-                ageCategory: 'mazulis',
                 breed: 'Persiešu kaķis',
                 gender: 'Mātīte',
                 description: 'Rotaļīga un jautra kaķēns, kas meklē mīlošu māju.',
@@ -620,7 +911,6 @@ session_start();
                 name: 'Makss',
                 type: 'suns',
                 age: '7 gadi',
-                ageCategory: 'pieaudzis',
                 breed: 'Bīgls',
                 gender: 'Tēviņš',
                 description: 'Mierīgs un piedzīvojis suns, kas mīl ilgas pastaigās un smaržot.',
@@ -631,7 +921,6 @@ session_start();
                 name: 'Sniegpārsliņa',
                 type: 'trusis',
                 age: '1 gads',
-                ageCategory: 'jauns',
                 breed: 'Lionhead trusis',
                 gender: 'Mātīte',
                 description: 'Baltā un pūkaina trušīte ar lielām ausīm, ļoti sociāla.',
@@ -642,7 +931,6 @@ session_start();
                 name: 'Čārlis',
                 type: 'suns',
                 age: '3 gadi',
-                ageCategory: 'pieaudzis',
                 breed: 'Franču buldogs',
                 gender: 'Tēviņš',
                 description: 'Kompakts un mīļš sunītis, ideāls dzīvoklim.',
@@ -653,7 +941,6 @@ session_start();
                 name: 'Zosja',
                 type: 'kaķis',
                 age: '6 gadi',
-                ageCategory: 'pieaudzis',
                 breed: 'Siāmas kaķis',
                 gender: 'Mātīte',
                 description: 'Eleganta un runīga kaķene, kas mīl būt uzmanības centrā.',
@@ -705,10 +992,9 @@ session_start();
         function filterPetsList() {
             return allPets.filter(pet => {
                 const matchType = !currentFilters.type || pet.type === currentFilters.type;
-                const matchAge = !currentFilters.age || pet.ageCategory === currentFilters.age;
                 const matchSearch = !currentFilters.search || 
                     pet.name.toLowerCase().includes(currentFilters.search.toLowerCase());
-                return matchType && matchAge && matchSearch;
+                return matchType && matchSearch;
             });
         }
 
@@ -754,8 +1040,8 @@ session_start();
                 </div>
                 <p style="line-height: 1.8; color: #666;">${pet.description}</p>
                 <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                    <button class="btn btn-adopt" style="flex: 1; padding: 0.8rem;" onclick="hideModal('petModal'); openAdoptModal(${pet.id})">Adoptēt</button>
-                    <button class="btn btn-favorite" style="flex: 1; padding: 0.8rem;" onclick="toggleFavorite(${pet.id})">Pievienot favorītiem</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="hideModal('petModal'); openAdoptModal(${pet.id})">Adoptēt</button>
+                    <button class="btn btn-favorite" style="flex: 1;" onclick="toggleFavorite(${pet.id})">Pievienot favorītiem</button>
                 </div>
             `;
             showModal('petModal');
@@ -792,7 +1078,7 @@ session_start();
             const btn = event.target;
             btn.classList.toggle('favorited');
             const isFavorited = btn.classList.contains('favorited');
-            console.log(isFavorited ? 'Pievienots favorītiem!' : 'Izņemts no favorītiem!');
+            alert(isFavorited ? 'Pievienots favorītiem!' : 'Izņemts no favorītiem!');
         }
 
         function showModal(modalId) {
@@ -813,52 +1099,5 @@ session_start();
             displayPets();
         });
     </script>
-        
-    <footer style="background: #1a1a2e; color: white; padding: 3rem 0 1rem 0;">
-        <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 2rem;">
-                <div>
-                    <h3 style="color: #667eea; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 700;">
-                        🐾 SirdsPaws
-                    </h3>
-                    <p style="margin-bottom: 1.5rem; line-height: 1.8; color: #b8b8c8;">
-                        Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.
-                    </p>
-                </div>
-
-                <div>
-                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Kontakti</h4>
-                    <div style="color: #b8b8c8; line-height: 2;">
-                        <div>📍 Daugavgrīvas iela 123, Rīga</div>
-                        <div>📞 +371 26 123 456</div>
-                        <div>✉️ info@sirdspaws.lv</div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Saites</h4>
-                    <div style="color: #b8b8c8; line-height: 2;">
-                        <div><a href="pets.php" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
-                        <div><a href="events.html" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
-                        <div><a href="register.html" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Darba laiks</h4>
-                    <div style="color: #b8b8c8; line-height: 2;">
-                        <div>P-Pk: 9:00 - 18:00</div>
-                        <div>S: 10:00 - 16:00</div>
-                        <div>Sv: 10:00 - 14:00</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; text-align: center; color: #b8b8c8;">
-                <p style="margin: 0;">© 2025 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
-            </div>
-        </div>
-    </footer>
-    
 </body>
 </html>
