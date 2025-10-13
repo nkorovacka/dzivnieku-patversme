@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reģistrācija - SirdsPaws</title>
+  <link rel="stylesheet" href="register.css">
+</head>
+<body>
+  <section class="auth-section">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h2>Reģistrēties</h2>
+        <p class="auth-subtitle">Aizpildi formu, lai izveidotu kontu</p>
+
+        <form action="register.php" method="POST" class="auth-form">
+  <div class="form-group">
+    <label for="lietotajvards">Lietotājvārds</label>
+    <input type="text" id="lietotajvards" name="lietotajvards" 
+           required minlength="3" maxlength="20"
+           pattern="^[A-Za-z0-9_]+$"
+           title="Lietotājvārdā drīkst būt tikai burti, cipari un _">
+  </div>
+
+  <div class="form-group">
+    <label for="epasts">E-pasts</label>
+    <input type="email" id="epasts" name="epasts" 
+           required
+           pattern="^[^@\s]+@[^@\s]+\.[^@\s]+$"
+           title="Lūdzu ievadi derīgu e-pasta adresi (piemēram, vards@epasts.lv)">
+  </div>
+
+  <div class="form-group">
+    <label for="parole">Parole</label>
+    <input type="password" id="parole" name="parole" 
+           required minlength="8"
+           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$"
+           title="Parolei jābūt vismaz 8 simboli, iekļaujot lielos/mazos burtus, ciparu un speciālu simbolu">
+  </div>
+
+  <div class="form-group">
+    <label for="confirm">Apstiprini paroli</label>
+    <input type="password" id="confirm" name="confirm" required>
+  </div>
+
+  <button type="submit" class="btn-primary">Izveidot kontu</button>
+</form>
+
+
+        <p class="auth-footer">Jau ir konts? <a href="login.html">Pieslēdzies šeit</a></p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
