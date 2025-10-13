@@ -554,6 +554,7 @@ session_start();
                 name: 'Reksīts',
                 type: 'suns',
                 age: '2 gadi',
+                ageCategory: 'jauns',
                 breed: 'Labradoru retrivers',
                 gender: 'Tēviņš',
                 description: 'Draudzīgs un enerģisks suns, kas mīl spēlēties un iet pastaigās.',
@@ -564,6 +565,7 @@ session_start();
                 name: 'Minka',
                 type: 'kaķis',
                 age: '1 gads',
+                ageCategory: 'jauns',
                 breed: 'Britu īsspalvainā',
                 gender: 'Mātīte',
                 description: 'Maiga un mīļa kaķīte, kas mīl gulēt un ļauties.',
@@ -574,6 +576,7 @@ session_start();
                 name: 'Bounce',
                 type: 'trusis',
                 age: '6 mēneši',
+                ageCategory: 'mazulis',
                 breed: 'Holandes pundurtrušis',
                 gender: 'Tēviņš',
                 description: 'Aktīvs un ziņkārīgs trušītis, kas mīl burkānus un zaļumus.',
@@ -584,6 +587,7 @@ session_start();
                 name: 'Bella',
                 type: 'suns',
                 age: '5 gadi',
+                ageCategory: 'pieaudzis',
                 breed: 'Vācu aitu suns',
                 gender: 'Mātīte',
                 description: 'Uzticīga un gudra suņa meitene, lieliski piemērota ģimenēm ar bērniem.',
@@ -594,6 +598,7 @@ session_start();
                 name: 'Pusītis',
                 type: 'kaķis',
                 age: '3 gadi',
+                ageCategory: 'pieaudzis',
                 breed: 'Maine Coon',
                 gender: 'Tēviņš',
                 description: 'Liels un mīlīgs kaķis ar maigu raksturu, mīl uzmanību.',
@@ -604,6 +609,7 @@ session_start();
                 name: 'Luna',
                 type: 'kaķis',
                 age: '4 mēneši',
+                ageCategory: 'mazulis',
                 breed: 'Persiešu kaķis',
                 gender: 'Mātīte',
                 description: 'Rotaļīga un jautra kaķēns, kas meklē mīlošu māju.',
@@ -614,6 +620,7 @@ session_start();
                 name: 'Makss',
                 type: 'suns',
                 age: '7 gadi',
+                ageCategory: 'pieaudzis',
                 breed: 'Bīgls',
                 gender: 'Tēviņš',
                 description: 'Mierīgs un piedzīvojis suns, kas mīl ilgas pastaigās un smaržot.',
@@ -624,6 +631,7 @@ session_start();
                 name: 'Sniegpārsliņa',
                 type: 'trusis',
                 age: '1 gads',
+                ageCategory: 'jauns',
                 breed: 'Lionhead trusis',
                 gender: 'Mātīte',
                 description: 'Baltā un pūkaina trušīte ar lielām ausīm, ļoti sociāla.',
@@ -634,6 +642,7 @@ session_start();
                 name: 'Čārlis',
                 type: 'suns',
                 age: '3 gadi',
+                ageCategory: 'pieaudzis',
                 breed: 'Franču buldogs',
                 gender: 'Tēviņš',
                 description: 'Kompakts un mīļš sunītis, ideāls dzīvoklim.',
@@ -644,6 +653,7 @@ session_start();
                 name: 'Zosja',
                 type: 'kaķis',
                 age: '6 gadi',
+                ageCategory: 'pieaudzis',
                 breed: 'Siāmas kaķis',
                 gender: 'Mātīte',
                 description: 'Eleganta un runīga kaķene, kas mīl būt uzmanības centrā.',
@@ -695,9 +705,10 @@ session_start();
         function filterPetsList() {
             return allPets.filter(pet => {
                 const matchType = !currentFilters.type || pet.type === currentFilters.type;
+                const matchAge = !currentFilters.age || pet.ageCategory === currentFilters.age;
                 const matchSearch = !currentFilters.search || 
                     pet.name.toLowerCase().includes(currentFilters.search.toLowerCase());
-                return matchType && matchSearch;
+                return matchType && matchAge && matchSearch;
             });
         }
 
@@ -801,54 +812,53 @@ session_start();
         document.addEventListener('DOMContentLoaded', function() {
             displayPets();
         });
-
-        </script>
+    </script>
         
-        <footer style="background: #1a1a2e; color: white; padding: 3rem 0 1rem 0;">
-    <div class="container">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 2rem;">
-            <div>
-                <h3 style="color: #667eea; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 700;">
-                    🐾 SirdsPaws
-                </h3>
-                <p style="margin-bottom: 1.5rem; line-height: 1.8; color: #b8b8c8;">
-                    Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.
-                </p>
-            </div>
+    <footer style="background: #1a1a2e; color: white; padding: 3rem 0 1rem 0;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 2rem;">
+                <div>
+                    <h3 style="color: #667eea; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 700;">
+                        🐾 SirdsPaws
+                    </h3>
+                    <p style="margin-bottom: 1.5rem; line-height: 1.8; color: #b8b8c8;">
+                        Palīdzam dzīvniekiem atrast mīlošas mājas un cilvēkiem - uzticamus draugus.
+                    </p>
+                </div>
 
-            <div>
-                <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Kontakti</h4>
-                <div style="color: #b8b8c8; line-height: 2;">
-                    <div>📍 Daugavgrīvas iela 123, Rīga</div>
-                    <div>📞 +371 26 123 456</div>
-                    <div>✉️ info@sirdspaws.lv</div>
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Kontakti</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div>📍 Daugavgrīvas iela 123, Rīga</div>
+                        <div>📞 +371 26 123 456</div>
+                        <div>✉️ info@sirdspaws.lv</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Saites</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div><a href="pets.php" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
+                        <div><a href="events.html" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
+                        <div><a href="register.html" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Darba laiks</h4>
+                    <div style="color: #b8b8c8; line-height: 2;">
+                        <div>P-Pk: 9:00 - 18:00</div>
+                        <div>S: 10:00 - 16:00</div>
+                        <div>Sv: 10:00 - 14:00</div>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Saites</h4>
-                <div style="color: #b8b8c8; line-height: 2;">
-                    <div><a href="pets.php" style="color: #b8b8c8; text-decoration: none;">Dzīvnieki</a></div>
-                    <div><a href="events.html" style="color: #b8b8c8; text-decoration: none;">Pasākumi</a></div>
-                    <div><a href="register.html" style="color: #b8b8c8; text-decoration: none;">Reģistrēties</a></div>
-                </div>
-            </div>
-
-            <div>
-                <h4 style="color: white; margin-bottom: 1rem; font-weight: 600;">Darba laiks</h4>
-                <div style="color: #b8b8c8; line-height: 2;">
-                    <div>P-Pk: 9:00 - 18:00</div>
-                    <div>S: 10:00 - 16:00</div>
-                    <div>Sv: 10:00 - 14:00</div>
-                </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; text-align: center; color: #b8b8c8;">
+                <p style="margin: 0;">© 2025 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
             </div>
         </div>
-
-        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 2rem; text-align: center; color: #b8b8c8;">
-            <p style="margin: 0;">© 2025 SirdsPaws. Radīts ar ❤️ dzīvniekiem</p>
-        </div>
-    </div>
-</footer>
+    </footer>
     
 </body>
 </html>
