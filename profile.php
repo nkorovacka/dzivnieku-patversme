@@ -1,5 +1,10 @@
 <?php
 // profile.php — Lietotāja profils
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.cookie_secure', false); // true ja izmanto HTTPS
+ini_set('session.cookie_httponly', true);
 session_start();
 require_once __DIR__ . '/db_conn.php';
 if (!isset($_SESSION['user_id'])) { header('Location: login.php'); exit; }
