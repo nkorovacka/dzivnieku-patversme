@@ -102,10 +102,11 @@ if ($result && $result->num_rows > 0) {
                                 </p>
 
                                 <div class="pet-actions">
-                                    <form action="adopt_pet.php" method="POST" style="display:inline;">
+                                    <form action="adopt_form.php" method="GET" style="display:inline;">
                                         <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
                                         <button type="submit" class="btn btn-adopt">Adoptēt</button>
                                     </form>
+
                                     <form action="toggle_favorite.php" method="POST" style="flex: 1;">
                                         <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
                                         <button class="btn btn-favorite" type="submit">❤</button>
