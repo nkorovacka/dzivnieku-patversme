@@ -1,41 +1,62 @@
 <?php
 session_start();
-require_once 'db.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-header('Content-Type: application/json');
+// Ielādē .env failu
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
 
-// Проверяем авторизацию
+// Pārbauda, vai lietotājs ir pieteicies
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Пользователь не авторизован']);
+    echo "<script>alert('Lai pievienotu favorītiem, lūdzu pieslēdzies.'); window.location.href='login.html';</script>";
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-$data = json_decode(file_get_contents('php://input'), true);
-$pet_id = intval($data['pet_id'] ?? 0);
+// Savienojums ar datubāzi
+$conn = new mysqli(
+    $_ENV['DB_HOST'] ?? 'localhost',
+    $_ENV['DB_USER'] ?? 'root',
+    $_ENV['DB_PASS'] ?? '',
+    $_ENV['DB_NAME'] ?? 'dzivnieku_patversme',
+    $_ENV['DB_PORT'] ?? 3306
+);
 
-if (!$pet_id) {
-    echo json_encode(['success' => false, 'message' => 'Некорректный ID животного']);
+if ($conn->connect_error) {
+    die("❌ Neizdevās izveidot savienojumu ar datubāzi: " . $conn->connect_error);
+}
+
+// Pārbauda, vai saņemts pet_id
+if (!isset($_POST['pet_id'])) {
+    echo "<script>alert('Kļūda: nav norādīts dzīvnieks.'); window.history.back();</script>";
     exit;
 }
 
-// Проверяем, есть ли уже запись в избранных
-$query = "SELECT id FROM favorites WHERE user_id = ? AND pet_id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("ii", $user_id, $pet_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$pet_id = intval($_POST['pet_id']);
+$user_id = intval($_SESSION['user_id']);
+
+// Pārbauda, vai šis dzīvnieks jau ir favorītos
+$check = $conn->prepare("SELECT id FROM favorites WHERE user_id = ? AND pet_id = ?");
+$check->bind_param("ii", $user_id, $pet_id);
+$check->execute();
+$result = $check->get_result();
 
 if ($result->num_rows > 0) {
-    // Если уже в избранных — удаляем
-    $delete = $conn->prepare("DELETE FROM favorites WHERE user_id = ? AND pet_id = ?");
-    $delete->bind_param("ii", $user_id, $pet_id);
-    $delete->execute();
-    echo json_encode(['success' => true, 'message' => 'Удалено из избранных']);
+    // Ja jau favorītos — noņem
+    $del = $conn->prepare("DELETE FROM favorites WHERE user_id = ? AND pet_id = ?");
+    $del->bind_param("ii", $user_id, $pet_id);
+    $del->execute();
+    $message = "Dzīvnieks noņemts no favorītiem.";
 } else {
-    // Если нет — добавляем
-    $insert = $conn->prepare("INSERT INTO favorites (user_id, pet_id) VALUES (?, ?)");
-    $insert->bind_param("ii", $user_id, $pet_id);
-    $insert->execute();
-    echo json_encode(['success' => true, 'message' => 'Добавлено в избранные']);
+    // Ja nav — pievieno
+    $add = $conn->prepare("INSERT INTO favorites (user_id, pet_id) VALUES (?, ?)");
+    $add->bind_param("ii", $user_id, $pet_id);
+    $add->execute();
+    $message = "Dzīvnieks pievienots favorītiem!";
 }
+
+$conn->close();
+
+// Pāradresē atpakaļ uz pets.php ar ziņu
+echo "<script>alert('$message'); window.location.href='pets.php';</script>";
+exit;
+?>

@@ -1,26 +1,32 @@
 <?php
+
 session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-require_once 'config.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-// Если уже залогинен
-if (isset($_SESSION["lietotajvards"])) {
-    if (!empty($_SESSION["admin"]) && $_SESSION["admin"] == 1) {
-        header("Location: admin.php");
-    } else {
-        header("Location: index.php");
-    }
-    exit;
-}
+// Ielādē .env mainīgos
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->safeLoad();
 
-$error = '';
+// Datubāzes pieslēgšanās informācija
+$servername = $_ENV['DB_HOST'] ?? 'localhost';
+$username   = $_ENV['DB_USER'] ?? 'root';
+$password   = $_ENV['DB_PASS'] ?? '';
+$dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
+$port       = $_ENV['DB_PORT'] ?? 3306;
 
-// Обработка формы
+// ✅ Ja forma tika iesniegta
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $conn = getConnection();
-    
+
+    try {
+        $conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("<script>alert('❌ Neizdevās pieslēgties datubāzei!'); console.error('DB Error: " . addslashes($e->getMessage()) . "'); window.location.href='login.html';</script>");
+    }
+
     $epasts = trim($_POST["epasts"] ?? '');
     $parole = trim($_POST["parole"] ?? '');
 
@@ -33,19 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $check->execute();
         $result = $check->get_result();
 
-        if ($result->num_rows === 0) {
-            $error = "Lietotājs ar šo e-pastu nav reģistrēts!";
-        } else {
-            $user = $result->fetch_assoc();
-            
-            // Проверка пароля
-            if (!password_verify($parole, $user["parole"])) {
-                $error = "Nepareiza parole!";
-            } else {
-                // Успешный вход
-                $_SESSION["lietotajvards"] = $user["lietotajvards"];
-                $_SESSION["epasts"] = $user["epasts"];
-                $_SESSION["admin"] = (int)$user["admin"];
+    // Pārbauda lietotāju
+    $check = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
+    $check->execute([$epasts]);
+    $user = $check->fetch(PDO::FETCH_ASSOC);
 
                 // Перенаправление
                 if ($_SESSION["admin"] === 1) {
@@ -84,14 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             padding: 2rem;
         }
 
-        .auth-box {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 450px;
-            width: 100%;
-        }
+    // ✅ Saglabā sesijā lietotāja info (ar user_id!)
+    $_SESSION["user_id"] = $user["id"];
+    $_SESSION["lietotajvards"] = $user["lietotajvards"];
+    $_SESSION["epasts"] = $user["epasts"];
+    $_SESSION["admin"] = (int)$user["admin"];
 
         .auth-box h2 {
             text-align: center;
@@ -100,106 +94,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             font-size: 2rem;
         }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
+// ✅ Ja forma nav iesniegta, bet lietotājs jau ir ielogojies
+if (isset($_SESSION["epasts"])) {
+    if (!empty($_SESSION["admin"]) && $_SESSION["admin"] == 1) {
+        header("Location: admin.php");
+    } else {
+        header("Location: index.php");
+    }
+    exit;
+}
 
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 0.9rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99,102,241,0.4);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #64748b;
-        }
-
-        .auth-footer a {
-            color: #6366f1;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="auth-box">
-        <h2>🐾 Ieiet sistēmā</h2>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-error">❌ <?php echo htmlspecialchars($error); ?></div>
-        <?php endif; ?>
-
-        <form method="POST" action="">
-            <div class="form-group">
-                <label>E-pasts:</label>
-                <input type="email" name="epasts" required
-                       value="<?php echo htmlspecialchars($_POST['epasts'] ?? ''); ?>">
-            </div>
-
-            <div class="form-group">
-                <label>Parole:</label>
-                <input type="password" name="parole" required>
-            </div>
-
-            <button type="submit" class="btn-submit">Ieiet</button>
-        </form>
-
-        <div class="auth-footer">
-            Nav konta? <a href="register.php">Reģistrēties</a>
-        </div>
-    </div>
-</body>
-</html>
+// Citādi atver login formu
+header("Location: login.html");
+exit;
+?>

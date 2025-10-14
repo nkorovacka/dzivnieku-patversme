@@ -96,6 +96,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
     </style>
 </head>
 <body>
+    
 
 <header>
     <h1>🐾 Admin panelis</h1>
@@ -134,6 +135,8 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             </tr>
         <?php endwhile; ?>
     </table>
+    <div style="text-align:center; margin:20px;">
+</div>
 
     <div style="text-align:center;">
         <a href="logout.php" class="logout">Izrakstīties</a>
