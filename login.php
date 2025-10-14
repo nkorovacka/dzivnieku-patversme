@@ -1,8 +1,6 @@
 <?php
 
 session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -31,55 +29,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $parole = trim($_POST["parole"] ?? '');
 
     if (empty($epasts) || empty($parole)) {
-        $error = "Lūdzu aizpildi visus laukus!";
-    } else {
-        // Проверка пользователя
-        $check = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
-        $check->bind_param("s", $epasts);
-        $check->execute();
-        $result = $check->get_result();
+        echo "<script>alert('❌ Lūdzu aizpildi visus laukus!'); window.history.back();</script>";
+        exit;
+    }
 
     // Pārbauda lietotāju
     $check = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
     $check->execute([$epasts]);
     $user = $check->fetch(PDO::FETCH_ASSOC);
 
-                // Перенаправление
-                if ($_SESSION["admin"] === 1) {
-                    header("Location: admin.php");
-                } else {
-                    header("Location: index.php");
-                }
-                exit;
-            }
-        }
-        $check->close();
+    if (!$user) {
+        echo "<script>alert('❌ Lietotājs ar šo e-pastu nav reģistrēts!'); window.location.href='login.html';</script>";
+        exit;
     }
-    $conn->close();
-}
-?>
-<!DOCTYPE html>
-<html lang="lv">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ieiet - SirdsPaws</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
+    // Pārbauda paroli
+    if (!password_verify($parole, $user["parole"])) {
+        echo "<script>alert('❌ Nepareiza parole!'); window.location.href='login.html';</script>";
+        exit;
+    }
 
     // ✅ Saglabā sesijā lietotāja info (ar user_id!)
     $_SESSION["user_id"] = $user["id"];
@@ -87,12 +55,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $_SESSION["epasts"] = $user["epasts"];
     $_SESSION["admin"] = (int)$user["admin"];
 
-        .auth-box h2 {
-            text-align: center;
-            color: #1a1a2e;
-            margin-bottom: 2rem;
-            font-size: 2rem;
-        }
+    // ✅ Novirza uz atbilstošo lapu
+    if ($_SESSION["admin"] === 1) {
+        header("Location: admin.php");
+    } else {
+        header("Location: index.php");
+    }
+    exit;
+}
 
 // ✅ Ja forma nav iesniegta, bet lietotājs jau ir ielogojies
 if (isset($_SESSION["epasts"])) {
