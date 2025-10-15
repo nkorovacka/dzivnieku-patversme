@@ -1,22 +1,9 @@
 <?php
 session_start();
-require_once __DIR__ . '/vendor/autoload.php';
-
-// Ielādē .env failu
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
-
-// Izveido savienojumu ar datubāzi
-$conn = new mysqli(
-    $_ENV['DB_HOST'],
-    $_ENV['DB_USER'],
-    $_ENV['DB_PASS'],
-    $_ENV['DB_NAME'],
-    $_ENV['DB_PORT']
-);
+require_once __DIR__ . '/db_conn.php';
 
 // Pārbauda savienojumu
-if ($conn->connect_error) {
+if (!$conn || ($conn instanceof mysqli && $conn->connect_error)) {
     die("<script>alert('❌ Savienojuma kļūda ar datubāzi!'); window.history.back();</script>");
 }
 
@@ -67,6 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $insert->bind_param("sss", $lietotajvards, $epasts, $hashed);
 
     if ($insert->execute()) {
+        $newUserId = $conn->insert_id;
+        $_SESSION["user_id"] = (int)$newUserId;
         $_SESSION["lietotajvards"] = $lietotajvards;
         $_SESSION["epasts"] = $epasts;
         $_SESSION["admin"] = 0;

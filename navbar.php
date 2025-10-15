@@ -16,15 +16,17 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 
     <div class="auth-links">
       <?php if (isset($_SESSION['epasts'])): ?>
-          <span style="margin-right:10px;">Sveiks, <?=htmlspecialchars($_SESSION['lietotajvards'])?></span>
-          <?php if (!empty($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
-            <a href="admin.php">Admin</a>
-          <?php endif; ?>
-          <a href="logout.php">Izrakstīties</a>
+        <span style="margin-right:10px;">Sveiks, <?=htmlspecialchars($_SESSION['lietotajvards'])?></span>
+        <?php if (!empty($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
+          <a href="admin.php">Admin</a>
+        <?php endif; ?>
+        <a href="logout.php">Izrakstīties</a>
       <?php else: ?>
-          <a href="login.html">Pieslēgties</a>
-          <a href="register.html">Reģistrēties</a>
+        <a href="login.html">Pieslēgties</a>
+        <a href="register.html">Reģistrēties</a>
       <?php endif; ?>
     </div>
+
+    <?php if (file_exists(__DIR__.'/profile_icon.php')) include __DIR__.'/profile_icon.php'; ?>
   </div>
 </header>
