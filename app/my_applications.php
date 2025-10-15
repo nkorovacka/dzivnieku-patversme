@@ -1,80 +1,60 @@
 <?php
-// api/my_applications.php — return current user's applications from pieteikumi
+// api/my_applications.php
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
-require_once __DIR__ . '/../db_conn.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-$userId = $_SESSION['user_id'] ?? null;
-if (!$userId) {
-    echo json_encode([ 'ok' => true, 'count' => 0, 'data' => [] ]);
-    exit;
-}
+require_once __DIR__ . '/../db_conn.php'; // izmanto esošo savienojumu
 
 try {
-    $conn->set_charset('utf8mb4');
+    // Ja tev ir sesijas autentifikācija, vari izmantot $_SESSION['user_id']
+    // session_start();
+    // $userId = $_SESSION['user_id'] ?? null;
 
-    $status = isset($_GET['status']) ? trim($_GET['status']) : null; // jauns/procesā/apstiprināts/atteikts
-    $atype  = isset($_GET['type']) ? trim($_GET['type']) : null;     // suns/kaķis
+    $conn->set_charset("utf8mb4");
 
-    $back = [ 'jauns' => 'gaida_apstiprinajumu', 'procesā' => 'procesa', 'apstiprināts' => 'apstiprinats', 'atteikts' => 'atteikts' ];
-    $toFront = function($s) {
-        switch ($s) {
-            case 'gaida_apstiprinajumu': return 'jauns';
-            case 'procesa': return 'procesā';
-            case 'apstiprinats': return 'apstiprināts';
-            case 'atteikts': return 'atteikts';
-            default: return 'jauns';
-        }
-    };
+    // Filtri (neobligāti): status, animal_type
+    $status = isset($_GET['status']) ? trim($_GET['status']) : null;
+    $atype  = isset($_GET['type']) ? trim($_GET['type']) : null;
+    $q      = "SELECT id, user_id, applicant_name, applicant_email, applicant_phone, animal_name, animal_type, shelter_branch, message, status, created_at
+               FROM applications WHERE 1=1";
+    $params = [];
+    $types  = "";
 
-    $sql = "SELECT p.id, p.lietotaja_id, p.pieteikuma_teksts, p.statuss,
-                   d.vards AS animal_name, d.suga AS animal_type
-            FROM pieteikumi p
-            JOIN dzivnieki d ON d.id = p.dzivnieka_id
-            WHERE p.lietotaja_id = ?";
-
-    $types = 'i';
-    $params = [ $userId ];
-    if ($status && isset($back[$status])) {
-        $sql .= ' AND p.statuss = ?';
-        $types .= 's';
-        $params[] = $back[$status];
+    if ($status) {
+        $q .= " AND status = ?";
+        $params[] = $status;
+        $types   .= "s";
     }
     if ($atype) {
-        $sql .= ' AND d.suga = ?';
-        $types .= 's';
+        $q .= " AND animal_type = ?";
         $params[] = $atype;
+        $types   .= "s";
     }
 
-    // Order newest first by primary key as a proxy for creation time
-    $sql .= ' ORDER BY p.id DESC';
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param($types, ...$params);
+    $q .= " ORDER BY created_at DESC";
+
+    $stmt = $conn->prepare($q);
+    if ($params) {
+        $stmt->bind_param($types, ...$params);
+    }
     $stmt->execute();
     $res = $stmt->get_result();
 
     $rows = [];
-    while ($r = $res->fetch_assoc()) {
-        $rows[] = [
-            'id' => (int)$r['id'],
-            'user_id' => (int)$r['lietotaja_id'],
-            'applicant_name' => $_SESSION['lietotajvards'] ?? '',
-            'applicant_email' => $_SESSION['epasts'] ?? '',
-            'applicant_phone' => null,
-            'animal_name' => $r['animal_name'],
-            'animal_type' => $r['animal_type'],
-            'shelter_branch' => null,
-            'message' => $r['pieteikuma_teksts'] ?? '',
-            'status' => $toFront($r['statuss'] ?? ''),
-            'created_at' => date('c'),
-        ];
+    while ($row = $res->fetch_assoc()) {
+        $rows[] = $row;
     }
 
-    echo json_encode([ 'ok' => true, 'count' => count($rows), 'data' => $rows ], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        "ok" => true,
+        "count" => count($rows),
+        "data" => $rows
+    ], JSON_UNESCAPED_UNICODE);
 
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode([ 'ok' => false, 'error' => $e->getMessage() ], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        "ok" => false,
+        "error" => $e->getMessage()
+    ], JSON_UNESCAPED_UNICODE);
 }

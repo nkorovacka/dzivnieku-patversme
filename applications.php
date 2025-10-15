@@ -13,7 +13,9 @@ if (!isset($_SESSION["lietotajvards"])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mani pieteikumi — SirdsPaws</title>
-  <link rel="stylesheet" href="applications.css">
+  <style>
+    /* — TAVS STILS PALIEK TĀDS PATS — */
+  </style>
 </head>
 <body>
 
@@ -541,6 +543,7 @@ if (!isset($_SESSION["lietotajvards"])) {
     }
   </style>
 </head>
+<body>
 <?php include 'navbar.php'; ?>
   <!-- ===== HEADER ===== -->
   
@@ -583,8 +586,40 @@ if (!isset($_SESSION["lietotajvards"])) {
       </div>
     </div>
 
-    <!-- Pieteikumu kartītes (tiks aizpildītas ar JS) -->
-    <div class="applications-list" id="apps-cards"></div>
+    <!-- Pieteikumu kartītes -->
+    <div class="applications-list" id="apps-cards">
+      <div class="application-card">
+        <h3>Bono (Suns)</h3>
+        <p><strong>Statuss:</strong> <span class="badge badge-inprogress">Procesā</span></p>
+        <p><strong>Pieteicējs:</strong> Anna Kalniņa</p>
+        <p><strong>Ziņa:</strong> Vēlos iepazīties ar Bono, esmu gatava adoptēt.</p>
+        <p class="muted">2025-09-22</p>
+      </div>
+
+      <div class="application-card">
+        <h3>Minka (Kaķis)</h3>
+        <p><strong>Statuss:</strong> <span class="badge badge-new">Jauns</span></p>
+        <p><strong>Pieteicējs:</strong> Jānis Bērziņš</p>
+        <p><strong>Ziņa:</strong> Līdz šim audzināju divus kaķus, meklēju draugu Minkai.</p>
+        <p class="muted">2025-09-23</p>
+      </div>
+
+      <div class="application-card">
+        <h3>Rex (Suns)</h3>
+        <p><strong>Statuss:</strong> <span class="badge badge-approved">Apstiprināts</span></p>
+        <p><strong>Pieteicējs:</strong> Līga Ozoliņa</p>
+        <p><strong>Ziņa:</strong> Man ir liela māja ar dārzu, Rex būs laimīgs!</p>
+        <p class="muted">2025-09-20</p>
+      </div>
+
+      <div class="application-card">
+        <h3>Luna (Kaķis)</h3>
+        <p><strong>Statuss:</strong> <span class="badge badge-declined">Atteikts</span></p>
+        <p><strong>Pieteicējs:</strong> Māris Liepiņš</p>
+        <p><strong>Ziņa:</strong> Diemžēl neatbilstu kritērijiem šoreiz.</p>
+        <p class="muted">2025-09-18</p>
+      </div>
+    </div>
 
     <div id="apps-empty" style="display:none;">Nav atrasts neviens pieteikums.</div>
     <div id="apps-error" style="display:none;">Neizdevās ielādēt pieteikumus.</div>
@@ -597,6 +632,5 @@ if (!isset($_SESSION["lietotajvards"])) {
     </div>
   </footer>
 
-  <script src="applications.js"></script>
 </body>
 </html>
