@@ -78,24 +78,24 @@ $result = $conn->query($query);
           </td>
           <td>
             <?php if ($row['statuss'] == 'gaida apstiprinājumu'): ?>
-              <form method="POST" action="update_adoption_status.php" style="display:inline;">
+              <form method="POST" action="update_adoption_statuss.php" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                 <input type="hidden" name="status" value="apstiprinats">
                 <button class="btn approve">✅ Apstiprināt</button>
               </form>
-              <form method="POST" action="update_adoption_status.php" style="display:inline;">
+              <form method="POST" action="update_adoption_statuss.php" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                 <input type="hidden" name="status" value="noraidits">
                 <button class="btn reject">❌ Noraidīt</button>
               </form>
             <?php elseif ($row['statuss'] == 'apstiprinats'): ?>
-              <form method="POST" action="update_adoption_status.php" style="display:inline;">
+              <form method="POST" action="update_adoption_statuss.php" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                 <input type="hidden" name="status" value="noraidits">
                 <button class="btn reject">❌ Noraidīt</button>
               </form>
             <?php elseif ($row['statuss'] == 'noraidits'): ?>
-              <form method="POST" action="update_adoption_status.php" style="display:inline;">
+              <form method="POST" action="update_adoption_statuss.php" style="display:inline;">
                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                 <input type="hidden" name="status" value="apstiprinats">
                 <button class="btn approve">✅ Apstiprināt</button>

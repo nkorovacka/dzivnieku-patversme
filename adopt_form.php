@@ -13,7 +13,7 @@ if (!$pet_id) {
   exit;
 }
 
-// ielādē .env un dabū dzīvnieka datus
+// ielādē .env un pieslēdzas datubāzei
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
@@ -28,6 +28,42 @@ if ($conn->connect_error) {
   die("❌ Neizdevās savienoties ar datubāzi: " . $conn->connect_error);
 }
 
+// ==========================
+// AJAX pieprasījums — atgriež aizņemtos laikus
+// ==========================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['date_check'])) {
+  $date_check = $_POST['date_check'];
+  $pet_id_ajax = intval($_POST['pet_id'] ?? 0);
+
+  if (!$pet_id_ajax) {
+    http_response_code(400);
+    echo json_encode(["error" => "Trūkst pet_id"]);
+    exit;
+  }
+
+  $stmt = $conn->prepare("
+    SELECT laiks FROM adopcijas_pieteikumi
+    WHERE datums = ? 
+      AND pet_id = ? 
+      AND statuss IN ('gaida apstiprinājumu','apstiprinats')
+  ");
+  $stmt->bind_param("si", $date_check, $pet_id_ajax);
+  $stmt->execute();
+  $result = $stmt->get_result();
+
+  $occupied_times = [];
+  while ($row = $result->fetch_assoc()) {
+    $occupied_times[] = $row['laiks'];
+  }
+
+  header('Content-Type: application/json');
+  echo json_encode($occupied_times);
+  exit;
+}
+
+// ==========================
+// Iegūst dzīvnieka datus
+// ==========================
 $petStmt = $conn->prepare("SELECT vards, attels, suga, vecums, dzimums FROM dzivnieki WHERE id = ?");
 $petStmt->bind_param("i", $pet_id);
 $petStmt->execute();
@@ -65,7 +101,6 @@ function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE,
     .pet-info img{width:200px;height:180px;object-fit:cover;border-radius:12px;}
     .pet-meta h2{margin:0 0 10px;color:#111827;}
     .pet-meta p{margin:0;color:#6b7280;}
-
     form{padding:25px;}
     label{display:block;font-weight:600;color:#374151;margin-bottom:6px;margin-top:16px;}
     input, select, textarea{
@@ -78,7 +113,6 @@ function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE,
     }
     textarea{resize:vertical;min-height:100px;}
     .help{font-size:.9rem;color:#6b7280;margin-top:3px;}
-
     .actions{display:flex;gap:12px;margin-top:25px;flex-wrap:wrap;}
     .btn{border:none;border-radius:10px;padding:10px 20px;font-weight:700;cursor:pointer;transition:.2s;}
     .btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;}
@@ -128,44 +162,61 @@ function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE,
   </div>
 
   <script>
-  // Minimālais datums = šodiena
-  const dateInput = document.getElementById('arrival_date');
-  const timeSelect = document.getElementById('arrival_time');
-  const helpText = document.getElementById('timeHelp');
+const dateInput = document.getElementById('arrival_date');
+const timeSelect = document.getElementById('arrival_time');
+const helpText = document.getElementById('timeHelp');
+const petId = <?= (int)$pet_id ?>;
 
-  const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1); // rītdienas datums
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
 const minDate = tomorrow.toISOString().split('T')[0];
 dateInput.min = minDate;
 if (!dateInput.value) dateInput.value = minDate;
 
-  function updateTimeOptions() {
-    if (!dateInput.value) return;
-    const date = new Date(dateInput.value);
-    const day = date.getDay(); // 0=Sv,1=Pirmdiena,...
-    let start=9, end=18, text="P–Pk: 9:00–18:00";
+async function getTakenTimes(date) {
+  try {
+    const res = await fetch(`test_times.php?pet_id=${petId}&date=${date}`);
+    if (!res.ok) throw new Error('Server error');
+    return await res.json(); // saņem sarakstu, piemēram ["11:00"]
+  } catch (e) {
+    console.error('Neizdevās ielādēt aizņemtos laikus:', e);
+    return [];
+  }
+}
 
-    switch(day){
-      case 0: start=10; end=14; text="Sv: 10:00–14:00"; break;
-      case 6: start=10; end=16; text="S: 10:00–16:00"; break;
-      default: start=9; end=18; text="P–Pk: 9:00–18:00";
-    }
+async function updateTimeOptions() {
+  if (!dateInput.value) return;
+  const date = new Date(dateInput.value);
+  const day = date.getDay();
+  let start = 9, end = 18, text = "P–Pk: 9:00–18:00";
 
-    timeSelect.innerHTML = '<option value="">Izvēlies laiku...</option>';
-    for(let h=start; h<end; h++){
-      const time = `${String(h).padStart(2,'0')}:00`;
-      const opt = document.createElement('option');
-      opt.value = time;
-      opt.textContent = time;
-      timeSelect.appendChild(opt);
-    }
-    helpText.textContent = "Pieejamais laiks: " + text;
+  switch(day){
+    case 0: start=10; end=14; text="Sv: 10:00–14:00"; break;
+    case 6: start=10; end=16; text="S: 10:00–16:00"; break;
   }
 
-  dateInput.addEventListener('change', updateTimeOptions);
+  const takenTimes = await getTakenTimes(dateInput.value);
+  console.log("Aizņemtie laiki no servera:", takenTimes);
 
-  // 🔥 Izsauc uzreiz, lai stundas parādās jau sākumā
-  document.addEventListener('DOMContentLoaded', updateTimeOptions);
-  </script>
+  timeSelect.innerHTML = '<option value="">Izvēlies laiku...</option>';
+  for(let h=start; h<end; h++){
+    const time = `${String(h).padStart(2,'0')}:00`;
+    const opt = document.createElement('option');
+    opt.value = time;
+    opt.textContent = takenTimes.includes(time)
+      ? `${time} — aizņemts`
+      : time;
+    if (takenTimes.includes(time)) opt.disabled = true;
+    timeSelect.appendChild(opt);
+  }
+
+  helpText.textContent = "Pieejamais laiks: " + text;
+}
+
+dateInput.addEventListener('change', updateTimeOptions);
+document.addEventListener('DOMContentLoaded', updateTimeOptions);
+</script>
+
+
 </body>
 </html>

@@ -29,7 +29,7 @@ $pets = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dzīvnieki — SirdsPaws</title>
   <link rel="stylesheet" href="index.css"> <!-- kopīgie stili un navbar -->
-  <link rel="stylesheet" href="pets.css?v=2">
+  <link rel="stylesheet" href="pets.css?v=3">
 </head>
 <body>
 
@@ -62,14 +62,15 @@ $pets = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
         <?php if (!empty($pets)): ?>
           <?php foreach ($pets as $pet): ?>
             <?php
-              $status = $pet['statuss'] ?? 'pieejams';
-              switch (strtolower($status)) {
+              $status = strtolower($pet['statuss'] ?? 'pieejams');
+              switch ($status) {
                   case 'adoptets':
                       $statusClass = 'status-adopted';
                       $statusText = 'Adoptēts';
                       break;
                   case 'procesā':
                   case 'pending':
+                  case 'rezervets': // 🟡 JAUNA RINDA — “rezervēts” tiek rādīts kā “Adopcijas procesā”
                       $statusClass = 'status-pending';
                       $statusText = 'Adopcijas procesā';
                       break;
