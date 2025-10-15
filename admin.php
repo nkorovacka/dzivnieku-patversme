@@ -12,17 +12,7 @@ if (!isset($_SESSION["admin"]) || $_SESSION["admin"] != 1) {
 }
 
 // ✅ DB pieslēgums
-require_once __DIR__ . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
-
-$servername = $_ENV['DB_HOST'] ?? 'localhost';
-$username   = $_ENV['DB_USER'] ?? 'root';
-$password   = $_ENV['DB_PASS'] ?? '';
-$dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
-$port       = $_ENV['DB_PORT'] ?? 3306;
-
-$conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
+require_once __DIR__ . '/db_conn.php';
 if ($conn->connect_error) {
     die("Savienojuma kļūda: " . $conn->connect_error);
 }
@@ -96,6 +86,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
     </style>
 </head>
 <body>
+    
 
 <header>
     <h1>🐾 Admin panelis</h1>
@@ -134,6 +125,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             </tr>
         <?php endwhile; ?>
     </table>
+    <div style="text-align:center; margin:20px;"></div>
 
     <div style="text-align:center;">
         <a href="logout.php" class="logout">Izrakstīties</a>
