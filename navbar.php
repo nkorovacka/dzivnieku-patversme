@@ -1,5 +1,7 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <header class="main-header">
   <div class="container nav-container">
@@ -26,5 +28,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
           <a href="register.html">Reģistrēties</a>
       <?php endif; ?>
     </div>
+
+     <?php include 'profile_icon.php'; ?>
   </div>
 </header>

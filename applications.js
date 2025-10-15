@@ -69,7 +69,7 @@ async function loadData() {
   if (state.filterStatus) params.set('status', state.filterStatus);
   if (state.filterType) params.set('type', state.filterType);
 
-  const res = await fetch(`/api/my_applications.php?` + params.toString(), {
+  const res = await fetch(`/app/my_applications.php?` + params.toString(), {
     headers: { 'Cache-Control': 'no-store' }
   });
   const json = await res.json();
