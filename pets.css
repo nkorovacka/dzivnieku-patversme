@@ -322,3 +322,15 @@ body {
   .pet-image { height: 200px; }
   .pet-name { font-size: 1.1rem; }
 }
+.btn-favorite.active {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+/* 🔥 Neliels pulsēšanas efekts (papildus skaistumam) */
+.btn-favorite.active:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}

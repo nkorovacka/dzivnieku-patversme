@@ -21,6 +21,16 @@ if ($conn->connect_error) {
 // Nolasām visus dzīvniekus
 $result = $conn->query("SELECT * FROM dzivnieki");
 $pets = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+// ✅ Ja lietotājs ir ielogojies, iegūst viņa favorītus
+$favorites = [];
+if (isset($_SESSION['user_id'])) {
+    $uid = intval($_SESSION['user_id']);
+    $favQuery = $conn->query("SELECT pet_id FROM favorites WHERE user_id = $uid");
+    while ($f = $favQuery->fetch_assoc()) {
+        $favorites[] = (int)$f['pet_id'];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="lv">
@@ -70,7 +80,7 @@ $pets = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
                       break;
                   case 'procesā':
                   case 'pending':
-                  case 'rezervets': // 🟡 JAUNA RINDA — “rezervēts” tiek rādīts kā “Adopcijas procesā”
+                  case 'rezervets':
                       $statusClass = 'status-pending';
                       $statusText = 'Adopcijas procesā';
                       break;
@@ -122,7 +132,9 @@ $pets = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 
                   <form action="toggle_favorite.php" method="POST">
                     <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
-                    <button class="btn btn-favorite" type="submit">❤</button>
+                    <button class="btn btn-favorite <?= in_array($pet['id'], $favorites) ? 'active' : '' ?>" type="submit">
+                      ❤
+                    </button>
                   </form>
                 </div>
               </div>
