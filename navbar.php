@@ -28,5 +28,7 @@ if (session_status() === PHP_SESSION_NONE) {
           <a href="register.html">Reģistrēties</a>
       <?php endif; ?>
     </div>
+
+     <?php include 'profile_icon.php'; ?>
   </div>
 </header>
