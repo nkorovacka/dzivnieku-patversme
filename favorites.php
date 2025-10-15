@@ -8,7 +8,7 @@ if (!isset($_SESSION['epasts'])) {
     exit;
 }
 
-// DB savienojums
+// 🔧 DB savienojums
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
@@ -19,20 +19,18 @@ $conn = new mysqli(
     $_ENV['DB_NAME'] ?? 'dzivnieku_patversme',
     $_ENV['DB_PORT'] ?? 3306
 );
-if ($conn->connect_error) {
-    die("Savienojuma kļūda: " . $conn->connect_error);
-}
+if ($conn->connect_error) die("Savienojuma kļūda: " . $conn->connect_error);
 
-// Lietotāja ID
+// 🔍 Lietotāja ID
 $user_email = $_SESSION['epasts'];
-$userQuery = $conn->prepare("SELECT id FROM lietotaji WHERE epasts = ?");
-$userQuery->bind_param("s", $user_email);
-$userQuery->execute();
-$userRes = $userQuery->get_result();
+$stmt = $conn->prepare("SELECT id FROM lietotaji WHERE epasts = ?");
+$stmt->bind_param("s", $user_email);
+$stmt->execute();
+$userRes = $stmt->get_result();
 $user = $userRes->fetch_assoc();
 $user_id = $user['id'];
 
-// Dzēš no favorītiem
+// 🗑 Dzēš no favorītiem
 if (isset($_POST['remove_id'])) {
     $pet_id = intval($_POST['remove_id']);
     $del = $conn->prepare("DELETE FROM favorites WHERE user_id = ? AND pet_id = ?");
@@ -40,16 +38,16 @@ if (isset($_POST['remove_id'])) {
     $del->execute();
 }
 
-// Atlasa favorītus
-$query = $conn->prepare("
-    SELECT d.id, d.vards, d.suga, d.attels, d.statuss, d.vecums, d.dzimums
-    FROM favorites f
-    JOIN dzivnieki d ON f.pet_id = d.id
-    WHERE f.user_id = ?
+// 🐾 Atlasa favorītus ar dzīvnieku datiem
+$q = $conn->prepare("
+  SELECT d.id, d.vards, d.suga, d.attels, d.statuss, d.vecums, d.dzimums, d.apraksts
+  FROM favorites f
+  JOIN dzivnieki d ON f.pet_id = d.id
+  WHERE f.user_id = ?
 ");
-$query->bind_param("i", $user_id);
-$query->execute();
-$result = $query->get_result();
+$q->bind_param("i", $user_id);
+$q->execute();
+$favorites = $q->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -58,163 +56,89 @@ $result = $query->get_result();
   <meta charset="UTF-8">
   <title>Mani favorīti — SirdsPaws</title>
   <link rel="stylesheet" href="index.css">
-  <style>
-    body {
-      background-color: #f8fafc;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .favorites-container {
-      width: 90%;
-      max-width: 1200px;
-      margin: 60px auto;
-      text-align: center;
-    }
-
-    .favorites-container h1 {
-      font-size: 2rem;
-      color: #4f46e5;
-      margin-bottom: 0.5rem;
-    }
-
-    .favorites-container p {
-      color: #6b7280;
-      margin-bottom: 2rem;
-    }
-
-    .pets-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
-    }
-
-    .pet-card {
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      position: relative;
-    }
-
-    .pet-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-    }
-
-    .pet-image img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-    }
-
-    .pet-info {
-      padding: 1rem 1.2rem;
-    }
-
-    .pet-info h3 {
-      margin: 0;
-      color: #1f2937;
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-
-    .pet-info .pet-suga {
-      color: #6b7280;
-      font-size: 0.9rem;
-      margin-bottom: 8px;
-    }
-
-    .pet-badge {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: #4f46e5;
-      color: white;
-      font-size: 0.8rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 8px;
-      text-transform: uppercase;
-    }
-
-    .pet-badge.unavailable {
-      background: #9ca3af;
-    }
-
-    .remove-btn {
-      background: linear-gradient(90deg, #ef4444, #dc2626);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: transform 0.2s, background 0.2s;
-      margin-top: 10px;
-    }
-
-    .remove-btn:hover {
-      transform: scale(1.05);
-      background: linear-gradient(90deg, #dc2626, #b91c1c);
-    }
-
-    .empty {
-      margin-top: 60px;
-      font-size: 1.2rem;
-      color: #6b7280;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .empty span {
-      font-size: 3rem;
-      margin-bottom: 10px;
-    }
-  </style>
+  <link rel="stylesheet" href="pets.css?v=5">
 </head>
 <body>
   <?php include 'navbar.php'; ?>
 
-  <div class="favorites-container">
-    <h1>🐾 Mani favorīti</h1>
-    <p>Šie ir dzīvnieki, kas tev īpaši iepatikušies 💜</p>
+  <main class="main-container">
+    <section class="main-content">
+      <div class="search-section" style="text-align:center;">
+        <h1>🐾 Mani favorīti</h1>
+        <p>Šie ir dzīvnieki, kas tev īpaši iepatikušies 💜</p>
+      </div>
 
-    <div class="pets-grid">
-      <?php if ($result->num_rows > 0): ?>
-        <?php while ($row = $result->fetch_assoc()): ?>
-          <div class="pet-card">
-            <div class="pet-image">
-              <img src="<?= htmlspecialchars($row['attels']) ?: 'kitty.jpg' ?>" alt="<?= htmlspecialchars($row['vards']) ?>">
-              <div class="pet-badge <?= $row['statuss'] !== 'pieejams' ? 'unavailable' : '' ?>">
-                <?= htmlspecialchars($row['statuss']) ?>
+      <div class="pets-grid">
+        <?php if ($favorites->num_rows > 0): ?>
+          <?php while ($pet = $favorites->fetch_assoc()): ?>
+            <?php
+              $status = strtolower($pet['statuss'] ?? 'pieejams');
+              switch ($status) {
+                  case 'adoptets':
+                      $statusClass = 'status-adopted';
+                      $statusText = 'Adoptēts';
+                      break;
+                  case 'procesā':
+                  case 'pending':
+                  case 'rezervets':
+                      $statusClass = 'status-pending';
+                      $statusText = 'Adopcijas procesā';
+                      break;
+                  default:
+                      $statusClass = 'status-available';
+                      $statusText = 'Pieejams adoptēšanai';
+              }
+            ?>
+            <div class="pet-card">
+              <div class="pet-image">
+                <img src="<?= htmlspecialchars($pet['attels'] ?: 'kitty.jpg') ?>" alt="<?= htmlspecialchars($pet['vards']) ?>">
+                <span class="pet-status <?= $statusClass ?>"><?= $statusText ?></span>
+              </div>
+
+              <div class="pet-info">
+                <div class="pet-header">
+                  <h3 class="pet-name"><?= htmlspecialchars($pet['vards']) ?></h3>
+                  <span class="pet-type"><?= htmlspecialchars($pet['suga']) ?></span>
+                </div>
+
+                <div class="pet-details">
+                  <?php if (!empty($pet['vecums'])): ?>
+                    <span class="pet-detail"><?= htmlspecialchars($pet['vecums']) ?> g.</span>
+                  <?php endif; ?>
+                  <?php if (!empty($pet['dzimums'])): ?>
+                    <span class="pet-detail"><?= htmlspecialchars($pet['dzimums']) ?></span>
+                  <?php endif; ?>
+                </div>
+
+                <p class="pet-description"><?= htmlspecialchars($pet['apraksts'] ?? 'Apraksts nav pieejams.') ?></p>
+
+                <div class="pet-actions">
+                  <?php if ($status === 'pieejams'): ?>
+                    <form action="adopt_form.php" method="GET">
+                      <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
+                      <button type="submit" class="btn btn-adopt">Adoptēt</button>
+                    </form>
+                  <?php else: ?>
+                    <button class="btn btn-adopt" disabled><?= $statusText ?></button>
+                  <?php endif; ?>
+
+                  <form method="POST" action="">
+                    <input type="hidden" name="remove_id" value="<?= $pet['id'] ?>">
+                    <button type="submit" class="btn btn-favorite active">🗑 Noņemt</button>
+                  </form>
+                </div>
               </div>
             </div>
-
-            <div class="pet-info">
-              <h3><?= htmlspecialchars($row['vards']) ?></h3>
-              <div class="pet-suga"><?= htmlspecialchars($row['suga']) ?></div>
-              <p style="color:#6b7280; font-size:0.9rem;">
-                <?= !empty($row['vecums']) ? $row['vecums'] . ' gadu vecs ' : '' ?>
-                <?= !empty($row['dzimums']) ? '(' . htmlspecialchars($row['dzimums']) . ')' : '' ?>
-              </p>
-
-              <form method="POST" action="">
-                <input type="hidden" name="remove_id" value="<?= $row['id'] ?>">
-                <button type="submit" class="remove-btn">🗑 Noņemt no favorītiem</button>
-              </form>
-            </div>
+          <?php endwhile; ?>
+        <?php else: ?>
+          <div class="empty-state">
+            <div class="empty-state-icon">💔</div>
+            <h3>Tu vēl neesi pievienojis nevienu dzīvnieku favorītos</h3>
           </div>
-        <?php endwhile; ?>
-      <?php else: ?>
-        <div class="empty">
-          <span>💔</span>
-          <p>Tu vēl neesi pievienojis nevienu dzīvnieku favorītos</p>
-        </div>
-      <?php endif; ?>
-    </div>
-  </div>
+        <?php endif; ?>
+      </div>
+    </section>
+  </main>
 
   <?php include 'footer.php'; ?>
 </body>
