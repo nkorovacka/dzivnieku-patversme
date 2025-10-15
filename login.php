@@ -1,46 +1,12 @@
+```php
 <?php
-// 🔧 Sesijas iestatījumi — lai tā būtu pieejama visās lapās un saglabātos ilgāk
-ini_set('session.cookie_path', '/');
-ini_set('session.cookie_lifetime', 86400);
-ini_set('session.gc_maxlifetime', 86400);
-ini_set('session.cookie_secure', false); // true ja izmanto HTTPS
-ini_set('session.cookie_httponly', true);
 
 session_start();
-
-require_once __DIR__ . '/vendor/autoload.php'; // ielādē Dotenv
-
-// Ielādē .env mainīgos
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
-
-// Datubāzes pieslēgšanās informācija no .env
-$servername = $_ENV['DB_HOST'] ?? 'localhost';
-$username   = $_ENV['DB_USER'] ?? 'root';
-$password   = $_ENV['DB_PASS'] ?? '';
-$dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
-$port       = $_ENV['DB_PORT'] ?? 3306;
-
-// ✅ JA JAU ILOGOJIES — NOVIRZA UZ ATBILSTOŠO LAPU
-if (isset($_SESSION["epasts"])) {
-    if (!empty($_SESSION["admin"]) && $_SESSION["admin"] == 1) {
-        header("Location: admin.php");
-    } else {
-        header("Location: index.php");
-    }
-    exit;
-}
-
-// ✅ Izveido PDO savienojumu ar datubāzi
-try {
-    $conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("<script>alert('❌ Neizdevās pieslēgties datubāzei!'); console.error('DB Error: " . addslashes($e->getMessage()) . "'); window.location.href='login.html';</script>");
-}
+require_once __DIR__ . '/db_conn.php';
 
 // ✅ Ja forma tika iesniegta
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
     $epasts = trim($_POST["epasts"] ?? '');
     $parole = trim($_POST["parole"] ?? '');
 
@@ -49,10 +15,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // Pārbauda, vai lietotājs eksistē
+    // Pārbauda lietotāju
     $check = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
-    $check->execute([$epasts]);
-    $user = $check->fetch(PDO::FETCH_ASSOC);
+    $check->bind_param("s", $epasts);
+    $check->execute();
+    $result = $check->get_result();
+    $user = $result ? $result->fetch_assoc() : null;
 
     if (!$user) {
         echo "<script>alert('❌ Lietotājs ar šo e-pastu nav reģistrēts!'); window.location.href='login.html';</script>";
@@ -65,8 +33,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // ✅ Saglabā sesijā lietotāja info (pievienots user_id!)
-    $_SESSION["user_id"] = $user["id"];
+    // ✅ Saglabā sesijā lietotāja info (ar user_id!)
+    $_SESSION["user_id"] = (int)$user["id"];
     $_SESSION["lietotajvards"] = $user["lietotajvards"];
     $_SESSION["epasts"] = $user["epasts"];
     $_SESSION["admin"] = (int)$user["admin"];
@@ -80,7 +48,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit;
 }
 
-// Ja forma netika iesniegta (GET pieprasījums)
+// ✅ Ja forma nav iesniegta, bet lietotājs jau ir ielogojies
+if (isset($_SESSION["epasts"])) {
+    if (!empty($_SESSION["admin"]) && $_SESSION["admin"] == 1) {
+        header("Location: admin.php");
+    } else {
+        header("Location: index.php");
+    }
+    exit;
+}
+
+// Citādi atver login formu
 header("Location: login.html");
 exit;
 ?>
+
+```

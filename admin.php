@@ -12,17 +12,7 @@ if (!isset($_SESSION["admin"]) || $_SESSION["admin"] != 1) {
 }
 
 // ✅ DB pieslēgums
-require_once __DIR__ . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
-
-$servername = $_ENV['DB_HOST'] ?? 'localhost';
-$username   = $_ENV['DB_USER'] ?? 'root';
-$password   = $_ENV['DB_PASS'] ?? '';
-$dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
-$port       = $_ENV['DB_PORT'] ?? 3306;
-
-$conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
+require_once __DIR__ . '/db_conn.php';
 if ($conn->connect_error) {
     die("Savienojuma kļūda: " . $conn->connect_error);
 }
@@ -35,23 +25,76 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
 <head>
     <meta charset="UTF-8">
     <title>Admin panelis — SirdsPaws</title>
-    <link rel="stylesheet" href="admin.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6ff;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { margin: 0; }
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+        th {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        tr:hover { background: #f9fafb; }
+        .admin { color: green; font-weight: bold; }
+        .user { color: #6b7280; }
+        .delete-btn {
+            color: white;
+            background: #ef4444;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .delete-btn:hover { background: #dc2626; }
+        .logout {
+            display: inline-block;
+            margin: 20px auto;
+            background: #ef4444;
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .logout:hover { background: #dc2626; }
+    </style>
 </head>
 <body>
+    
 
 <header>
     <h1>🐾 Admin panelis</h1>
     <p>Sveiks, <?= htmlspecialchars($_SESSION['lietotajvards']) ?>!</p>
-
-    <nav>
-        <a href="admin.php" class="active">👥 Lietotāji</a>
-        <a href="admin_adoptions.php">🐶 Adopcijas pieteikumi</a>
-        <a href="logout.php" class="logout">Izrakstīties</a>
-    </nav>
 </header>
 
 <main>
-    <h2>Lietotāji</h2>
+    <h2 style="text-align:center;">Lietotāji</h2>
 
     <table>
         <tr>
@@ -61,7 +104,6 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             <th>Loma</th>
             <th>Darbība</th>
         </tr>
-
         <?php while ($row = $result->fetch_assoc()): ?>
             <tr>
                 <td><?= $row['id'] ?></td>
@@ -74,9 +116,7 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
                     <?php if ($row['admin'] != 1): ?>
                         <form method="POST" action="delete_user.php" style="display:inline;">
                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                            <button type="submit" class="btn delete" onclick="return confirm('Vai tiešām dzēst šo lietotāju?');">
-                                ❌ Dzēst
-                            </button>
+                            <button type="submit" class="delete-btn" onclick="return confirm('Vai tiešām dzēst šo lietotāju?');">Dzēst</button>
                         </form>
                     <?php else: ?>
                         <span style="color:#999;">—</span>
@@ -85,6 +125,11 @@ $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji O
             </tr>
         <?php endwhile; ?>
     </table>
+    <div style="text-align:center; margin:20px;"></div>
+
+    <div style="text-align:center;">
+        <a href="logout.php" class="logout">Izrakstīties</a>
+    </div>
 </main>
 
 </body>

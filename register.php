@@ -1,38 +1,18 @@
 <?php
-// 🔧 Sesijas iestatījumi — pieejama visās lapās un ilgāk saglabājas
-ini_set('session.cookie_path', '/');
-ini_set('session.cookie_lifetime', 86400);
-ini_set('session.gc_maxlifetime', 86400);
-ini_set('session.cookie_secure', false); // true, ja izmanto HTTPS
-ini_set('session.cookie_httponly', true);
 session_start();
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-// Ielādē .env failu
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->safeLoad();
-
-// Izveido savienojumu ar datubāzi
-$conn = new mysqli(
-    $_ENV['DB_HOST'] ?? 'localhost',
-    $_ENV['DB_USER'] ?? 'root',
-    $_ENV['DB_PASS'] ?? '',
-    $_ENV['DB_NAME'] ?? 'dzivnieku_patversme',
-    $_ENV['DB_PORT'] ?? 3306
-);
+require_once __DIR__ . '/db_conn.php';
 
 // Pārbauda savienojumu
-if ($conn->connect_error) {
+if (!$conn || ($conn instanceof mysqli && $conn->connect_error)) {
     die("<script>alert('❌ Savienojuma kļūda ar datubāzi!'); window.history.back();</script>");
 }
 
 // Kad forma tiek iesniegta
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $lietotajvards = trim($_POST["lietotajvards"] ?? '');
-    $epasts = trim($_POST["epasts"] ?? '');
-    $parole = trim($_POST["parole"] ?? '');
-    $confirm = trim($_POST["confirm"] ?? '');
+    $lietotajvards = trim($_POST["lietotajvards"]);
+    $epasts = trim($_POST["epasts"]);
+    $parole = trim($_POST["parole"]);
+    $confirm = trim($_POST["confirm"]);
 
     // ✅ Validācija servera pusē
     if (!preg_match("/^[A-Za-z0-9_]{3,20}$/", $lietotajvards)) {
@@ -74,8 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $insert->bind_param("sss", $lietotajvards, $epasts, $hashed);
 
     if ($insert->execute()) {
-        // ✅ Uzreiz automātiski ielogojas
-        $_SESSION["user_id"] = $conn->insert_id;
+        $newUserId = $conn->insert_id;
+        $_SESSION["user_id"] = (int)$newUserId;
         $_SESSION["lietotajvards"] = $lietotajvards;
         $_SESSION["epasts"] = $epasts;
         $_SESSION["admin"] = 0;
@@ -83,9 +63,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: index.php");
         exit;
     } else {
-        echo "<script>alert('❌ Kļūda saglabājot lietotāju: " . addslashes($conn->error) . "'); window.history.back();</script>";
-        exit;
+        echo "<script>alert('❌ Kļūda saglabājot lietotāju: " . $conn->error . "'); window.history.back();</script>";
     }
+
+    $insert->close();
 }
 
 $conn->close();
