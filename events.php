@@ -1,14 +1,20 @@
 <?php
 session_start();
 
+// Проверка авторизации - доступ только для авторизованных пользователей
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.html');
+    exit;
+}
+
 require_once __DIR__ . '/db_conn.php';
 
 // Database connection
-$host = 'shinkansen.proxy.rlwy.net'; // Updated host
-$port = '36226'; // Updated port
+$host = 'shinkansen.proxy.rlwy.net';
+$port = '36226';
 $dbname = 'railway';
-$username = 'root'; // your username
-$password = 'oYVsYmRdokiELhESSYyNUiTfHwwpqEfE'; // your password
+$username = 'root';
+$password = 'oYVsYmRdokiELhESSYyNUiTfHwwpqEfE';
 
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
@@ -17,29 +23,25 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
+// Обработка AJAX запроса на регистрацию
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register') {
     header('Content-Type: application/json');
-    
-    if (!isset($_SESSION['user_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Lūdzu, pieslēdzieties, lai reģistrētos pasākumam!']);
-        exit;
-    }
     
     $event_id = $_POST['event_id'];
     $user_id = $_SESSION['user_id'];
     
     try {
-        // Check if already registered
+        // Проверка, зарегистрирован ли уже
         $stmt = $pdo->prepare("SELECT id FROM pasakumu_pieteikumi WHERE pasakuma_id = ? AND lietotaja_id = ?");
         $stmt->execute([$event_id, $user_id]);
         
         if ($stmt->fetch()) {
-            // Unregister
+            // Отмена регистрации
             $stmt = $pdo->prepare("DELETE FROM pasakumu_pieteikumi WHERE pasakuma_id = ? AND lietotaja_id = ?");
             $stmt->execute([$event_id, $user_id]);
             echo json_encode(['success' => true, 'action' => 'unregistered', 'message' => 'Jūs atteicāties no pasākuma']);
         } else {
-            // Check if event is full
+            // Проверка заполненности
             $stmt = $pdo->prepare("
                 SELECT p.max_dalibnieki, COUNT(pp.id) as current_count 
                 FROM pasakumi p 
@@ -55,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 exit;
             }
             
-            // Register
+            // Регистрация
             $stmt = $pdo->prepare("INSERT INTO pasakumu_pieteikumi (pasakuma_id, lietotaja_id, registracijas_datums) VALUES (?, ?, NOW())");
             $stmt->execute([$event_id, $user_id]);
             echo json_encode(['success' => true, 'action' => 'registered', 'message' => 'Jūs veiksmīgi piereģistrējāties pasākumam!']);
@@ -66,13 +68,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     exit;
 }
 
+// Получение фильтра категории
 $category_filter = isset($_GET['category']) ? $_GET['category'] : 'all';
 
+// Получение событий из базы данных
 $sql = "
     SELECT 
         p.*,
-        COUNT(pp.id) as current_participants,
-        p.max_dalibnieki as max_participants
+        COUNT(pp.id) as current_participants
     FROM pasakumi p
     LEFT JOIN pasakumu_pieteikumi pp ON p.id = pp.pasakuma_id
 ";
@@ -90,6 +93,7 @@ if ($category_filter !== 'all') {
 $stmt->execute();
 $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Получение регистраций текущего пользователя
 $user_registrations = [];
 if (isset($_SESSION['user_id'])) {
     $stmt = $pdo->prepare("SELECT pasakuma_id FROM pasakumu_pieteikumi WHERE lietotaja_id = ?");
@@ -99,7 +103,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
-// Category mapping
+// Маппинг категорий
 $category_map = [
     'adoption' => 'Adopcijas Diena',
     'volunteer' => 'Brīvprātīgie',
@@ -107,7 +111,7 @@ $category_map = [
     'fundraising' => 'Labdarība'
 ];
 
-// Icon mapping
+// Маппинг иконок
 $icon_map = [
     'adoption' => '🐕🐈',
     'volunteer' => '🧹🏡',
@@ -128,11 +132,17 @@ $icon_map = [
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
             color: #1a1a1a;
             line-height: 1.6;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
@@ -239,6 +249,13 @@ $icon_map = [
 
         .auth-links a:hover {
             transform: translateY(-2px);
+        }
+
+        /* ==========================
+           MAIN CONTENT WRAPPER
+        ========================== */
+        .main-content {
+            flex: 1 0 auto;
         }
 
         /* ==========================
@@ -495,8 +512,9 @@ $icon_map = [
         }
 
         .btn-registered:hover {
+            background: #059669;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
         }
 
         .no-events {
@@ -514,9 +532,11 @@ $icon_map = [
            FOOTER
         ========================== */
         footer {
+            flex-shrink: 0;
             background: #1a1a2e;
             color: white;
             padding: 3rem 0 1rem 0;
+            margin-top: auto;
         }
 
         .footer-grid {
@@ -582,240 +602,133 @@ $icon_map = [
 </head>
 <body>
 
-    <!-- HEADER -->
-    <header class="main-header">
-        <div class="container nav-container">
-            <a href="index.php" class="logo">🐾 SirdsPaws</a>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="index.php">Sākums</a></li>
-                    <li><a href="pets.php">Dzīvnieki</a></li>
-                    <li><a href="favorites.php">Favorīti</a></li>
-                    <li><a href="applications.php">Mani pieteikumi</a></li>
-                    <li><a href="events.php" class="active">Pasākumi</a></li>
-                </ul>
-            </nav>
+    <div class="main-content">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="container nav-container">
+                <a href="index.php" class="logo">🐾 SirdsPaws</a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="index.php">Sākums</a></li>
+                        <li><a href="pets.php">Dzīvnieki</a></li>
+                        <li><a href="favorites.php">Favorīti</a></li>
+                        <li><a href="applications.php">Mani pieteikumi</a></li>
+                        <li><a href="events.php" class="active">Pasākumi</a></li>
+                    </ul>
+                </nav>
 
-            <div class="auth-links">
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <div class="auth-links">
                     <a href="profile.php">Profils</a>
                     <?php if (!empty($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
                         <a href="admin.php">Admin</a>
                     <?php endif; ?>
                     <a href="logout.php">Izrakstīties</a>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="container">
+                <h1>🎉 Pasākumi un Aktivitātes</h1>
+                <p>Pievienojies mūsu pasākumiem un palīdzi dzīvniekiem atrast mājas!</p>
+            </div>
+        </section>
+
+        <!-- TABS -->
+        <div class="container">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-btn <?php echo $category_filter === 'all' ? 'active' : ''; ?>" onclick="filterEvents('all')">Visi Pasākumi</button>
+                    <button class="tab-btn <?php echo $category_filter === 'adoption' ? 'active' : ''; ?>" onclick="filterEvents('adoption')">Adopcijas Dienas</button>
+                    <button class="tab-btn <?php echo $category_filter === 'volunteer' ? 'active' : ''; ?>" onclick="filterEvents('volunteer')">Brīvprātīgo Darbs</button>
+                    <button class="tab-btn <?php echo $category_filter === 'training' ? 'active' : ''; ?>" onclick="filterEvents('training')">Apmācības</button>
+                    <button class="tab-btn <?php echo $category_filter === 'fundraising' ? 'active' : ''; ?>" onclick="filterEvents('fundraising')">Labdarība</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVENTS GRID -->
+        <section class="events-section">
+            <div class="container">
+                <?php if (count($events) > 0): ?>
+                    <div class="events-grid">
+                        <?php foreach ($events as $event): 
+                            $is_registered = in_array($event['id'], $user_registrations);
+                            $is_full = $event['current_participants'] >= $event['max_dalibnieki'];
+                            $spots_left = $event['max_dalibnieki'] - $event['current_participants'];
+                            
+                            // Определение бейджа
+                            $badge_class = 'badge-upcoming';
+                            $badge_text = 'Brīvas vietas';
+                            
+                            if ($is_full) {
+                                $badge_class = 'badge-full';
+                                $badge_text = 'Pilns';
+                            } elseif ($spots_left <= 5) {
+                                $badge_class = 'badge-spots-left';
+                                $badge_text = 'Maz vietu';
+                            }
+                            
+                            // Форматирование даты
+                            $date = new DateTime($event['datums']);
+                            $formatted_date = $date->format('d.m.Y');
+                            
+                            // Форматирование времени
+                            $time_start = date('H:i', strtotime($event['laiks_sakums']));
+                            $time_end = date('H:i', strtotime($event['laiks_beigas']));
+                        ?>
+                        <div class="event-card">
+                            <div class="event-image">
+                                <?php echo $icon_map[$event['kategorija']] ?? '🎉'; ?>
+                                <?php if (!$is_full): ?>
+                                    <span class="event-badge <?php echo $badge_class; ?>"><?php echo $badge_text; ?></span>
+                                <?php else: ?>
+                                    <span class="event-badge badge-full">Pilns</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="event-content">
+                                <span class="event-category"><?php echo $category_map[$event['kategorija']] ?? $event['kategorija']; ?></span>
+                                <h3 class="event-title"><?php echo htmlspecialchars($event['nosaukums']); ?></h3>
+                                <div class="event-meta">
+                                    <div class="meta-item">
+                                        📅 <strong><?php echo $formatted_date; ?></strong>
+                                    </div>
+                                    <div class="meta-item">
+                                        🕐 <strong><?php echo $time_start . ' - ' . $time_end; ?></strong>
+                                    </div>
+                                    <div class="meta-item">
+                                        📍 <strong><?php echo htmlspecialchars($event['vieta']); ?></strong>
+                                    </div>
+                                </div>
+                                <p class="event-description">
+                                    <?php echo htmlspecialchars($event['apraksts']); ?>
+                                </p>
+                                <div class="event-footer">
+                                    <span class="participants-info">
+                                        👥 <?php echo $event['current_participants']; ?>/<?php echo $event['max_dalibnieki']; ?> dalībnieki
+                                    </span>
+                                    <?php if ($is_full): ?>
+                                        <button class="btn btn-disabled" disabled>Pilns</button>
+                                    <?php elseif ($is_registered): ?>
+                                        <button class="btn btn-registered" onclick="registerEvent(<?php echo $event['id']; ?>, this)">✓ Reģistrēts</button>
+                                    <?php else: ?>
+                                        <button class="btn btn-primary" onclick="registerEvent(<?php echo $event['id']; ?>, this)">Pierakstīties</button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
                 <?php else: ?>
-                    <a href="login.html">Pieslēgties</a>
-                    <a href="register.html">Reģistrēties</a>
+                    <div class="no-events">
+                        <h3>Nav atrasti pasākumi</h3>
+                        <p>Šobrīd nav pieejamu pasākumu šajā kategorijā. Lūdzu, pārbaudiet vēlāk!</p>
+                    </div>
                 <?php endif; ?>
             </div>
-        </div>
-    </header>
-
-    <!-- HERO -->
-    <section class="hero">
-        <div class="container">
-            <h1>🎉 Pasākumi un Aktivitātes</h1>
-            <p>Pievienojies mūsu pasākumiem un palīdzi dzīvniekiem atrast mājas!</p>
-        </div>
-    </section>
-
-    <!-- TABS -->
-    <div class="container">
-        <div class="tabs-container">
-            <div class="tabs">
-                <button class="tab-btn <?php echo $category_filter === 'all' ? 'active' : ''; ?>" onclick="filterEvents('all')">Visi Pasākumi</button>
-                <button class="tab-btn <?php echo $category_filter === 'adoption' ? 'active' : ''; ?>" onclick="filterEvents('adoption')">Adopcijas Dienas</button>
-                <button class="tab-btn <?php echo $category_filter === 'volunteer' ? 'active' : ''; ?>" onclick="filterEvents('volunteer')">Brīvprātīgo Darbs</button>
-                <button class="tab-btn <?php echo $category_filter === 'training' ? 'active' : ''; ?>" onclick="filterEvents('training')">Apmācības</button>
-                <button class="tab-btn <?php echo $category_filter === 'fundraising' ? 'active' : ''; ?>" onclick="filterEvents('fundraising')">Labdarība</button>
-            </div>
-        </div>
+        </section>
     </div>
-
-    <!-- EVENTS GRID -->
-    <section class="events-section">
-        <div class="container">
-            <div class="events-grid" id="eventsGrid">
-                
-                <!-- Event 1 -->
-                <div class="event-card" data-category="adoption">
-                    <div class="event-image">
-                        🐕🐈
-                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Adopcijas Diena</span>
-                        <h3 class="event-title">Liela Adopcijas Diena</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>20. oktobris, 2025</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>10:00 - 16:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Patversmes teritorija</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Pievienojies mūsu lielākajam adopcijas pasākumam! Satiec mūsu dzīvniekus, uzzini par viņu stāstiem un palīdzi atrast viņiem mīlošas mājas.
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 28/50 dalībnieki</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Liela Adopcijas Diena')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 2 -->
-                <div class="event-card" data-category="volunteer">
-                    <div class="event-image">
-                        🧹🏡
-                        <span class="event-badge badge-spots-left">Maz vietu</span>
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Brīvprātīgie</span>
-                        <h3 class="event-title">Ziemas Talka</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>27. oktobris, 2025</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>09:00 - 15:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Patversmes teritorija</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Palīdzi mums sagatavoties ziemai! Kopā sakopsim teritoriju, sagatavosim būdas un izveidosim siltas vietas dzīvniekiem.
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 18/20 dalībnieki</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Ziemas Talka')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 3 -->
-                <div class="event-card" data-category="training">
-                    <div class="event-image">
-                        📚🎓
-                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Apmācība</span>
-                        <h3 class="event-title">Suņu Uzvedības Kurss</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>3. novembris, 2025</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>14:00 - 17:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Apmācību telpa</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Uzzini par suņu uzvedību, komunikāciju un drošības noteikumiem. Ideāli brīvprātīgajiem un potenciālajiem adoptētājiem!
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 12/25 dalībnieki</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Suņu Uzvedības Kurss')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 4 -->
-                <div class="event-card" data-category="fundraising">
-                    <div class="event-image">
-                        💝🎪
-                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Labdarība</span>
-                        <h3 class="event-title">Labdarības Tirdziņš</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>10. novembris, 2025</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>11:00 - 18:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Rīgas Centrāltirgus</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Labdarības tirdziņš ar roku darbu izstrādājumiem! Visi ieņēmumi tiks ziedoti patversmes dzīvniekiem.
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 35/60 dalībnieki</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Labdarības Tirdziņš')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 5 -->
-                <div class="event-card" data-category="volunteer">
-                    <div class="event-image">
-                        🐾🚶
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Brīvprātīgie</span>
-                        <h3 class="event-title">Grupu Suņu Pastaiga</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>Katru sestdienu</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>10:00 - 12:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Mežaparks</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Katru nedēļas nogali dodamies uz grupu pastaigu! Lieliski socializācijai un aktīvam laikam kopā ar suņiem.
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 Pastāvīgs</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Grupu Suņu Pastaiga')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Event 6 -->
-                <div class="event-card" data-category="adoption">
-                    <div class="event-image">
-                        🐱❤️
-                        <span class="event-badge badge-upcoming">Brīvas vietas</span>
-                    </div>
-                    <div class="event-content">
-                        <span class="event-category">Adopcijas Diena</span>
-                        <h3 class="event-title">Kaķēnu Adopcijas Pasākums</h3>
-                        <div class="event-meta">
-                            <div class="meta-item">
-                                📅 <strong>17. novembris, 2025</strong>
-                            </div>
-                            <div class="meta-item">
-                                🕐 <strong>12:00 - 17:00</strong>
-                            </div>
-                            <div class="meta-item">
-                                📍 <strong>Patversmes teritorija</strong>
-                            </div>
-                        </div>
-                        <p class="event-description">
-                            Īpašs pasākums, kas veltīts kaķēniem! Satiec mūsu jaunākos iemītniekus un dod viņiem iespēju atrast mājvietu.
-                        </p>
-                        <div class="event-footer">
-                            <span class="participants-info">👥 15/40 dalībnieki</span>
-                            <button class="btn btn-primary" onclick="registerEvent(this, 'Kaķēnu Adopcijas Pasākums')">Pierakstīties</button>
-                        </div>
-                    </div>
-                </div>
-
 
     <!-- FOOTER -->
     <footer>
@@ -840,9 +753,9 @@ $icon_map = [
                 <div>
                     <h4>Saites</h4>
                     <div style="line-height: 2;">
-                        <div><a href="pets.html">Dzīvnieki</a></div>
+                        <div><a href="pets.php">Dzīvnieki</a></div>
                         <div><a href="events.php">Pasākumi</a></div>
-                        <div><a href="register.html">Reģistrēties</a></div>
+                        <div><a href="profile.php">Profils</a></div>
                     </div>
                 </div>
 
@@ -863,21 +776,16 @@ $icon_map = [
     </footer>
 
     <script>
-        // Filter events by category
+        // Фильтрация событий по категориям
         function filterEvents(category) {
             window.location.href = 'events.php?category=' + category;
         }
 
-        function registerEvent(eventId, eventName, button) {
-            <?php if (!isset($_SESSION['user_id'])): ?>
-                alert('Lūdzu, pieslēdzieties, lai reģistrētos pasākumam!');
-                window.location.href = 'login.html';
-                return;
-            <?php endif; ?>
-
-            // Disable button during request
+        // Регистрация на событие
+        function registerEvent(eventId, button) {
             button.disabled = true;
             const originalText = button.textContent;
+            button.textContent = 'Loading...';
 
             fetch('events.php', {
                 method: 'POST',
@@ -890,26 +798,12 @@ $icon_map = [
             .then(data => {
                 if (data.success) {
                     alert(data.message);
-                    
-                    if (data.action === 'registered') {
-                        button.textContent = '✓ Reģistrēts';
-                        button.classList.remove('btn-primary');
-                        button.classList.add('btn-registered');
-                    } else {
-                        button.textContent = 'Pierakstīties';
-                        button.classList.remove('btn-registered');
-                        button.classList.add('btn-primary');
-                    }
-                    
-                    // Reload page to update participant counts
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1000);
+                    location.reload();
                 } else {
                     alert(data.message);
                     button.textContent = originalText;
+                    button.disabled = false;
                 }
-                button.disabled = false;
             })
             .catch(error => {
                 console.error('Error:', error);
