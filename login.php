@@ -1,25 +1,28 @@
 <?php
-session_start();
-require_once __DIR__ . '/vendor/autoload.php';
+// 🔧 Sesijas iestatījumi — lai tā būtu pieejama visās lapās un saglabātos ilgāk
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.cookie_secure', false); // true ja izmanto HTTPS
+ini_set('session.cookie_httponly', true);
 
-// Ielādē .env konfigurāciju
+session_start();
+require_once 'db_conn.php';
+
+require_once __DIR__ . '/vendor/autoload.php'; // ielādē Dotenv
+
+// Ielādē .env mainīgos
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
-// Datubāzes pieslēgšanās informācija
+// Datubāzes pieslēgšanās informācija no .env
 $servername = $_ENV['DB_HOST'] ?? 'localhost';
 $username   = $_ENV['DB_USER'] ?? 'root';
 $password   = $_ENV['DB_PASS'] ?? '';
 $dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
 $port       = $_ENV['DB_PORT'] ?? 3306;
 
-// ✅ Izveido drošu savienojumu ar MySQLi (jo pārējās lapas izmanto mysqli)
-$conn = new mysqli($servername, $username, $password, $dbname, $port);
-if ($conn->connect_error) {
-    die("Savienojuma kļūda: " . $conn->connect_error);
-}
-
-// ✅ Ja lietotājs jau ir ielogojies
+// ✅ JA JAU ILOGOJIES — NOVIRZA UZ ATBILSTOŠO LAPU
 if (isset($_SESSION["epasts"])) {
     if (!empty($_SESSION["admin"]) && $_SESSION["admin"] == 1) {
         header("Location: admin.php");
@@ -29,7 +32,15 @@ if (isset($_SESSION["epasts"])) {
     exit;
 }
 
-// ✅ Ja forma iesniegta
+// ✅ Izveido PDO savienojumu ar datubāzi
+try {
+    $conn = new PDO("mysql:host=$servername;port=$port;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("<script>alert('❌ Neizdevās pieslēgties datubāzei!'); console.error('DB Error: " . addslashes($e->getMessage()) . "'); window.location.href='login.html';</script>");
+}
+
+// ✅ Ja forma tika iesniegta
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $epasts = trim($_POST["epasts"] ?? '');
     $parole = trim($_POST["parole"] ?? '');
@@ -39,31 +50,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit;
     }
 
-    // ✅ Pārbauda, vai lietotājs eksistē
-    $stmt = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
-    $stmt->bind_param("s", $epasts);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result ? $result->fetch_assoc() : null;
+    // Pārbauda, vai lietotājs eksistē
+    $check = $conn->prepare("SELECT * FROM lietotaji WHERE epasts = ?");
+    $check->execute([$epasts]);
+    $user = $check->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
         echo "<script>alert('❌ Lietotājs ar šo e-pastu nav reģistrēts!'); window.location.href='login.html';</script>";
         exit;
     }
 
-    // ✅ Pārbauda paroli
+    // Pārbauda paroli
     if (!password_verify($parole, $user["parole"])) {
         echo "<script>alert('❌ Nepareiza parole!'); window.location.href='login.html';</script>";
         exit;
     }
 
-    // ✅ Saglabā sesijā lietotāja datus
-    $_SESSION["user_id"] = (int)$user["id"];
+    // ✅ Saglabā sesijā lietotāja info (pievienots user_id!)
+    $_SESSION["user_id"] = $user["id"];
     $_SESSION["lietotajvards"] = $user["lietotajvards"];
     $_SESSION["epasts"] = $user["epasts"];
     $_SESSION["admin"] = (int)$user["admin"];
 
-    // ✅ Novirza pēc lomas
+    // ✅ Novirza uz atbilstošo lapu
     if ($_SESSION["admin"] === 1) {
         header("Location: admin.php");
     } else {
@@ -71,113 +80,107 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     exit;
 }
-?>
 
+// Ja forma netika iesniegta (GET pieprasījums)
+header("Location: login.html");
+exit;
+?>
 <!DOCTYPE html>
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pieteikšanās — SirdsPaws</title>
-    <link rel="stylesheet" href="index.css">
+    <title>Pieteikšanās - Dzīvnieku Patversme</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 2rem;
+            align-items: center;
+            padding: 20px;
         }
-
-        .login-box {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 420px;
-            padding: 2.5rem;
+            max-width: 400px;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #4f46e5;
-        }
-
-        label {
-            font-weight: 600;
-            color: #374151;
-            display: block;
-            margin-bottom: 6px;
-            margin-top: 16px;
-        }
-
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
         input {
             width: 100%;
             padding: 12px;
-            border-radius: 10px;
-            border: 1.8px solid #e5e7eb;
-            font-size: 1rem;
-            transition: all .2s;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
         }
-
-        input:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99,102,241,.2);
-            outline: none;
-        }
-
-        button {
+        input:focus { outline: none; border-color: #667eea; }
+        .btn {
             width: 100%;
-            margin-top: 24px;
             padding: 12px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 10px;
-            font-weight: 700;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
-            transition: .2s;
         }
-
-        button:hover {
-            opacity: .9;
-transform: scale(1.02);
+        .btn:hover { transform: translateY(-2px); }
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
-
-        .links {
+        .register-link, .home-link {
             text-align: center;
-            margin-top: 20px;
-            font-size: 0.95rem;
-            color: #6b7280;
+            margin-top: 15px;
+            color: #666;
         }
-
-        .links a {
-            color: #6366f1;
+        .register-link a, .home-link a {
+            color: #667eea;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h1>🐾 Pieteikšanās</h1>
-
+    <div class="container">
+        <h1>Pieteikšanās</h1>
+        
+        <?php if ($error): ?>
+            <div class="error"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+        
         <form method="POST" action="">
-            <label for="epasts">E-pasts</label>
-            <input type="email" id="epasts" name="epasts" placeholder="ievadi savu e-pastu" required>
-
-            <label for="parole">Parole</label>
-            <input type="password" id="parole" name="parole" placeholder="ievadi paroli" required>
-
-            <button type="submit">Pieteikties</button>
+            <div class="form-group">
+                <label>Lietotājvārds vai E-pasts</label>
+                <input type="text" name="username" required value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>">
+            </div>
+            
+            <div class="form-group">
+                <label>Parole</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn">Pieteikties</button>
         </form>
-
-        <div class="links">
-            <p>Nav konta? <a href="register.html">Reģistrējies šeit</a></p>
-            <p><a href="index.php">← Atpakaļ uz sākumlapu</a></p>
+        
+        <div class="register-link">
+            Nav konta? <a href="register.php">Reģistrēties</a>
+        </div>
+        
+        <div class="home-link">
+            <a href="index.php">← Uz sākumlapu</a>
         </div>
     </div>
 </body>
