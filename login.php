@@ -1,4 +1,5 @@
 <?php
+
 // 🔧 Sesijas iestatījumi — lai tā būtu pieejama visās lapās un saglabātos ilgāk
 ini_set('session.cookie_path', '/');
 ini_set('session.cookie_lifetime', 86400);
