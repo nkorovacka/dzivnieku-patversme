@@ -8,6 +8,7 @@ if ($_SESSION["admin"] != 1) {
     header("Location: index.php");
     exit;
 }
+//...
 
 $page = $_GET['page'] ?? 'users';
 ?>
