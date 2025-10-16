@@ -1,60 +1,65 @@
 <?php
-// api/my_applications.php
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
+session_start();
+header('Content-Type: application/json; charset=UTF-8');
+require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once __DIR__ . '/../db_conn.php'; // izmanto esošo savienojumu
-
-try {
-    // Ja tev ir sesijas autentifikācija, vari izmantot $_SESSION['user_id']
-    // session_start();
-    // $userId = $_SESSION['user_id'] ?? null;
-
-    $conn->set_charset("utf8mb4");
-
-    // Filtri (neobligāti): status, animal_type
-    $status = isset($_GET['status']) ? trim($_GET['status']) : null;
-    $atype  = isset($_GET['type']) ? trim($_GET['type']) : null;
-    $q      = "SELECT id, user_id, applicant_name, applicant_email, applicant_phone, animal_name, animal_type, shelter_branch, message, status, created_at
-               FROM applications WHERE 1=1";
-    $params = [];
-    $types  = "";
-
-    if ($status) {
-        $q .= " AND status = ?";
-        $params[] = $status;
-        $types   .= "s";
-    }
-    if ($atype) {
-        $q .= " AND animal_type = ?";
-        $params[] = $atype;
-        $types   .= "s";
-    }
-
-    $q .= " ORDER BY created_at DESC";
-
-    $stmt = $conn->prepare($q);
-    if ($params) {
-        $stmt->bind_param($types, ...$params);
-    }
-    $stmt->execute();
-    $res = $stmt->get_result();
-
-    $rows = [];
-    while ($row = $res->fetch_assoc()) {
-        $rows[] = $row;
-    }
-
-    echo json_encode([
-        "ok" => true,
-        "count" => count($rows),
-        "data" => $rows
-    ], JSON_UNESCAPED_UNICODE);
-
-} catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode([
-        "ok" => false,
-        "error" => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+if (!isset($_SESSION['user_id'])) {
+  echo json_encode(['ok' => false, 'error' => 'Nav autorizācijas']);
+  exit;
 }
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+$dotenv->safeLoad();
+
+$conn = new mysqli(
+  $_ENV['DB_HOST'] ?? 'localhost',
+  $_ENV['DB_USER'] ?? 'root',
+  $_ENV['DB_PASS'] ?? '',
+  $_ENV['DB_NAME'] ?? 'dzivnieku_patversme',
+  $_ENV['DB_PORT'] ?? 3306
+);
+
+if ($conn->connect_error) {
+  echo json_encode(['ok' => false, 'error' => 'DB savienojuma kļūda']);
+  exit;
+}
+
+$user_id = intval($_SESSION['user_id']);
+$status_filter = $_GET['status'] ?? '';
+
+$query = "
+  SELECT 
+    a.id,
+    d.vards AS animal_name,
+    d.suga AS animal_type,
+    d.attels AS image,
+    a.datums AS date,
+    a.laiks AS time,
+    a.piezimes AS message,
+    a.statuss AS status,
+    a.created_at
+  FROM adopcijas_pieteikumi a
+  JOIN dzivnieki d ON a.pet_id = d.id
+  WHERE a.lietotaja_id = ?
+";
+if (!empty($status_filter)) {
+  $query .= " AND a.statuss = ?";
+}
+
+$stmt = $conn->prepare($query);
+if (!empty($status_filter)) {
+  $stmt->bind_param('is', $user_id, $status_filter);
+} else {
+  $stmt->bind_param('i', $user_id);
+}
+$stmt->execute();
+$res = $stmt->get_result();
+
+$data = [];
+while ($row = $res->fetch_assoc()) {
+  // ja nav bilde, lieto noklusēto kitty.jpg
+  $row['image'] = !empty($row['image']) ? $row['image'] : 'kitty.jpg';
+  $data[] = $row;
+}
+
+echo json_encode(['ok' => true, 'data' => $data], JSON_UNESCAPED_UNICODE);

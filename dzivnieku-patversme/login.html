@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pieslēgšanās — SirdsPaws</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+  <section class="auth-section">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h2>Pieslēgties</h2>
+        <p class="auth-subtitle">Ievadi savu e-pastu un paroli, lai turpinātu</p>
+
+        <!-- Forma sūta datus uz login.php -->
+        <form action="login.php" method="POST" class="auth-form">
+          <div class="form-group">
+            <label for="epasts">E-pasts</label>
+            <input type="email" id="epasts" name="epasts" placeholder="ievadi savu e-pastu" required>
+          </div>
+
+          <div class="form-group">
+            <label for="parole">Parole</label>
+            <input type="password" id="parole" name="parole" placeholder="ievadi paroli" required>
+          </div>
+
+          <button type="submit" class="btn-primary">Pieslēgties</button>
+        </form>
+        <p style="text-align:center; margin-top:10px;">
+          <a href="request_password_reset.html" style="color:#6366f1; text-decoration:none;">Aizmirsi paroli?</a>
+        </p>
+
+        <p class="auth-footer">
+          Nav konta? <a href="register.html">Reģistrējies šeit</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

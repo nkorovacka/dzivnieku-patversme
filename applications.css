@@ -1,286 +1,249 @@
-/* ===== HERO SEKCIJA ===== */
-.small-hero {
-  padding: 60px 0;
+/* ==========================
+   Vispārējais izkārtojums
+========================== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================
+   Hero sekcija
+========================== */
+.hero {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  color: #fff;
-  border-radius: 0 0 24px 24px;
-  position: relative;
-  overflow: hidden;
+  color: white;
+  text-align: center;
+  padding: 80px 20px;
+  border-radius: 0 0 40px 40px;
+  box-shadow: 0 6px 30px rgba(99,102,241,0.3);
 }
 
-.small-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255,255,255,0.08) 0%, transparent 50%);
-}
-
-.small-hero .container {
-  position: relative;
-  z-index: 1;
-}
-
-.small-hero .hero-title {
-  font-size: 42px;
+.hero-title {
+  font-size: 48px;
   font-weight: 800;
-  margin-bottom: 12px;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 10px;
 }
 
-.small-hero .hero-subtitle {
-  font-size: 18px;
-  opacity: 0.95;
-  font-weight: 400;
+.hero-subtitle {
+  font-size: 20px;
+  opacity: 0.9;
   max-width: 600px;
+  margin: 0 auto;
 }
 
-/* ===== SATURS ===== */
-.content-section { 
-  margin: 50px 0 80px 0;
-  min-height: 60vh;
-}
-
-/* ===== FILTRU KARTE ===== */
+/* ==========================
+   Filtru karte
+========================== */
 .filters-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
-  padding: 28px 32px;
-  border-radius: 16px;
-  box-shadow: 
-    0 1px 3px rgba(0,0,0,0.06),
-    0 8px 24px rgba(99,102,241,0.08);
-  margin-bottom: 40px;
-  border: 1px solid #e5e7ff;
-  transition: all 0.3s ease;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+  padding: 32px;
+  max-width: 1100px;
+  margin: 60px auto 40px;
+  border: 1px solid #e5e7eb;
+  transition: 0.3s;
 }
 
 .filters-card:hover {
-  box-shadow: 
-    0 1px 3px rgba(0,0,0,0.08),
-    0 12px 32px rgba(99,102,241,0.12);
+  box-shadow: 0 12px 30px rgba(99,102,241,0.15);
+  transform: translateY(-3px);
 }
 
-.section-title { 
-  margin-bottom: 20px;
-  font-size: 22px;
+.section-title {
+  font-size: 24px;
   font-weight: 700;
+  margin-bottom: 24px;
   color: #1e293b;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
-
 .section-title::before {
-  content: '⚙️';
+  content: "⚙️";
   font-size: 24px;
 }
 
-.filters { 
+.filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-end;
+  gap: 20px;
+  align-items: center;
 }
 
-.filters label {
-  display: block;
-  font-size: 14px;
-  font-weight: 600;
-  color: #475569;
-  margin-bottom: 6px;
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .filters select {
-  padding: 10px 14px;
-  border: 2px solid #e2e8f0;
+  padding: 12px 16px;
   border-radius: 10px;
+  border: 2px solid #e2e8f0;
   font-size: 15px;
-  background: white;
+  font-weight: 500;
+  background: #fff;
   color: #1e293b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 160px;
+  transition: all 0.2s;
+  min-width: 180px;
 }
 
 .filters select:hover {
   border-color: #c7d2fe;
+  background: #f8f9ff;
 }
 
-.filters select:focus {
-  outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-}
-
-.filters .btn {
-  padding: 10px 24px;
+.btn {
+  padding: 12px 28px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 15px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(99,102,241,0.4);
 }
 
-.filters .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(99,102,241,0.35);
-  background: linear-gradient(135deg, #5558e3 0%, #7c3aed 100%);
-}
-
-.filters .btn:active {
-  transform: translateY(0);
-}
-
-/* ===== PIETEIKUMU SARAKSTS ===== */
+/* ==========================
+   Pieteikumu kartītes
+========================== */
 .applications-list {
   display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  max-width: 1100px;
+  margin: 0 auto 60px;
+  padding: 0 20px;
 }
 
 .application-card {
   background: white;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 
-    0 1px 3px rgba(0,0,0,0.05),
-    0 4px 12px rgba(0,0,0,0.04);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid #f1f5f9;
-  position: relative;
+  border-radius: 20px;
+  padding: 0 0 28px 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transition: 0.3s;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
-}
-
-.application-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
-}
-
-.application-card:hover::before {
-  transform: scaleX(1);
+  position: relative;
 }
 
 .application-card:hover {
   transform: translateY(-6px);
-  box-shadow: 
-    0 4px 6px rgba(0,0,0,0.07),
-    0 12px 32px rgba(99,102,241,0.15);
-  border-color: #e0e7ff;
+  box-shadow: 0 10px 30px rgba(99,102,241,0.15);
+  border-color: #c7d2fe;
 }
 
 .application-card h3 {
-  margin: 0 0 16px 0;
   font-size: 22px;
   font-weight: 700;
+  margin: 12px 0 8px;
   color: #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.application-card h3::before {
-  content: '🐾';
-  font-size: 20px;
 }
 
 .application-card p {
-  margin: 12px 0;
-  color: #475569;
   font-size: 15px;
+  margin: 8px 0;
+  color: #475569;
   line-height: 1.6;
 }
 
-.application-card p strong {
-  color: #334155;
-  font-weight: 600;
+.app-body {
+  padding: 0 28px;
 }
 
-.application-card .muted {
-  font-size: 13px;
-  color: #94a3b8;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.application-card .muted::before {
-  content: '📅';
+.muted {
+  color: #6b7280;
   font-size: 14px;
+  margin-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
 }
 
-/* ===== STATUSA BADGES ===== */
+/* ==========================
+   Kartīšu bilde ar statusu
+========================== */
+.app-image {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+
+.app-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.application-card:hover .app-image img {
+  transform: scale(1.05);
+}
+
+.app-image .badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+/* ==========================
+   Statusa “badge” stili
+========================== */
 .badge {
   display: inline-block;
   padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
+  border-radius: 30px;
   font-weight: 700;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
-  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
 }
-
 .badge-new {
   background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
   color: #1e40af;
-  box-shadow: 0 2px 4px rgba(30,64,175,0.15);
 }
-
-.badge-inprogress {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e;
-  box-shadow: 0 2px 4px rgba(146,64,14,0.15);
-}
-
 .badge-approved {
   background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
   color: #065f46;
-  box-shadow: 0 2px 4px rgba(6,95,70,0.15);
 }
-
 .badge-declined {
   background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
   color: #991b1b;
-  box-shadow: 0 2px 4px rgba(153,27,27,0.15);
 }
 
-/* ===== TUKŠAS ZIŅAS ===== */
+/* ==========================
+   Tukšs / kļūdas stāvoklis
+========================== */
 #apps-empty,
 #apps-error {
   background: white;
-  padding: 48px 32px;
-  border-radius: 16px;
+  padding: 60px 40px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  border: 2px dashed #e2e8f0;
+  max-width: 700px;
+  margin: 60px auto;
+  font-size: 18px;
+  font-weight: 500;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+#apps-empty {
+  border: 3px dashed #c7d2fe;
   color: #64748b;
-  font-size: 16px;
 }
-
-#apps-error {
-  border-color: #fecaca;
-  color: #991b1b;
-  background: #fef2f2;
-}
-
 #apps-empty::before {
   content: '📋';
   display: block;
@@ -288,6 +251,11 @@
   margin-bottom: 16px;
 }
 
+#apps-error {
+  border: 3px dashed #fecaca;
+  color: #991b1b;
+  background: #fef2f2;
+}
 #apps-error::before {
   content: '⚠️';
   display: block;
@@ -295,55 +263,40 @@
   margin-bottom: 16px;
 }
 
-/* ===== RESPONSĪVS ===== */
-@media (max-width: 900px) {
-  .small-hero {
-    padding: 40px 0;
-    border-radius: 0 0 16px 16px;
-  }
-  
-  .small-hero .hero-title {
-    font-size: 32px;
-  }
-  
-  .small-hero .hero-subtitle {
-    font-size: 16px;
-  }
-  
-  .filters-card {
-    padding: 20px;
-  }
-  
-  .filters {
-    gap: 12px;
-  }
-  
-  .filters select {
-    min-width: 140px;
-  }
-  
-  .applications-list {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  
-  .application-card {
-    padding: 24px;
-  }
+/* ==========================
+   Footer
+========================== */
+footer {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+  text-align: center;
+  padding: 50px 20px;
+  border-radius: 40px 40px 0 0;
+  margin-top: 80px;
 }
 
-@media (max-width: 600px) {
+footer p {
+  font-size: 16px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+/* ==========================
+   Responsive
+========================== */
+@media (max-width: 900px) {
+  .hero-title {
+    font-size: 36px;
+  }
+  .applications-list {
+    grid-template-columns: 1fr;
+  }
   .filters {
     flex-direction: column;
     align-items: stretch;
   }
-  
   .filters select,
-  .filters .btn {
+  .btn {
     width: 100%;
-  }
-  
-  .small-hero .hero-title {
-    font-size: 28px;
   }
 }

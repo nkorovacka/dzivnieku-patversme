@@ -22,57 +22,10 @@ $password   = $_ENV['DB_PASS'] ?? '';
 $dbname     = $_ENV['DB_NAME'] ?? 'dzivnieku_patversme';
 $port       = $_ENV['DB_PORT'] ?? 3306;
 
-<<<<<<< HEAD
 $conn = new mysqli($servername, $username, $password, $dbname, (int)$port);
 if ($conn->connect_error) {
     die("Savienojuma kļūda: " . $conn->connect_error);
 }
-=======
-    if ($action === 'delete_animal') {
-        $id = (int)($_POST['id'] ?? 0);
-        if ($id) {
-            try {
-                $conn->begin_transaction();
-
-                // 1) Delete dependent rows if they exist
-                // favorites.pet_id
-                try {
-                    $stmt = $conn->prepare('DELETE FROM favorites WHERE pet_id = ?');
-                    $stmt->bind_param('i', $id);
-                    $stmt->execute();
-                } catch (Throwable $e) { /* table may not exist, ignore */ }
-
-                // pieteikumi.dzivnieka_id (current project schema)
-                try {
-                    $stmt = $conn->prepare('DELETE FROM pieteikumi WHERE dzivnieka_id = ?');
-                    $stmt->bind_param('i', $id);
-                    $stmt->execute();
-                } catch (Throwable $e) { /* table may not exist, ignore */ }
-
-                // adopcijas_pieteikumi.pet_id (some deployments)
-                try {
-                    $stmt = $conn->prepare('DELETE FROM adopcijas_pieteikumi WHERE pet_id = ?');
-                    $stmt->bind_param('i', $id);
-                    $stmt->execute();
-                } catch (Throwable $e) { /* table may not exist, ignore */ }
-
-                // 2) Delete the animal
-                $stmt = $conn->prepare('DELETE FROM dzivnieki WHERE id = ?');
-                $stmt->bind_param('i', $id);
-                $stmt->execute();
-
-                $conn->commit();
-            } catch (Throwable $e) {
-                $conn->rollback();
-                http_response_code(500);
-                echo '<pre style="padding:20px;">Neizdevās dzēst dzīvnieku: ' . htmlspecialchars($e->getMessage()) . '</pre>';
-                exit;
-            }
-        }
-        header('Location: admin.php');
-        exit;
-    }
->>>>>>> 91e0ca6 (Atjaunojumi un labojumi 🐾)
 
 // ✅ Nolasām visus lietotājus
 $result = $conn->query("SELECT id, lietotajvards, epasts, admin FROM lietotaji ORDER BY id ASC");
