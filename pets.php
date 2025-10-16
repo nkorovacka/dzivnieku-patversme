@@ -38,7 +38,7 @@ if (isset($_SESSION['user_id'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dzīvnieki — SirdsPaws</title>
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="index.css"> <!-- kopīgie stili un navbar -->
   <link rel="stylesheet" href="pets.css?v=3">
 </head>
 <body>
@@ -121,14 +121,11 @@ if (isset($_SESSION['user_id'])) {
                 </p>
 
                 <div class="pet-actions">
-                  <!-- ✅ ИЗМЕНЕНО: Кнопка теперь работает через JavaScript -->
                   <?php if ($status === 'pieejams'): ?>
-                    <button type="button" 
-                            class="btn btn-adopt quick-adopt-btn" 
-                            data-pet-id="<?= $pet['id'] ?>" 
-                            data-pet-name="<?= htmlspecialchars($pet['vards']) ?>">
-                      Adoptēt
-                    </button>
+                    <form action="adopt_form.php" method="GET">
+                      <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
+                      <button type="submit" class="btn btn-adopt">Adoptēt</button>
+                    </form>
                   <?php else: ?>
                     <button class="btn btn-adopt" disabled><?= $statusText ?></button>
                   <?php endif; ?>
@@ -187,55 +184,6 @@ if (isset($_SESSION['user_id'])) {
     }
 
     [searchInput, typeFilter, ageFilter].forEach(el => el.addEventListener('input', filterPets));
-
-    // ✅ НОВЫЙ КОД: Быстрая adopcija без формы
-    document.querySelectorAll('.quick-adopt-btn').forEach(btn => {
-      btn.addEventListener('click', async function() {
-        const petId = this.dataset.petId;
-        const petName = this.dataset.petName;
-        
-        // Подтверждение
-        if (!confirm(`Vai tiešām vēlies adoptēt ${petName}?`)) {
-          return;
-        }
-        
-        // Блокируем кнопку
-        this.disabled = true;
-        const originalText = this.textContent;
-        this.textContent = 'Apstrādā...';
-        
-        try {
-          const formData = new FormData();
-          formData.append('pet_id', petId);
-          
-          const response = await fetch('quick_adopt.php', {
-            method: 'POST',
-            body: formData
-          });
-          
-          const result = await response.json();
-          
-          if (result.success) {
-            alert(result.message);
-            // Перенаправляем на страницу заявок
-            window.location.href = 'applications.php';
-          } else {
-            alert(result.message);
-            if (result.redirect) {
-              window.location.href = result.redirect;
-            } else {
-              this.disabled = false;
-              this.textContent = originalText;
-            }
-          }
-        } catch (error) {
-          console.error('Kļūda:', error);
-          alert('Radās kļūda. Lūdzu, mēģini vēlreiz.');
-          this.disabled = false;
-          this.textContent = originalText;
-        }
-      });
-    });
   </script>
 </body>
 </html>
