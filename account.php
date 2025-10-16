@@ -3,348 +3,360 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
-require_once 'db_conn.php'; // ожидается $conn = new mysqli(...)
+require_once 'db_conn.php';
 
-/* -----------------------------------------------------------
-   0) Самовосстановление user_id из сессии (lietotajvards/epasts)
------------------------------------------------------------- */
-function ensureUserIdFromSession(mysqli $conn): void {
-    if (!empty($_SESSION['user_id'])) return;
-
-    $lietotajvards = isset($_SESSION['lietotajvards']) ? trim((string)$_SESSION['lietotajvards']) : '';
-    $epasts        = isset($_SESSION['epasts'])        ? trim((string)$_SESSION['epasts'])        : '';
-
-    if ($lietotajvards !== '') {
-        if ($stmt = $conn->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE lietotajvards = ? LIMIT 1")) {
-            $stmt->bind_param("s", $lietotajvards);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($u = $res->fetch_assoc()) {
-                $_SESSION['user_id']       = (int)$u['id'];
-                $_SESSION['lietotajvards'] = $u['lietotajvards'];
-                $_SESSION['epasts']        = $u['epasts'];
-                $stmt->close();
-                return;
-            }
-            $stmt->close();
-        }
-    }
-    if ($epasts !== '') {
-        if ($stmt = $conn->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE epasts = ? LIMIT 1")) {
-            $stmt->bind_param("s", $epasts);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($u = $res->fetch_assoc()) {
-                $_SESSION['user_id']       = (int)$u['id'];
-                $_SESSION['lietotajvards'] = $u['lietotajvards'];
-                $_SESSION['epasts']        = $u['epasts'];
-            }
-            $stmt->close();
-        }
-    }
-}
-ensureUserIdFromSession($conn);
-
-/* -----------------------------------------------------------
-   1) Проверка авторизации
------------------------------------------------------------- */
 if (empty($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
+
 $userId = (int)$_SESSION['user_id'];
 
-/* -----------------------------------------------------------
-   2) Утилиты работы с БД/ачивками/баллами
------------------------------------------------------------- */
-function txn(mysqli $conn, callable $fn) {
-    $conn->begin_transaction();
-    try {
-        $res = $fn();
-        $conn->commit();
-        return $res;
-    } catch (Throwable $e) {
-        $conn->rollback();
-        throw $e;
-    }
-}
+$query = "SELECT * FROM lietotaji WHERE id = :user_id LIMIT 1";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+$stmt->execute();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-function get_user(mysqli $conn, int $uid): ?array {
-    $sql = "SELECT *
-            FROM lietotaji
-            WHERE id = ?
-            LIMIT 1";
-    $q = $conn->prepare($sql);
-    $q->bind_param("i", $uid);
-    $q->execute();
-    $res = $q->get_result()->fetch_assoc();
-    $q->close();
-    return $res ?: null;
-}
-
-/** Начислить очки и записать историю */
-function award_points(mysqli $conn, int $uid, int $points, string $reason): bool {
-    return txn($conn, function() use ($conn, $uid, $points, $reason) {
-        $u = $conn->prepare("UPDATE lietotaji SET points = points + ?, total_earned = total_earned + ? WHERE id = ?");
-        $u->bind_param("iii", $points, $points, $uid);
-        if (!$u->execute()) { $u->close(); throw new Exception('award_points UPDATE failed'); }
-        $u->close();
-
-        $h = $conn->prepare("INSERT INTO points_history (user_id, points, reason, created_at) VALUES (?, ?, ?, NOW())");
-        $h->bind_param("iis", $uid, $points, $reason);
-        if (!$h->execute()) { $h->close(); throw new Exception('points_history INSERT failed'); }
-        $h->close();
-
-        // Пересчёт уровня по новым очкам
-        $r = $conn->prepare("SELECT points FROM lietotaji WHERE id = ?");
-        $r->bind_param("i", $uid); $r->execute();
-        $row = $r->get_result()->fetch_assoc();
-        $r->close();
-        $p = (int)($row['points'] ?? 0);
-
-        if ($p >= 1000)      $level = 'SirdsPaws Leģenda';
-        elseif ($p >= 600)   $level = 'Dzīvnieku Varonis';
-        elseif ($p >= 300)   $level = 'Aktīvs Atbalstītājs';
-        elseif ($p >= 100)   $level = 'Patversmes Draugs';
-        else                 $level = 'Iesācējs';
-
-        $lv = $conn->prepare("UPDATE lietotaji SET level_name = ? WHERE id = ?");
-        $lv->bind_param("si", $level, $uid);
-        if (!$lv->execute()) { $lv->close(); throw new Exception('level update failed'); }
-        $lv->close();
-
-        return true;
-    });
-}
-
-/** Есть ли ачивка (валидный JSON через CAST) */
-function has_achievement(mysqli $conn, int $uid, int $achId): bool {
-    $candidateJson = json_encode($achId); // "1"
-    $sql = "SELECT JSON_CONTAINS(COALESCE(achievements_json, JSON_ARRAY()), CAST(? AS JSON), '$') AS has_it
-            FROM lietotaji
-            WHERE id = ?";
-    $q = $conn->prepare($sql);
-    $q->bind_param("si", $candidateJson, $uid);
-    $q->execute();
-    $row = $q->get_result()->fetch_assoc();
-    $q->close();
-    return !empty($row) && (int)$row['has_it'] === 1;
-}
-
-/** Добавить ачивку, если нет (валидный JSON, idempotent) */
-function add_achievement(mysqli $conn, int $uid, int $achId): bool {
-    if (has_achievement($conn, $uid, $achId)) return true;
-    $candidateJson = json_encode($achId);
-    $sql = "UPDATE lietotaji
-            SET achievements_json = JSON_ARRAY_APPEND(COALESCE(achievements_json, JSON_ARRAY()), '$', CAST(? AS JSON))
-            WHERE id = ?";
-    $q = $conn->prepare($sql);
-    $q->bind_param("si", $candidateJson, $uid);
-    $ok = $q->execute();
-    $q->close();
-    return $ok;
-}
-
-/** Одноразовый бонус за регистрацию (+10, ачивка #1) */
-function ensure_registration_bonus_once(mysqli $conn, int $uid): bool {
-    if (has_achievement($conn, $uid, 1)) return false; // уже начисляли
-    return txn($conn, function() use ($conn, $uid) {
-        if (!add_achievement($conn, $uid, 1)) throw new Exception('add_achievement(1) failed');
-        if (!award_points($conn, $uid, 10, 'registration_bonus')) throw new Exception('award +10 failed');
-        return true;
-    });
-}
-
-/** Синхронизация favorites_count из таблицы favorites, выдача ачивки #3 (+30) при достижении 5 */
-function sync_favorites_and_bonus(mysqli $conn, int $uid): array {
-    $awarded = false;
-
-    // текущий счётчик
-    $cur = $conn->prepare("SELECT favorites_count FROM lietotaji WHERE id = ?");
-    $cur->bind_param("i", $uid);
-    $cur->execute();
-    $row = $cur->get_result()->fetch_assoc();
-    $cur->close();
-    $storedCount = (int)($row['favorites_count'] ?? 0);
-
-    // фактический из favorites
-    $cnt = $conn->prepare("SELECT COUNT(*) AS c FROM favorites WHERE user_id = ?");
-    $cnt->bind_param("i", $uid);
-    $cnt->execute();
-    $cRow = $cnt->get_result()->fetch_assoc();
-    $cnt->close();
-    $realCount = (int)($cRow['c'] ?? 0);
-
-    // обновляем поле
-    if ($realCount !== $storedCount) {
-        $u = $conn->prepare("UPDATE lietotaji SET favorites_count = ?, updated_at = NOW() WHERE id = ?");
-        $u->bind_param("ii", $realCount, $uid);
-        $u->execute();
-        $u->close();
-    }
-
-    // если стало >=5 и ачивки 3 нет — начислить
-    if ($realCount >= 5 && !has_achievement($conn, $uid, 3)) {
-        $ok = txn($conn, function() use ($conn, $uid) {
-            if (!add_achievement($conn, $uid, 3)) throw new Exception('add_achievement(3) failed');
-            if (!award_points($conn, $uid, 30, 'favorites_5')) throw new Exception('award +30 failed');
-            return true;
-        });
-        if ($ok) $awarded = true;
-    }
-
-    return ['favorites_count' => $realCount, 'bonus_awarded' => $awarded];
-}
-
-/* -----------------------------------------------------------
-   3) Получаем пользователя
------------------------------------------------------------- */
-$user = get_user($conn, $userId);
 if (!$user) {
     session_destroy();
     header("Location: login.php");
     exit();
 }
 
-// Гарантируем ключи
-$user += [
-    'full_name'          => '',
-    'phone'              => '',
-    'address'            => '',
-    'created_at'         => null,
-    'updated_at'         => null,
-    'points'             => 0,
-    'total_earned'       => 0,
-    'favorites_count'    => 0,
-    'applications_count' => 0,
-    'events_attended'    => 0,
-    'profile_complete'   => 0,
-    'level_name'         => 'Iesācējs',
-    'achievements_json'  => null,
-];
-
-/* -----------------------------------------------------------
-   4) Одноразовый бонус за регистрацию (при первом входе)
------------------------------------------------------------- */
-$reg_bonus_awarded_now = false;
-if (empty($_SESSION['__reg_bonus_checked'])) {
-    $reg_bonus_awarded_now = ensure_registration_bonus_once($conn, $userId);
-    $_SESSION['__reg_bonus_checked'] = 1;
-    if ($reg_bonus_awarded_now) {
-        $user = get_user($conn, $userId); // перечитать очки/уровень
-    }
-}
-
-/* -----------------------------------------------------------
-   5) Синхронизируем фавориты и потенциально выдаём бонус
------------------------------------------------------------- */
-$fav_res = sync_favorites_and_bonus($conn, $userId);
-if ($fav_res['bonus_awarded']) {
-    $user = get_user($conn, $userId); // обновить очки/уровень и favorites_count
-}
-
-/* -----------------------------------------------------------
-   6) Обработка формы обновления профиля (+20 и ачивка #2 один раз)
------------------------------------------------------------- */
 $success_message = '';
-$error_message   = '';
-$bonus_awarded   = false;
+$error_message = '';
+$bonus_awarded = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_profile') {
-    $full_name = trim($_POST['full_name'] ?? '');
-    $phone     = trim($_POST['phone'] ?? '');
-    $address   = trim($_POST['address'] ?? '');
+function awardPointsForFavorites($userId, $conn) {
+    $checkQuery = "SELECT COUNT(*) FROM points_history WHERE user_id = :user_id AND reason = 'favorites_bonus'";
+    $checkStmt = $conn->prepare($checkQuery);
+    $checkStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $checkStmt->execute();
+    $alreadyAwarded = $checkStmt->fetchColumn() > 0;
+    
+    if ($alreadyAwarded) {
+        return false;
+    }
+    
+    $query = "SELECT COUNT(*) FROM favorites WHERE user_id = :user_id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $favorites_count = $stmt->fetchColumn();
 
-    $old_complete = (int)$user['profile_complete'];
-    $new_complete = (!empty($full_name) && !empty($phone) && !empty($address)) ? 100 : 0;
+    $updateCountQuery = "UPDATE lietotaji SET favorites_count = :count WHERE id = :user_id";
+    $updateStmt = $conn->prepare($updateCountQuery);
+    $updateStmt->bindParam(':count', $favorites_count, PDO::PARAM_INT);
+    $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $updateStmt->execute();
 
-    $upd = $conn->prepare("UPDATE lietotaji 
-                           SET full_name = ?, phone = ?, address = ?, profile_complete = ?, updated_at = NOW()
-                           WHERE id = ?");
-    $upd->bind_param("sssii", $full_name, $phone, $address, $new_complete, $userId);
+    if ($favorites_count >= 5) {
+        $bonusPoints = 10;
+        $query = "UPDATE lietotaji SET points = points + :bonusPoints, total_earned = total_earned + :bonusPoints WHERE id = :user_id";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
 
-    if ($upd->execute()) {
-        $upd->close();
+        $historyQuery = "INSERT INTO points_history (user_id, points, reason, created_at) VALUES (:user_id, :bonusPoints, 'favorites_bonus', NOW())";
+        $stmt = $conn->prepare($historyQuery);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
 
-        // если впервые достигли 100% — ачивка #2 +20 очков
-        if ($old_complete < 100 && $new_complete === 100 && !has_achievement($conn, $userId, 2)) {
-            $ok = txn($conn, function() use ($conn, $userId) {
-                if (!add_achievement($conn, $userId, 2)) throw new Exception('add_achievement(2) failed');
-                if (!award_points($conn, $userId, 20, 'profile_complete')) throw new Exception('award +20 failed');
-                return true;
-            });
-            if ($ok) {
-                $bonus_awarded   = true;
-                $success_message = 'Profils veiksmīgi atjaunināts! 🎉 +20 punkti par pilnu profilu!';
-            } else {
-                $success_message = 'Profils veiksmīgi atjaunināts!';
-            }
-        } else {
-            $success_message = 'Profils veiksmīgi atjaunināts!';
+        return true;
+    }
+    return false;
+}
+
+function awardPointsForEvents($userId, $conn) {
+    $checkQuery = "SELECT COUNT(*) FROM points_history WHERE user_id = :user_id AND reason = 'event_bonus'";
+    $checkStmt = $conn->prepare($checkQuery);
+    $checkStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $checkStmt->execute();
+    $alreadyAwarded = $checkStmt->fetchColumn() > 0;
+    
+    if ($alreadyAwarded) {
+        return false;
+    }
+    
+    $query = "SELECT COUNT(*) FROM pasakumu_pieteikumi WHERE lietotaja_id = :user_id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $events_count = $stmt->fetchColumn();
+
+    $updateCountQuery = "UPDATE lietotaji SET events_attended = :count WHERE id = :user_id";
+    $updateStmt = $conn->prepare($updateCountQuery);
+    $updateStmt->bindParam(':count', $events_count, PDO::PARAM_INT);
+    $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $updateStmt->execute();
+
+    if ($events_count >= 1) {
+        $bonusPoints = 15;
+        $query = "UPDATE lietotaji SET points = points + :bonusPoints, total_earned = total_earned + :bonusPoints WHERE id = :user_id";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $historyQuery = "INSERT INTO points_history (user_id, points, reason, created_at) VALUES (:user_id, :bonusPoints, 'event_bonus', NOW())";
+        $stmt = $conn->prepare($historyQuery);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return true;
+    }
+    return false;
+}
+
+function awardPointsForApplication($userId, $conn) {
+    // Check if points for applications have already been awarded
+    $checkQuery = "SELECT COUNT(*) FROM points_history WHERE user_id = :user_id AND reason = 'application_bonus'";
+    $checkStmt = $conn->prepare($checkQuery);
+    $checkStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $checkStmt->execute();
+    $alreadyAwarded = $checkStmt->fetchColumn() > 0;
+    
+    if ($alreadyAwarded) {
+        return false;
+    }
+    
+    // Count the number of approved applications submitted by the user
+    $query = "SELECT COUNT(*) FROM pieteikumi WHERE lietotaja_id = :user_id AND statuss = 'apstiprinats'";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $applications_count = $stmt->fetchColumn();
+
+    // Update the user's application count in the `lietotaji` table
+    $updateCountQuery = "UPDATE lietotaji SET applications_count = :count WHERE id = :user_id";
+    $updateStmt = $conn->prepare($updateCountQuery);
+    $updateStmt->bindParam(':count', $applications_count, PDO::PARAM_INT);
+    $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $updateStmt->execute();
+
+    // Award bonus points if at least 1 application is approved
+    if ($applications_count >= 1) {
+        $bonusPoints = 20;  // Award 20 points for a submitted application
+        $query = "UPDATE lietotaji SET points = points + :bonusPoints, total_earned = total_earned + :bonusPoints WHERE id = :user_id";
+        $stmt = $conn->prepare($query);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        // Log the bonus points in the history
+        $historyQuery = "INSERT INTO points_history (user_id, points, reason, created_at) VALUES (:user_id, :bonusPoints, 'application_bonus', NOW())";
+        $stmt = $conn->prepare($historyQuery);
+        $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return true;
+    }
+    return false;
+}
+
+function calculateProfileComplete($user) {
+    $fields = ['full_name', 'phone', 'address'];
+    $filled = 0;
+    $total = count($fields);
+    
+    foreach ($fields as $field) {
+        if (!empty($user[$field])) {
+            $filled++;
         }
-        // перечитать пользователя
-        $user = get_user($conn, $userId);
-    } else {
-        $error_message = 'Kļūda atjauninot profilu!';
-        $upd->close();
+    }
+    
+    return round(($filled / $total) * 100);
+}
+
+if (empty($user['first_login'])) {
+    $bonusPoints = 10;
+    $query = "UPDATE lietotaji SET points = points + :bonusPoints, total_earned = total_earned + :bonusPoints, first_login = 1 WHERE id = :user_id";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $historyQuery = "INSERT INTO points_history (user_id, points, reason, created_at) VALUES (:user_id, :bonusPoints, 'registration_bonus', NOW())";
+    $stmt = $conn->prepare($historyQuery);
+    $stmt->bindParam(':bonusPoints', $bonusPoints, PDO::PARAM_INT);
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $bonus_awarded = true;
+    $success_message = '🎉 Jūs saņēmāt bonusu par reģistrāciju! +10 punkti!';
+    
+    $stmt = $conn->prepare("SELECT * FROM lietotaji WHERE id = :user_id LIMIT 1");
+    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+if (!$bonus_awarded) {
+    $bonus_awarded = awardPointsForFavorites($userId, $conn) || awardPointsForEvents($userId, $conn) || awardPointsForApplication($userId, $conn);
+    
+    if ($bonus_awarded) {
+        $stmt = $conn->prepare("SELECT * FROM lietotaji WHERE id = :user_id LIMIT 1");
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 
-/* -----------------------------------------------------------
-   7) Визуал: иконка уровня и цвет
------------------------------------------------------------- */
-$points = (int)$user['points'];
-$level_icon  = '🥉';
-$level_color = '#BDC3C7';
-if     ($points >= 1000) { $level_icon='👑'; $level_color='#FFD700'; }
-elseif ($points >= 600)  { $level_icon='💎'; $level_color='#E74C3C'; }
-elseif ($points >= 300)  { $level_icon='🥇'; $level_color='#3498DB'; }
-elseif ($points >= 100)  { $level_icon='🥈'; $level_color='#95A5A6'; }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
+    $full_name = trim($_POST['full_name']);
+    $phone = trim($_POST['phone']);
+    $address = trim($_POST['address']);
 
-// achievements_json → массив id
+    if (empty($full_name) || empty($phone) || empty($address)) {
+        $error_message = 'Lūdzu, aizpildiet visus obligātos laukus!';
+    } else {
+        $update_query = "UPDATE lietotaji SET full_name = :full_name, phone = :phone, address = :address, updated_at = NOW() WHERE id = :user_id";
+        $stmt = $conn->prepare($update_query);
+        $stmt->bindParam(':full_name', $full_name);
+        $stmt->bindParam(':phone', $phone);
+        $stmt->bindParam(':address', $address);
+        $stmt->bindParam(':user_id', $userId);
+        
+        if ($stmt->execute()) {
+            $reload_query = "SELECT * FROM lietotaji WHERE id = :user_id";
+            $reload_stmt = $conn->prepare($reload_query);
+            $reload_stmt->bindParam(':user_id', $userId);
+            $reload_stmt->execute();
+            $user = $reload_stmt->fetch(PDO::FETCH_ASSOC);
+
+            $profile_complete = calculateProfileComplete($user);
+            $updateProfileQuery = "UPDATE lietotaji SET profile_complete = :profile_complete WHERE id = :user_id";
+            $updateProfileStmt = $conn->prepare($updateProfileQuery);
+            $updateProfileStmt->bindParam(':profile_complete', $profile_complete, PDO::PARAM_INT);
+            $updateProfileStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $updateProfileStmt->execute();
+            
+            $user['profile_complete'] = $profile_complete;
+
+            $success_message = 'Profils veiksmīgi atjaunināts!';
+        } else {
+            $error_message = 'Kļūda, atjauninot profilu. Lūdzu, mēģiniet vēlreiz.';
+        }
+    }
+}
+
+$favoritesQuery = "SELECT COUNT(*) FROM favorites WHERE user_id = :user_id";
+$favoritesStmt = $conn->prepare($favoritesQuery);
+$favoritesStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+$favoritesStmt->execute();
+$user['favorites_count'] = $favoritesStmt->fetchColumn();
+
+$applicationsQuery = "SELECT COUNT(*) FROM pieteikumi WHERE lietotaja_id = :user_id";
+$applicationsStmt = $conn->prepare($applicationsQuery);
+$applicationsStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+$applicationsStmt->execute();
+$user['applications_count'] = $applicationsStmt->fetchColumn();
+
+$eventsQuery = "SELECT COUNT(*) FROM pasakumu_pieteikumi WHERE lietotaja_id = :user_id";
+$eventsStmt = $conn->prepare($eventsQuery);
+$eventsStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+$eventsStmt->execute();
+$user['events_attended'] = $eventsStmt->fetchColumn();
+
+$user['profile_complete'] = calculateProfileComplete($user);
+
+$points = (int)$user['points'];
+$level_name = 'Bronzas līmenis';
+$level_icon = '🥉';
+$level_color = '#BDC3C7';
+
+if ($points >= 1000) {
+    $level_name = 'Karalis';
+    $level_icon = '👑';
+    $level_color = '#FFD700';
+} elseif ($points >= 600) {
+    $level_name = 'Dimanta līmenis';
+    $level_icon = '💎';
+    $level_color = '#E74C3C';
+} elseif ($points >= 300) {
+    $level_name = 'Zelta līmenis';
+    $level_icon = '🥇';
+    $level_color = '#3498DB';
+} elseif ($points >= 100) {
+    $level_name = 'Sudraba līmenis';
+    $level_icon = '🥈';
+    $level_color = '#95A5A6';
+}
+
+$updateLevelQuery = "UPDATE lietotaji SET level_name = :level_name WHERE id = :user_id";
+$updateLevelStmt = $conn->prepare($updateLevelQuery);
+$updateLevelStmt->bindParam(':level_name', $level_name);
+$updateLevelStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+$updateLevelStmt->execute();
+
 $earned_ids = [];
 if (!empty($user['achievements_json'])) {
     $decoded = json_decode($user['achievements_json'], true);
-    if (is_array($decoded)) $earned_ids = $decoded;
+    if (is_array($decoded)) {
+        $earned_ids = $decoded;
+    }
 }
 
-// Список достижений
+$achievements_updated = false;
+
+if (!in_array(1, $earned_ids) && !empty($user['first_login'])) {
+    $earned_ids[] = 1;
+    $achievements_updated = true;
+}
+
+if (!in_array(2, $earned_ids) && $user['profile_complete'] >= 100) {
+    $earned_ids[] = 2;
+    $achievements_updated = true;
+}
+
+if (!in_array(3, $earned_ids) && $user['favorites_count'] >= 5) {
+    $earned_ids[] = 3;
+    $achievements_updated = true;
+}
+
+if (!in_array(4, $earned_ids) && $user['applications_count'] >= 1) {
+    $earned_ids[] = 4;
+    $achievements_updated = true;
+}
+
+if (!in_array(5, $earned_ids) && $user['events_attended'] >= 1) {
+    $earned_ids[] = 5;
+    $achievements_updated = true;
+}
+
+if ($achievements_updated) {
+    $achievements_json = json_encode($earned_ids);
+    $updateAchievementsQuery = "UPDATE lietotaji SET achievements_json = :achievements WHERE id = :user_id";
+    $updateAchievementsStmt = $conn->prepare($updateAchievementsQuery);
+    $updateAchievementsStmt->bindParam(':achievements', $achievements_json);
+    $updateAchievementsStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+    $updateAchievementsStmt->execute();
+}
+
 $all_achievements = [
-    ['id' => 1, 'name' => 'Pirmais Solis',     'desc' => 'Reģistrējies sistēmā',        'icon' => '🎯', 'points' => 10],
-    ['id' => 2, 'name' => 'Pilnīgs Profils',   'desc' => 'Aizpildīts viss profils',     'icon' => '📱', 'points' => 20],
-    ['id' => 3, 'name' => 'Dzīvnieku Draugs',  'desc' => 'Pievienoti 5 favorīti',       'icon' => '❤️', 'points' => 30],
+    ['id' => 1, 'name' => 'Pirmais Solis', 'desc' => 'Reģistrējies sistēmā', 'icon' => '🎯', 'points' => 10],
+    ['id' => 2, 'name' => 'Pilnīgs Profils', 'desc' => 'Aizpildīts viss profils', 'icon' => '📱', 'points' => 20],
+    ['id' => 3, 'name' => 'Dzīvnieku Draugs', 'desc' => 'Pievienoti 5 favorīti', 'icon' => '❤️', 'points' => 30],
     ['id' => 4, 'name' => 'Atbildīgs Adopcētājs', 'desc' => 'Iesniegts pirmais pieteikums', 'icon' => '📝', 'points' => 50],
-    ['id' => 5, 'name' => 'Aktīvais Dalībnieks',  'desc' => 'Apmeklēti 3 pasākumi',     'icon' => '🎪', 'points' => 40],
+    ['id' => 5, 'name' => 'Aktīvais Dalībnieks', 'desc' => 'Apmeklēti pasākumi', 'icon' => '🎪', 'points' => 40],
 ];
 
-// Маппинг категорий и иконок
-$category_map = [
-    'adoption' => 'Adopcijas Diena',
-    'volunteer' => 'Brīvprātīgie',
-    'training' => 'Apmācība',
-    'fundraising' => 'Labdarība'
-];
-
-$icon_map = [
-    'adoption' => '🐕🐈',
-    'volunteer' => '🧹🏡',
-    'training' => '📚🎓',
-    'fundraising' => '💝🎪'
-];
-
-// Первая буква username
 $initial = mb_strtoupper(mb_substr($user['lietotajvards'], 0, 1));
-
-function getInitial($username) { return strtoupper(mb_substr((string)$username, 0, 1)); }
 ?>
 <!DOCTYPE html>
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mans profils - <?php echo htmlspecialchars($user['lietotajvards'] ?? 'User'); ?></title>
+<title>Mans profils - <?php echo htmlspecialchars($user['lietotajvards']); ?></title>
 <link rel="stylesheet" href="index.css">
 <style>
+/* Your CSS styles here */
 body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding-bottom:40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin:0; }
 .account-container { max-width:1400px; margin:40px auto; padding:0 20px; }
 .page-header { background:#fff; padding:30px; border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,.1); margin-bottom:30px; text-align:center; }
@@ -399,6 +411,7 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
 .stat-label { color:#666; font-size:14px; }
 @media (max-width:968px){ .profile-grid{ grid-template-columns:1fr; } .achievements-grid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); } .stats-grid{ grid-template-columns:repeat(2,1fr); } }
 @media (max-width:576px){ .level-card{ flex-direction:column; text-align:center; } .points-display{ margin-left:0; margin-top:15px; } .stats-grid{ grid-template-columns:1fr; } }
+
 </style>
 </head>
 <body>
@@ -413,28 +426,23 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
     <div class="profile-grid">
         <aside class="card">
             <div class="profile-avatar"><?php echo $initial; ?></div>
-            <div class="profile-username"><?php echo htmlspecialchars($user['lietotajvards'] ?? 'User'); ?></div>
-            <div class="profile-email"><?php echo htmlspecialchars($user['epasts'] ?? ''); ?></div>
+            <div class="profile-username"><?php echo htmlspecialchars($user['lietotajvards']); ?></div>
+            <div class="profile-email"><?php echo htmlspecialchars($user['epasts']); ?></div>
 
             <div class="info-section">
                 <h3>Personīgā informācija</h3>
                 <div class="info-item">
                     <div class="info-label">Pilnais vārds</div>
-                    <div class="info-value <?php echo empty($user['full_name']) ? 'empty' : ''; ?>">
-                        <?php echo !empty($user['full_name']) ? htmlspecialchars($user['full_name']) : 'Nav norādīts'; ?>
-                    </div>
+                    <
+                    <div class="info-value <?php echo empty($user['full_name']) ? 'empty' : ''; ?>"><?php echo !empty($user['full_name']) ? htmlspecialchars($user['full_name']) : 'Nav norādīts'; ?></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Telefons</div>
-                    <div class="info-value <?php echo empty($user['phone']) ? 'empty' : ''; ?>">
-                        <?php echo !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'Nav norādīts'; ?>
-                    </div>
+                    <div class="info-value <?php echo empty($user['phone']) ? 'empty' : ''; ?>"><?php echo !empty($user['phone']) ? htmlspecialchars($user['phone']) : 'Nav norādīts'; ?></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Adrese</div>
-                    <div class="info-value <?php echo empty($user['address']) ? 'empty' : ''; ?>">
-                        <?php echo !empty($user['address']) ? nl2br(htmlspecialchars($user['address'])) : 'Nav norādīta'; ?>
-                    </div>
+                    <div class="info-value <?php echo empty($user['address']) ? 'empty' : ''; ?>"><?php echo !empty($user['address']) ? nl2br(htmlspecialchars($user['address'])) : 'Nav norādīta'; ?></div>
                 </div>
             </div>
 
@@ -442,32 +450,24 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
                 <h3>Konta statistika</h3>
                 <div class="info-item">
                     <div class="info-label">Reģistrācijas datums</div>
-                    <div class="info-value">
-                        <?php echo !empty($user['created_at']) ? date('d.m.Y', strtotime($user['created_at'])) : '—'; ?>
-                    </div>
+                    <div class="info-value"><?php echo !empty($user['created_at']) ? date('d.m.Y', strtotime($user['created_at'])) : '—'; ?></div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Pēdējā atjaunināšana</div>
-                    <div class="info-value">
-                        <?php echo !empty($user['updated_at']) ? date('d.m.Y H:i', strtotime($user['updated_at'])) : '—'; ?>
-                    </div>
+                    <div class="info-value"><?php echo !empty($user['updated_at']) ? date('d.m.Y H:i', strtotime($user['updated_at'])) : '—'; ?></div>
                 </div>
             </div>
         </aside>
 
         <main class="card">
-            <?php if ($reg_bonus_awarded_now): ?>
-                <div class="alert alert-bonus">🎯 Pirmais solis: +10 punkti par reģistrāciju!</div>
-            <?php endif; ?>
-            <?php if ($fav_res['bonus_awarded']): ?>
-                <div class="alert alert-bonus">❤️ Apsveicam! +30 punkti par 5 favorītiem!</div>
-            <?php endif; ?>
             <?php if ($bonus_awarded): ?>
-                <div class="alert alert-bonus">📱 Pilnīgs profils: +20 punkti pievienoti!</div>
+                <div class="alert alert-bonus">🎉 Jūs saņēmāt bonusu!</div>
             <?php endif; ?>
-            <?php if (!empty($success_message) && !$bonus_awarded): ?>
+            
+            <?php if (!empty($success_message)): ?>
                 <div class="alert alert-success">✅ <?php echo htmlspecialchars($success_message); ?></div>
             <?php endif; ?>
+            
             <?php if (!empty($error_message)): ?>
                 <div class="alert alert-error">❌ <?php echo htmlspecialchars($error_message); ?></div>
             <?php endif; ?>
@@ -477,117 +477,46 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
                 <input type="hidden" name="action" value="update_profile">
                 <div class="form-group">
                     <label for="full_name">Pilnais vārds *</label>
-                    <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" placeholder="Ievadiet savu pilno vārdu" maxlength="100">
+                    <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" placeholder="Ievadiet savu pilno vārdu" maxlength="100" required>
                 </div>
                 <div class="form-group">
                     <label for="phone">Telefons *</label>
-                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" placeholder="+371 12345678" maxlength="20">
+                    <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($user['phone']); ?>" placeholder="+371 12345678" maxlength="20" required>
                 </div>
                 <div class="form-group">
                     <label for="address">Adrese *</label>
-                    <textarea id="address" name="address" placeholder="Ievadiet savu adresi"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    <textarea id="address" name="address" placeholder="Ievadiet savu adresi" required><?php echo htmlspecialchars($user['address']); ?></textarea>
                 </div>
-                <p style="font-size:13px;color:#666;margin-bottom:20px;">
-                    * Aizpildiet visus laukus, lai saņemtu +20 punktus un sasniegumu "Pilnīgs Profils"
-                </p>
                 <button type="submit" class="btn">💾 Saglabāt izmaiņas</button>
             </form>
         </main>
-    </div>
-
-    <!-- Секция с мероприятиями -->
-    <div class="bonus-section">
-        <h3 class="section-title-bonus">🎉 Mani pasākumi</h3>
-        <?php if (count($user_events) > 0): ?>
-            <div class="events-grid-profile">
-                <?php 
-                $today = new DateTime();
-                foreach ($user_events as $event): 
-                    $event_date = new DateTime($event['datums']);
-                    $is_past = $event_date < $today;
-                    $formatted_date = $event_date->format('d.m.Y');
-                    $time_start = date('H:i', strtotime($event['laiks_sakums']));
-                    $time_end = date('H:i', strtotime($event['laiks_beigas']));
-                    $reg_date = new DateTime($event['registracijas_datums']);
-                    $formatted_reg_date = $reg_date->format('d.m.Y H:i');
-                ?>
-                <div class="event-card-profile">
-                    <div class="event-header-profile">
-                        <div class="event-icon-profile"><?php echo $icon_map[$event['kategorija']] ?? '🎉'; ?></div>
-                        <div class="event-header-text">
-                            <h4><?php echo htmlspecialchars($event['nosaukums']); ?></h4>
-                            <p><?php echo $category_map[$event['kategorija']] ?? $event['kategorija']; ?></p>
-                        </div>
-                    </div>
-                    <div class="event-body-profile">
-                        <div class="event-info-row">
-                            📅 <strong><?php echo $formatted_date; ?></strong>
-                        </div>
-                        <div class="event-info-row">
-                            🕐 <strong><?php echo $time_start . ' - ' . $time_end; ?></strong>
-                        </div>
-                        <div class="event-info-row">
-                            📍 <strong><?php echo htmlspecialchars($event['vieta']); ?></strong>
-                        </div>
-                        <div class="event-info-row">
-                            👥 <strong><?php echo $event['current_participants']; ?>/<?php echo $event['max_dalibnieki']; ?></strong> dalībnieki
-                        </div>
-                        <div class="event-info-row">
-                            ✅ Reģistrēts: <strong><?php echo $formatted_reg_date; ?></strong>
-                        </div>
-                        <span class="event-badge-profile <?php echo $is_past ? 'badge-past-profile' : 'badge-upcoming-profile'; ?>">
-                            <?php echo $is_past ? '✓ Pagājis' : '📅 Gaidāms'; ?>
-                        </span>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        <?php else: ?>
-            <div class="empty-events">
-                <div class="empty-events-icon">🎪</div>
-                <h3>Nav reģistrētu pasākumu</h3>
-                <p>Jūs vēl neesat reģistrējies nevienam pasākumam</p>
-                <a href="events.php">Skatīt pasākumus</a>
-            </div>
-        <?php endif; ?>
     </div>
 
     <div class="bonus-section">
         <div class="level-card">
             <div class="level-icon"><?php echo $level_icon; ?></div>
             <div class="level-info">
-                <h3><?php echo htmlspecialchars($user['level_name'] ?? 'Iesācējs'); ?></h3>
+                <h3><?php echo htmlspecialchars($level_name); ?></h3>
                 <p>Tavs pašreizējais līmenis</p>
                 <div class="progress-bar-container">
-                    <?php 
-                    $progress = 0;
-                    if ($points < 100)        $progress = $points;
-                    elseif ($points < 300)    $progress = (($points - 100) / 200) * 100;
-                    elseif ($points < 600)    $progress = (($points - 300) / 300) * 100;
-                    elseif ($points < 1000)   $progress = (($points - 600) / 400) * 100;
-                    else                      $progress = 100;
-                    ?>
-                    <div class="progress-bar" style="width: <?php echo min(100, max(0, $progress)); ?>%"></div>
+                    <div class="progress-bar" style="width: <?php echo min(100, ($points % 100)); ?>%"></div>
                 </div>
             </div>
             <div class="points-display">
-                <div class="points"><?php echo (int)$user['points']; ?></div>
+                <div class="points"><?php echo $points; ?></div>
                 <div class="label">punkti</div>
-                <div class="sublabel">Kopā: <?php echo (int)($user['total_earned'] ?? 0); ?></div>
             </div>
         </div>
 
         <h3 class="section-title-bonus">🏆 Mani sasniegumi</h3>
         <div class="achievements-grid">
             <?php foreach ($all_achievements as $ach): ?>
-                <?php $is_earned = in_array($ach['id'], $earned_ids, true); ?>
+                <?php $is_earned = in_array($ach['id'], $earned_ids); ?>
                 <div class="achievement-card <?php echo $is_earned ? 'earned' : 'locked'; ?>">
                     <div class="achievement-icon"><?php echo $ach['icon']; ?></div>
                     <div class="achievement-name"><?php echo $ach['name']; ?></div>
                     <div class="achievement-desc"><?php echo $ach['desc']; ?></div>
-                    <div class="achievement-points">
-                        <?php echo $is_earned ? '✅ Iegūts' : '+' . (int)$ach['points'] . ' punkti'; ?>
-                    </div>
+                    <div class="achievement-points"><?php echo $is_earned ? '✅ Iegūts' : '+' . $ach['points'] . ' punkti'; ?></div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -595,19 +524,19 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
         <h3 class="section-title-bonus">📊 Mana statistika</h3>
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)($user['favorites_count'] ?? 0); ?></div>
+                <div class="stat-number"><?php echo (int)$user['favorites_count']; ?></div>
                 <div class="stat-label">Favorīti</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)($user['applications_count'] ?? 0); ?></div>
+                <div class="stat-number"><?php echo (int)$user['applications_count']; ?></div>
                 <div class="stat-label">Pieteikumi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo count($user_events); ?></div>
-                <div class="stat-label">Reģistrēti pasākumi</div>
+                <div class="stat-number"><?php echo (int)$user['events_attended']; ?></div>
+                <div class="stat-label">Apmeklēti pasākumi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)($user['profile_complete'] ?? 0); ?>%</div>
+                <div class="stat-number"><?php echo (int)$user['profile_complete']; ?>%</div>
                 <div class="stat-label">Profils aizpildīts</div>
             </div>
         </div>
