@@ -18,13 +18,11 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Проверка авторизации
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'Lūdzu, pieslēdzies!', 'redirect' => 'login.html']);
     exit;
 }
 
-// Проверка pet_id
 if (!isset($_POST['pet_id']) || empty($_POST['pet_id'])) {
     echo json_encode(['success' => false, 'message' => 'Nav norādīts dzīvnieks']);
     exit;
@@ -61,23 +59,34 @@ if ($appResult->num_rows > 0) {
     exit;
 }
 
-// Создание заявки
-$pieteikuma_veids = 'adopcija';
-$pieteikuma_teksts = 'Ātrā adopcijas pieteikuma no ' . date('Y-m-d H:i:s');
-
-$stmt = $conn->prepare("
-    INSERT INTO pieteikumi (dzivnieka_id, lietotaja_id, pieteikuma_veids, pieteikuma_teksts, statuss)
-    VALUES (?, ?, ?, ?, 'gaida_apstiprinajumu')
-");
-$stmt->bind_param("iiss", $pet_id, $user_id, $pieteikuma_veids, $pieteikuma_teksts);
-
-if ($stmt->execute()) {
+try {
+    $conn->begin_transaction();
+    
+    // Создание заявки
+    $pieteikuma_veids = 'adopcija';
+    $pieteikuma_teksts = 'Ātrā adopcijas pieteikuma no ' . date('Y-m-d H:i:s');
+    
+    $stmt = $conn->prepare("
+        INSERT INTO pieteikumi (dzivnieka_id, lietotaja_id, pieteikuma_veids, pieteikuma_teksts, statuss)
+        VALUES (?, ?, ?, ?, 'gaida_apstiprinajumu')
+    ");
+    $stmt->bind_param("iiss", $pet_id, $user_id, $pieteikuma_veids, $pieteikuma_teksts);
+    $stmt->execute();
+    
+    // ИЗМЕНЕНО: Меняем статус животного на "rezervets"
+    $updatePet = $conn->prepare("UPDATE dzivnieki SET statuss = 'rezervets' WHERE id = ?");
+    $updatePet->bind_param("i", $pet_id);
+    $updatePet->execute();
+    
+    $conn->commit();
+    
     echo json_encode([
         'success' => true, 
-        'message' => '✅ Pieteikums veiksmīgi iesniegts par ' . htmlspecialchars($pet['vards']) . '!'
+        'message' => 'Pieteikums veiksmīgi iesniegts par ' . htmlspecialchars($pet['vards']) . '! Gaida administratora apstiprinājumu.'
     ]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Radās kļūda']);
+} catch (Exception $e) {
+    $conn->rollback();
+    echo json_encode(['success' => false, 'message' => 'Radās kļūda: ' . $e->getMessage()]);
 }
 
 $conn->close();
