@@ -76,11 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete_animal') {
         $id = (int)($_POST['id'] ?? 0);
         if ($id) {
-<<<<<<< Updated upstream
-            $stmt = $conn->prepare('DELETE FROM dzivnieki WHERE id = ?');
-            $stmt->bind_param('i', $id);
-            $stmt->execute();
-=======
             try {
                 $conn->begin_transaction();
 
@@ -118,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo '<pre style="padding:20px;">Neizdevās dzēst dzīvnieku: ' . htmlspecialchars($e->getMessage()) . '</pre>';
                 exit;
             }
->>>>>>> Stashed changes
         }
         header('Location: admin.php');
         exit;
