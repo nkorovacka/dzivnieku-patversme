@@ -2,13 +2,15 @@
 session_start();
 require_once 'db_conn.php';
 
+// Tikai administratoriem
 if (!isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
     header("Location: login.html");
     exit;
 }
 
+// Tikai POST pieprasījumi
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: admin_adoptions.php");
+    header("Location: admin.php?page=adoptions");
     exit;
 }
 
@@ -23,7 +25,7 @@ if (!$id || !$pet_id || !in_array($status, ['apstiprināts', 'noraidīts'])) {
 try {
     $conn->beginTransaction();
 
-    // ✅ Atjauno adopcijas pieteikuma statusu
+    // ✅ Atjauno pieteikuma statusu
     $stmt = $conn->prepare("UPDATE adopcijas_pieteikumi SET statuss = ? WHERE id = ?");
     $stmt->execute([$status, $id]);
 
@@ -36,8 +38,10 @@ try {
 
     $conn->commit();
 
-    header("Location: admin_adoptions.php?success=1");
+    // ✅ Pāradresē atpakaļ uz admin paneli ar paziņojumu
+    header("Location: admin.php?page=adoptions&success=1");
     exit;
+
 } catch (Throwable $e) {
     $conn->rollBack();
     echo "<pre>Kļūda: " . htmlspecialchars($e->getMessage()) . "</pre>";
