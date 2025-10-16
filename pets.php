@@ -37,13 +37,8 @@ if (isset($_SESSION['user_id'])) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dzīvnieki — SirdsPaws</title>
-<<<<<<< HEAD
-  <link rel="stylesheet" href="index.css"> <!-- kopīgie stili un navbar -->
-  <link rel="stylesheet" href="pets.css?v=3">
-=======
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="pets.css?v=6">
->>>>>>> 91e0ca6 (Atjaunojumi un labojumi 🐾)
 </head>
 <body>
 
@@ -119,27 +114,9 @@ if (isset($_SESSION['user_id'])) {
 
               <p class="pet-description"><?= htmlspecialchars($pet['apraksts'] ?? 'Apraksts nav pieejams.') ?></p>
 
-<<<<<<< HEAD
-                <p class="pet-description">
-                  <?= htmlspecialchars($pet['apraksts'] ?? 'Apraksts nav pieejams.') ?>
-                </p>
-
-                <div class="pet-actions">
-                  <?php if ($status === 'pieejams'): ?>
-                    <form action="adopt_form.php" method="GET">
-                      <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
-                      <button type="submit" class="btn btn-adopt">Adoptēt</button>
-                    </form>
-                  <?php else: ?>
-                    <button class="btn btn-adopt" disabled><?= $statusText ?></button>
-                  <?php endif; ?>
-
-                  <form action="toggle_favorite.php" method="POST">
-=======
               <div class="pet-actions">
                 <?php if ($status === 'pieejams'): ?>
                   <form action="adopt_form.php" method="get" onsubmit="return confirmAdopt('<?= htmlspecialchars($pet['vards']) ?>')">
->>>>>>> 91e0ca6 (Atjaunojumi un labojumi 🐾)
                     <input type="hidden" name="pet_id" value="<?= $pet['id'] ?>">
                     <button type="submit" class="btn btn-adopt">🐾 Adoptēt</button>
                   </form>
@@ -198,10 +175,6 @@ function filterPets() {
       (age === 3 && petAge > 1 && petAge <= 3) ||
       (age === 4 && petAge > 3);
 
-<<<<<<< HEAD
-    [searchInput, typeFilter, ageFilter].forEach(el => el.addEventListener('input', filterPets));
-  </script>
-=======
     card.style.display = (matchesSearch && matchesType && matchesAge) ? '' : 'none';
   });
 }
@@ -209,6 +182,5 @@ function filterPets() {
 [searchInput, typeFilter, ageFilter].forEach(el => el.addEventListener('input', filterPets));
 </script>
 
->>>>>>> 91e0ca6 (Atjaunojumi un labojumi 🐾)
 </body>
 </html>
