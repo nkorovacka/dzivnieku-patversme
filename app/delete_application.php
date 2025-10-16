@@ -2,8 +2,6 @@
 session_start();
 header('Content-Type: application/json; charset=UTF-8');
 require_once __DIR__ . '/../vendor/autoload.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 if (!isset($_SESSION['user_id'])) {
   echo json_encode(['ok' => false, 'error' => 'Nav autorizācijas']);
@@ -34,7 +32,7 @@ if (!$app_id) {
   exit;
 }
 
-// atrodam pet_id
+// Atrodam dzīvnieku
 $stmt = $conn->prepare("SELECT pet_id FROM adopcijas_pieteikumi WHERE id = ? AND lietotaja_id = ?");
 $stmt->bind_param('ii', $app_id, $user_id);
 $stmt->execute();
@@ -49,13 +47,13 @@ if (!$app) {
 
 $pet_id = intval($app['pet_id']);
 
-// dzēšam pieteikumu
+// Dzēšam pieteikumu
 $stmt = $conn->prepare("DELETE FROM adopcijas_pieteikumi WHERE id = ? AND lietotaja_id = ?");
 $stmt->bind_param('ii', $app_id, $user_id);
 $stmt->execute();
 $stmt->close();
 
-// pārbaudām, vai vairs nav pieteikumu šim dzīvniekam
+// Ja šim dzīvniekam vairs nav pieteikumu — padara to pieejamu
 $q = $conn->prepare("SELECT COUNT(*) AS total FROM adopcijas_pieteikumi WHERE pet_id = ?");
 $q->bind_param('i', $pet_id);
 $q->execute();

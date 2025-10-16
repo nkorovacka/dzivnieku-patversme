@@ -34,8 +34,8 @@ if (!isset($_SESSION["user_id"])) {
         <select id="filter-status">
           <option value="">Visi</option>
           <option value="gaida apstiprinājumu">Gaida apstiprinājumu</option>
-          <option value="apstiprinats">Apstiprināts</option>
-          <option value="atteikts">Atteikts</option>
+          <option value="apstiprināts">Apstiprināts</option>
+          <option value="noraidīts">Noraidīts</option>
         </select>
       </div>
       <button id="refresh-btn" class="btn">Atsvaidzināt</button>

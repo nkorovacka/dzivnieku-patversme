@@ -88,7 +88,9 @@ function h($s){ return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
   <h2>🐾 Adopcijas anketa</h2>
 
   <div class="pet-info">
-    <img src="kitty.jpg" alt="<?= h($pet['vards']) ?>">
+    <img src="<?= !empty($pet['attels']) ? htmlspecialchars($pet['attels']) : 'kitty.jpg' ?>" 
+     alt="<?= h($pet['vards']) ?>">
+
     <div>
       <h3 style="margin:0 0 .25rem 0;"><?= h($pet['vards']) ?></h3>
       <p style="margin:0; color:#6b7280;">

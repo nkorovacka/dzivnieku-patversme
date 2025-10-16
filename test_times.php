@@ -14,7 +14,7 @@ $conn = new mysqli(
 );
 if ($conn->connect_error) {
   http_response_code(500);
-  echo json_encode(["error" => "DB connection failed"]);
+  echo json_encode(["error" => "Datubāzes savienojuma kļūda"]);
   exit;
 }
 
@@ -24,13 +24,12 @@ if (!$date) {
   exit;
 }
 
-// ❗️Ja kāds jebkurā dzīvniekam tajā datumā ir pieteicies (gaida vai apstiprināts),
-// tie laiki tiek uzskatīti par aizņemtiem visiem.
+// ✅ Aizņemti laiki VISIEM dzīvniekiem konkrētajā datumā
 $stmt = $conn->prepare("
   SELECT laiks
   FROM adopcijas_pieteikumi
   WHERE datums = ?
-    AND statuss IN ('gaida apstiprinājumu', 'apstiprinats')
+    AND statuss IN ('gaida apstiprinajumu', 'apstiprinats')
 ");
 $stmt->bind_param("s", $date);
 $stmt->execute();
@@ -38,7 +37,13 @@ $res = $stmt->get_result();
 
 $taken = [];
 while ($row = $res->fetch_assoc()) {
-  $taken[] = substr($row['laiks'], 0, 5); // tikai HH:MM
+  $time = substr($row['laiks'], 0, 5);
+  if (!in_array($time, $taken)) {
+    $taken[] = $time;
+  }
 }
+
+$stmt->close();
+$conn->close();
 
 echo json_encode($taken, JSON_UNESCAPED_UNICODE);

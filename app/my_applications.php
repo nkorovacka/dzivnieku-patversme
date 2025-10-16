@@ -57,7 +57,6 @@ $res = $stmt->get_result();
 
 $data = [];
 while ($row = $res->fetch_assoc()) {
-  // ja nav bilde, lieto noklusēto kitty.jpg
   $row['image'] = !empty($row['image']) ? $row['image'] : 'kitty.jpg';
   $data[] = $row;
 }
