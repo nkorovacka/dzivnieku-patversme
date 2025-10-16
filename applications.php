@@ -195,6 +195,37 @@ if (!isset($_SESSION["lietotajvards"])) {
       margin: 0 auto;
     }
 
+    /* Small, clean header like other pages (no HTML changes required) */
+    .small-hero {
+      padding: 28px 0 16px 0;
+      background: #fff;
+      border-bottom: 1px solid #eef2ff;
+      position: relative;
+    }
+    .small-hero .hero-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1e293b;
+      text-shadow: none;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+    .small-hero .hero-subtitle {
+      font-size: 16px;
+      color: #64748b;
+      opacity: 1;
+      margin: 0;
+    }
+    .small-hero::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -3px;
+      height: 3px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
+    }
+
     /* ===== CONTENT ===== */
     .content-section {
       margin: 0 0 80px 0;
