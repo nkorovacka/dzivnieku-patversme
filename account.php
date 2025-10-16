@@ -317,6 +317,21 @@ $all_achievements = [
     ['id' => 5, 'name' => 'Aktīvais Dalībnieks',  'desc' => 'Apmeklēti 3 pasākumi',     'icon' => '🎪', 'points' => 40],
 ];
 
+// Маппинг категорий и иконок
+$category_map = [
+    'adoption' => 'Adopcijas Diena',
+    'volunteer' => 'Brīvprātīgie',
+    'training' => 'Apmācība',
+    'fundraising' => 'Labdarība'
+];
+
+$icon_map = [
+    'adoption' => '🐕🐈',
+    'volunteer' => '🧹🏡',
+    'training' => '📚🎓',
+    'fundraising' => '💝🎪'
+];
+
 // Первая буква username
 $initial = mb_strtoupper(mb_substr($user['lietotajvards'], 0, 1));
 
@@ -327,7 +342,7 @@ function getInitial($username) { return strtoupper(mb_substr((string)$username, 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mans profils - <?php echo htmlspecialchars($user['lietotajvards']); ?></title>
+<title>Mans profils - <?php echo htmlspecialchars($user['lietotajvards'] ?? 'User'); ?></title>
 <link rel="stylesheet" href="index.css">
 <style>
 body { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding-bottom:40px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin:0; }
@@ -398,8 +413,8 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
     <div class="profile-grid">
         <aside class="card">
             <div class="profile-avatar"><?php echo $initial; ?></div>
-            <div class="profile-username"><?php echo htmlspecialchars($user['lietotajvards']); ?></div>
-            <div class="profile-email"><?php echo htmlspecialchars($user['epasts']); ?></div>
+            <div class="profile-username"><?php echo htmlspecialchars($user['lietotajvards'] ?? 'User'); ?></div>
+            <div class="profile-email"><?php echo htmlspecialchars($user['epasts'] ?? ''); ?></div>
 
             <div class="info-section">
                 <h3>Personīgā informācija</h3>
@@ -470,7 +485,7 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
                 </div>
                 <div class="form-group">
                     <label for="address">Adrese *</label>
-                    <textarea id="address" name="address" placeholder="Ievadiet savu adresi"><?php echo htmlspecialchars($user['address']); ?></textarea>
+                    <textarea id="address" name="address" placeholder="Ievadiet savu adresi"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                 </div>
                 <p style="font-size:13px;color:#666;margin-bottom:20px;">
                     * Aizpildiet visus laukus, lai saņemtu +20 punktus un sasniegumu "Pilnīgs Profils"
@@ -480,11 +495,68 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
         </main>
     </div>
 
+    <!-- Секция с мероприятиями -->
+    <div class="bonus-section">
+        <h3 class="section-title-bonus">🎉 Mani pasākumi</h3>
+        <?php if (count($user_events) > 0): ?>
+            <div class="events-grid-profile">
+                <?php 
+                $today = new DateTime();
+                foreach ($user_events as $event): 
+                    $event_date = new DateTime($event['datums']);
+                    $is_past = $event_date < $today;
+                    $formatted_date = $event_date->format('d.m.Y');
+                    $time_start = date('H:i', strtotime($event['laiks_sakums']));
+                    $time_end = date('H:i', strtotime($event['laiks_beigas']));
+                    $reg_date = new DateTime($event['registracijas_datums']);
+                    $formatted_reg_date = $reg_date->format('d.m.Y H:i');
+                ?>
+                <div class="event-card-profile">
+                    <div class="event-header-profile">
+                        <div class="event-icon-profile"><?php echo $icon_map[$event['kategorija']] ?? '🎉'; ?></div>
+                        <div class="event-header-text">
+                            <h4><?php echo htmlspecialchars($event['nosaukums']); ?></h4>
+                            <p><?php echo $category_map[$event['kategorija']] ?? $event['kategorija']; ?></p>
+                        </div>
+                    </div>
+                    <div class="event-body-profile">
+                        <div class="event-info-row">
+                            📅 <strong><?php echo $formatted_date; ?></strong>
+                        </div>
+                        <div class="event-info-row">
+                            🕐 <strong><?php echo $time_start . ' - ' . $time_end; ?></strong>
+                        </div>
+                        <div class="event-info-row">
+                            📍 <strong><?php echo htmlspecialchars($event['vieta']); ?></strong>
+                        </div>
+                        <div class="event-info-row">
+                            👥 <strong><?php echo $event['current_participants']; ?>/<?php echo $event['max_dalibnieki']; ?></strong> dalībnieki
+                        </div>
+                        <div class="event-info-row">
+                            ✅ Reģistrēts: <strong><?php echo $formatted_reg_date; ?></strong>
+                        </div>
+                        <span class="event-badge-profile <?php echo $is_past ? 'badge-past-profile' : 'badge-upcoming-profile'; ?>">
+                            <?php echo $is_past ? '✓ Pagājis' : '📅 Gaidāms'; ?>
+                        </span>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="empty-events">
+                <div class="empty-events-icon">🎪</div>
+                <h3>Nav reģistrētu pasākumu</h3>
+                <p>Jūs vēl neesat reģistrējies nevienam pasākumam</p>
+                <a href="events.php">Skatīt pasākumus</a>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <div class="bonus-section">
         <div class="level-card">
             <div class="level-icon"><?php echo $level_icon; ?></div>
             <div class="level-info">
-                <h3><?php echo htmlspecialchars($user['level_name']); ?></h3>
+                <h3><?php echo htmlspecialchars($user['level_name'] ?? 'Iesācējs'); ?></h3>
                 <p>Tavs pašreizējais līmenis</p>
                 <div class="progress-bar-container">
                     <?php 
@@ -501,7 +573,7 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
             <div class="points-display">
                 <div class="points"><?php echo (int)$user['points']; ?></div>
                 <div class="label">punkti</div>
-                <div class="sublabel">Kopā: <?php echo (int)$user['total_earned']; ?></div>
+                <div class="sublabel">Kopā: <?php echo (int)($user['total_earned'] ?? 0); ?></div>
             </div>
         </div>
 
@@ -523,19 +595,19 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
         <h3 class="section-title-bonus">📊 Mana statistika</h3>
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)$user['favorites_count']; ?></div>
+                <div class="stat-number"><?php echo (int)($user['favorites_count'] ?? 0); ?></div>
                 <div class="stat-label">Favorīti</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)$user['applications_count']; ?></div>
+                <div class="stat-number"><?php echo (int)($user['applications_count'] ?? 0); ?></div>
                 <div class="stat-label">Pieteikumi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)$user['events_attended']; ?></div>
-                <div class="stat-label">Apmeklēti pasākumi</div>
+                <div class="stat-number"><?php echo count($user_events); ?></div>
+                <div class="stat-label">Reģistrēti pasākumi</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number"><?php echo (int)$user['profile_complete']; ?>%</div>
+                <div class="stat-number"><?php echo (int)($user['profile_complete'] ?? 0); ?>%</div>
                 <div class="stat-label">Profils aizpildīts</div>
             </div>
         </div>
