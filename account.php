@@ -3,47 +3,38 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
-require_once 'db_conn.php'; // ожидается $conn = new mysqli(...)
+require_once 'db_conn.php'; // ожидается $pdo = new PDO(...)
 
 /* -----------------------------------------------------------
    0) Самовосстановление user_id из сессии (lietotajvards/epasts)
 ------------------------------------------------------------ */
-function ensureUserIdFromSession(mysqli $conn): void {
+function ensureUserIdFromSession(PDO $pdo): void {
     if (!empty($_SESSION['user_id'])) return;
 
     $lietotajvards = isset($_SESSION['lietotajvards']) ? trim((string)$_SESSION['lietotajvards']) : '';
     $epasts        = isset($_SESSION['epasts'])        ? trim((string)$_SESSION['epasts'])        : '';
 
     if ($lietotajvards !== '') {
-        if ($stmt = $conn->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE lietotajvards = ? LIMIT 1")) {
-            $stmt->bind_param("s", $lietotajvards);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($u = $res->fetch_assoc()) {
-                $_SESSION['user_id']       = (int)$u['id'];
-                $_SESSION['lietotajvards'] = $u['lietotajvards'];
-                $_SESSION['epasts']        = $u['epasts'];
-                $stmt->close();
-                return;
-            }
-            $stmt->close();
+        $stmt = $pdo->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE lietotajvards = ? LIMIT 1");
+        $stmt->execute([$lietotajvards]);
+        if ($u = $stmt->fetch()) {
+            $_SESSION['user_id']       = (int)$u['id'];
+            $_SESSION['lietotajvards'] = $u['lietotajvards'];
+            $_SESSION['epasts']        = $u['epasts'];
+            return;
         }
     }
     if ($epasts !== '') {
-        if ($stmt = $conn->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE epasts = ? LIMIT 1")) {
-            $stmt->bind_param("s", $epasts);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($u = $res->fetch_assoc()) {
-                $_SESSION['user_id']       = (int)$u['id'];
-                $_SESSION['lietotajvards'] = $u['lietotajvards'];
-                $_SESSION['epasts']        = $u['epasts'];
-            }
-            $stmt->close();
+        $stmt = $pdo->prepare("SELECT id, lietotajvards, epasts FROM lietotaji WHERE epasts = ? LIMIT 1");
+        $stmt->execute([$epasts]);
+        if ($u = $stmt->fetch()) {
+            $_SESSION['user_id']       = (int)$u['id'];
+            $_SESSION['lietotajvards'] = $u['lietotajvards'];
+            $_SESSION['epasts']        = $u['epasts'];
         }
     }
 }
-ensureUserIdFromSession($conn);
+ensureUserIdFromSession($pdo);
 
 /* -----------------------------------------------------------
    1) Проверка авторизации
@@ -57,137 +48,119 @@ $userId = (int)$_SESSION['user_id'];
 /* -----------------------------------------------------------
    2) Утилиты работы с БД/ачивками/баллами
 ------------------------------------------------------------ */
-function txn(mysqli $conn, callable $fn) {
-    $conn->begin_transaction();
+function txn(PDO $pdo, callable $fn) {
+    $pdo->beginTransaction();
     try {
         $res = $fn();
-        $conn->commit();
+        $pdo->commit();
         return $res;
     } catch (Throwable $e) {
-        $conn->rollback();
+        $pdo->rollBack();
         throw $e;
     }
 }
 
-function get_user(mysqli $conn, int $uid): ?array {
-    $sql = "SELECT *
-            FROM lietotaji
-            WHERE id = ?
-            LIMIT 1";
-    $q = $conn->prepare($sql);
-    $q->bind_param("i", $uid);
-    $q->execute();
-    $res = $q->get_result()->fetch_assoc();
-    $q->close();
+function get_user(PDO $pdo, int $uid): ?array {
+    $stmt = $pdo->prepare("SELECT * FROM lietotaji WHERE id = ? LIMIT 1");
+    $stmt->execute([$uid]);
+    $res = $stmt->fetch();
     return $res ?: null;
 }
 
-/** Начислить очки и записать историю */
-function award_points(mysqli $conn, int $uid, int $points, string $reason): bool {
-    return txn($conn, function() use ($conn, $uid, $points, $reason) {
-        $u = $conn->prepare("UPDATE lietotaji SET points = points + ?, total_earned = total_earned + ? WHERE id = ?");
-        $u->bind_param("iii", $points, $points, $uid);
-        if (!$u->execute()) { $u->close(); throw new Exception('award_points UPDATE failed'); }
-        $u->close();
+/** Начислить очки и записать историю (без транзакции - вызывается внутри транзакции) */
+function award_points_internal(PDO $pdo, int $uid, int $points, string $reason): bool {
+    $stmt = $pdo->prepare("UPDATE lietotaji SET points = points + ?, total_earned = total_earned + ? WHERE id = ?");
+    if (!$stmt->execute([$points, $points, $uid])) {
+        throw new Exception('award_points UPDATE failed');
+    }
 
-        $h = $conn->prepare("INSERT INTO points_history (user_id, points, reason, created_at) VALUES (?, ?, ?, NOW())");
-        $h->bind_param("iis", $uid, $points, $reason);
-        if (!$h->execute()) { $h->close(); throw new Exception('points_history INSERT failed'); }
-        $h->close();
+    $stmt = $pdo->prepare("INSERT INTO points_history (user_id, points, reason, created_at) VALUES (?, ?, ?, NOW())");
+    if (!$stmt->execute([$uid, $points, $reason])) {
+        throw new Exception('points_history INSERT failed');
+    }
 
-        // Пересчёт уровня по новым очкам
-        $r = $conn->prepare("SELECT points FROM lietotaji WHERE id = ?");
-        $r->bind_param("i", $uid); $r->execute();
-        $row = $r->get_result()->fetch_assoc();
-        $r->close();
-        $p = (int)($row['points'] ?? 0);
+    // Пересчёт уровня по новым очкам
+    $stmt = $pdo->prepare("SELECT points FROM lietotaji WHERE id = ?");
+    $stmt->execute([$uid]);
+    $row = $stmt->fetch();
+    $p = (int)($row['points'] ?? 0);
 
-        if ($p >= 1000)      $level = 'SirdsPaws Leģenda';
-        elseif ($p >= 600)   $level = 'Dzīvnieku Varonis';
-        elseif ($p >= 300)   $level = 'Aktīvs Atbalstītājs';
-        elseif ($p >= 100)   $level = 'Patversmes Draugs';
-        else                 $level = 'Iesācējs';
+    if ($p >= 1000)      $level = 'SirdsPaws Leģenda';
+    elseif ($p >= 600)   $level = 'Dzīvnieku Varonis';
+    elseif ($p >= 300)   $level = 'Aktīvs Atbalstītājs';
+    elseif ($p >= 100)   $level = 'Patversmes Draugs';
+    else                 $level = 'Iesācējs';
 
-        $lv = $conn->prepare("UPDATE lietotaji SET level_name = ? WHERE id = ?");
-        $lv->bind_param("si", $level, $uid);
-        if (!$lv->execute()) { $lv->close(); throw new Exception('level update failed'); }
-        $lv->close();
+    $stmt = $pdo->prepare("UPDATE lietotaji SET level_name = ? WHERE id = ?");
+    if (!$stmt->execute([$level, $uid])) {
+        throw new Exception('level update failed');
+    }
 
-        return true;
-    });
+    return true;
 }
 
 /** Есть ли ачивка (валидный JSON через CAST) */
-function has_achievement(mysqli $conn, int $uid, int $achId): bool {
-    $candidateJson = json_encode($achId); // "1"
-    $sql = "SELECT JSON_CONTAINS(COALESCE(achievements_json, JSON_ARRAY()), CAST(? AS JSON), '$') AS has_it
-            FROM lietotaji
-            WHERE id = ?";
-    $q = $conn->prepare($sql);
-    $q->bind_param("si", $candidateJson, $uid);
-    $q->execute();
-    $row = $q->get_result()->fetch_assoc();
-    $q->close();
+function has_achievement(PDO $pdo, int $uid, int $achId): bool {
+    $candidateJson = json_encode($achId);
+    $stmt = $pdo->prepare("
+        SELECT JSON_CONTAINS(COALESCE(achievements_json, JSON_ARRAY()), CAST(? AS JSON), '$') AS has_it
+        FROM lietotaji
+        WHERE id = ?
+    ");
+    $stmt->execute([$candidateJson, $uid]);
+    $row = $stmt->fetch();
     return !empty($row) && (int)$row['has_it'] === 1;
 }
 
 /** Добавить ачивку, если нет (валидный JSON, idempotent) */
-function add_achievement(mysqli $conn, int $uid, int $achId): bool {
-    if (has_achievement($conn, $uid, $achId)) return true;
+function add_achievement(PDO $pdo, int $uid, int $achId): bool {
+    if (has_achievement($pdo, $uid, $achId)) return true;
     $candidateJson = json_encode($achId);
-    $sql = "UPDATE lietotaji
-            SET achievements_json = JSON_ARRAY_APPEND(COALESCE(achievements_json, JSON_ARRAY()), '$', CAST(? AS JSON))
-            WHERE id = ?";
-    $q = $conn->prepare($sql);
-    $q->bind_param("si", $candidateJson, $uid);
-    $ok = $q->execute();
-    $q->close();
-    return $ok;
+    $stmt = $pdo->prepare("
+        UPDATE lietotaji
+        SET achievements_json = JSON_ARRAY_APPEND(COALESCE(achievements_json, JSON_ARRAY()), '$', CAST(? AS JSON))
+        WHERE id = ?
+    ");
+    return $stmt->execute([$candidateJson, $uid]);
 }
 
 /** Одноразовый бонус за регистрацию (+10, ачивка #1) */
-function ensure_registration_bonus_once(mysqli $conn, int $uid): bool {
-    if (has_achievement($conn, $uid, 1)) return false; // уже начисляли
-    return txn($conn, function() use ($conn, $uid) {
-        if (!add_achievement($conn, $uid, 1)) throw new Exception('add_achievement(1) failed');
-        if (!award_points($conn, $uid, 10, 'registration_bonus')) throw new Exception('award +10 failed');
+function ensure_registration_bonus_once(PDO $pdo, int $uid): bool {
+    if (has_achievement($pdo, $uid, 1)) return false;
+    return txn($pdo, function() use ($pdo, $uid) {
+        if (!add_achievement($pdo, $uid, 1)) throw new Exception('add_achievement(1) failed');
+        if (!award_points_internal($pdo, $uid, 10, 'registration_bonus')) throw new Exception('award +10 failed');
         return true;
     });
 }
 
 /** Синхронизация favorites_count из таблицы favorites, выдача ачивки #3 (+30) при достижении 5 */
-function sync_favorites_and_bonus(mysqli $conn, int $uid): array {
+function sync_favorites_and_bonus(PDO $pdo, int $uid): array {
     $awarded = false;
 
     // текущий счётчик
-    $cur = $conn->prepare("SELECT favorites_count FROM lietotaji WHERE id = ?");
-    $cur->bind_param("i", $uid);
-    $cur->execute();
-    $row = $cur->get_result()->fetch_assoc();
-    $cur->close();
+    $stmt = $pdo->prepare("SELECT favorites_count FROM lietotaji WHERE id = ?");
+    $stmt->execute([$uid]);
+    $row = $stmt->fetch();
     $storedCount = (int)($row['favorites_count'] ?? 0);
 
     // фактический из favorites
-    $cnt = $conn->prepare("SELECT COUNT(*) AS c FROM favorites WHERE user_id = ?");
-    $cnt->bind_param("i", $uid);
-    $cnt->execute();
-    $cRow = $cnt->get_result()->fetch_assoc();
-    $cnt->close();
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS c FROM favorites WHERE user_id = ?");
+    $stmt->execute([$uid]);
+    $cRow = $stmt->fetch();
     $realCount = (int)($cRow['c'] ?? 0);
 
     // обновляем поле
     if ($realCount !== $storedCount) {
-        $u = $conn->prepare("UPDATE lietotaji SET favorites_count = ?, updated_at = NOW() WHERE id = ?");
-        $u->bind_param("ii", $realCount, $uid);
-        $u->execute();
-        $u->close();
+        $stmt = $pdo->prepare("UPDATE lietotaji SET favorites_count = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->execute([$realCount, $uid]);
     }
 
     // если стало >=5 и ачивки 3 нет — начислить
-    if ($realCount >= 5 && !has_achievement($conn, $uid, 3)) {
-        $ok = txn($conn, function() use ($conn, $uid) {
-            if (!add_achievement($conn, $uid, 3)) throw new Exception('add_achievement(3) failed');
-            if (!award_points($conn, $uid, 30, 'favorites_5')) throw new Exception('award +30 failed');
+    if ($realCount >= 5 && !has_achievement($pdo, $uid, 3)) {
+        $ok = txn($pdo, function() use ($pdo, $uid) {
+            if (!add_achievement($pdo, $uid, 3)) throw new Exception('add_achievement(3) failed');
+            if (!award_points_internal($pdo, $uid, 30, 'favorites_5')) throw new Exception('award +30 failed');
             return true;
         });
         if ($ok) $awarded = true;
@@ -199,7 +172,7 @@ function sync_favorites_and_bonus(mysqli $conn, int $uid): array {
 /* -----------------------------------------------------------
    3) Получаем пользователя
 ------------------------------------------------------------ */
-$user = get_user($conn, $userId);
+$user = get_user($pdo, $userId);
 if (!$user) {
     session_destroy();
     header("Location: login.php");
@@ -228,23 +201,48 @@ $user += [
 ------------------------------------------------------------ */
 $reg_bonus_awarded_now = false;
 if (empty($_SESSION['__reg_bonus_checked'])) {
-    $reg_bonus_awarded_now = ensure_registration_bonus_once($conn, $userId);
+    $reg_bonus_awarded_now = ensure_registration_bonus_once($pdo, $userId);
     $_SESSION['__reg_bonus_checked'] = 1;
     if ($reg_bonus_awarded_now) {
-        $user = get_user($conn, $userId); // перечитать очки/уровень
+        $user = get_user($pdo, $userId);
     }
 }
 
 /* -----------------------------------------------------------
    5) Синхронизируем фавориты и потенциально выдаём бонус
 ------------------------------------------------------------ */
-$fav_res = sync_favorites_and_bonus($conn, $userId);
+$fav_res = sync_favorites_and_bonus($pdo, $userId);
 if ($fav_res['bonus_awarded']) {
-    $user = get_user($conn, $userId); // обновить очки/уровень и favorites_count
+    $user = get_user($pdo, $userId);
 }
 
 /* -----------------------------------------------------------
-   6) Обработка формы обновления профиля (+20 и ачивка #2 один раз)
+   6) Загружаем события пользователя
+------------------------------------------------------------ */
+// Загружаем pasākumus из таблицы pasakumu_pieteikumi
+$user_events = [];
+$events_error = '';
+try {
+    $stmt = $pdo->prepare("
+        SELECT 
+            p.*,
+            pp.registracijas_datums,
+            (SELECT COUNT(*) FROM pasakumu_pieteikumi WHERE pasakuma_id = p.id) as current_participants
+        FROM pasakumu_pieteikumi pp
+        JOIN pasakumi p ON pp.pasakuma_id = p.id
+        WHERE pp.lietotaja_id = ?
+        ORDER BY p.datums DESC, p.laiks_sakums DESC
+    ");
+    $stmt->execute([$userId]);
+    $user_events = $stmt->fetchAll();
+} catch (PDOException $e) {
+    // Ошибка при загрузке
+    $events_error = 'Kļūda ielādējot pasākumus: ' . $e->getMessage();
+    $user_events = [];
+}
+
+/* -----------------------------------------------------------
+   7) Обработка формы обновления профиля (+20 и ачивка #2 один раз)
 ------------------------------------------------------------ */
 $success_message = '';
 $error_message   = '';
@@ -258,19 +256,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     $old_complete = (int)$user['profile_complete'];
     $new_complete = (!empty($full_name) && !empty($phone) && !empty($address)) ? 100 : 0;
 
-    $upd = $conn->prepare("UPDATE lietotaji 
-                           SET full_name = ?, phone = ?, address = ?, profile_complete = ?, updated_at = NOW()
-                           WHERE id = ?");
-    $upd->bind_param("sssii", $full_name, $phone, $address, $new_complete, $userId);
-
-    if ($upd->execute()) {
-        $upd->close();
+    try {
+        $stmt = $pdo->prepare("
+            UPDATE lietotaji 
+            SET full_name = ?, phone = ?, address = ?, profile_complete = ?, updated_at = NOW()
+            WHERE id = ?
+        ");
+        $stmt->execute([$full_name, $phone, $address, $new_complete, $userId]);
 
         // если впервые достигли 100% — ачивка #2 +20 очков
-        if ($old_complete < 100 && $new_complete === 100 && !has_achievement($conn, $userId, 2)) {
-            $ok = txn($conn, function() use ($conn, $userId) {
-                if (!add_achievement($conn, $userId, 2)) throw new Exception('add_achievement(2) failed');
-                if (!award_points($conn, $userId, 20, 'profile_complete')) throw new Exception('award +20 failed');
+        if ($old_complete < 100 && $new_complete === 100 && !has_achievement($pdo, $userId, 2)) {
+            $ok = txn($pdo, function() use ($pdo, $userId) {
+                if (!add_achievement($pdo, $userId, 2)) throw new Exception('add_achievement(2) failed');
+                if (!award_points_internal($pdo, $userId, 20, 'profile_complete')) throw new Exception('award +20 failed');
                 return true;
             });
             if ($ok) {
@@ -283,15 +281,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
             $success_message = 'Profils veiksmīgi atjaunināts!';
         }
         // перечитать пользователя
-        $user = get_user($conn, $userId);
-    } else {
-        $error_message = 'Kļūda atjauninot profilu!';
-        $upd->close();
+        $user = get_user($pdo, $userId);
+    } catch (PDOException $e) {
+        $error_message = 'Kļūda atjauninot profilu: ' . $e->getMessage();
     }
 }
 
 /* -----------------------------------------------------------
-   7) Визуал: иконка уровня и цвет
+   8) Визуал: иконка уровня и цвет
 ------------------------------------------------------------ */
 $points = (int)$user['points'];
 $level_icon  = '🥉';
@@ -334,8 +331,6 @@ $icon_map = [
 
 // Первая буква username
 $initial = mb_strtoupper(mb_substr($user['lietotajvards'], 0, 1));
-
-function getInitial($username) { return strtoupper(mb_substr((string)$username, 0, 1)); }
 ?>
 <!DOCTYPE html>
 <html lang="lv">
@@ -367,7 +362,7 @@ label { display:block; margin-bottom:8px; color:#555; font-weight:600; font-size
 input, textarea { width:100%; padding:12px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:16px; box-sizing:border-box; }
 input:focus, textarea:focus { outline:none; border-color:#667eea; }
 textarea { resize:vertical; min-height:100px; font-family:inherit; }
-.btn { padding:12px 30px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; }
+.btn { padding:12px 30px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:.3s; }
 .btn:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(102,126,234,0.4); }
 .alert { padding:15px 20px; border-radius:8px; margin-bottom:25px; font-weight:500; }
 .alert-success { background:#d4edda; border:2px solid #c3e6cb; color:#155724; }
@@ -383,10 +378,10 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
 .points-display .label { font-size:14px; opacity:.9; text-transform:uppercase; }
 .points-display .sublabel { font-size:12px; opacity:.7; margin-top:5px; }
 .progress-bar-container { background:rgba(255,255,255,.3); height:8px; border-radius:10px; overflow:hidden; }
-.progress-bar { background:#fff; height:100%; border-radius:10px; }
+.progress-bar { background:#fff; height:100%; border-radius:10px; transition:width .5s ease; }
 .section-title-bonus { font-size:20px; font-weight:bold; color:#333; margin:25px 0 15px 0; }
 .achievements-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:15px; margin-top:20px; }
-.achievement-card { background:#f8f9ff; padding:20px; border-radius:12px; text-align:center; border:2px solid #e5e7eb; }
+.achievement-card { background:#f8f9ff; padding:20px; border-radius:12px; text-align:center; border:2px solid #e5e7eb; transition:.3s; }
 .achievement-card.earned { background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%); border-color:#6366f1; }
 .achievement-card.locked { opacity:.5; filter:grayscale(100%); }
 .achievement-icon { font-size:40px; margin-bottom:12px; }
@@ -397,7 +392,26 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
 .stat-card { background:#f8f9ff; padding:20px; border-radius:12px; text-align:center; border:2px solid #e5e7eb; }
 .stat-number { font-size:32px; font-weight:bold; color:#6366f1; margin-bottom:5px; }
 .stat-label { color:#666; font-size:14px; }
-@media (max-width:968px){ .profile-grid{ grid-template-columns:1fr; } .achievements-grid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); } .stats-grid{ grid-template-columns:repeat(2,1fr); } }
+.events-grid-profile { display:grid; grid-template-columns:repeat(auto-fill, minmax(350px,1fr)); gap:20px; margin-top:20px; }
+.event-card-profile { background:#f8f9ff; border:2px solid #e5e7eb; border-radius:12px; padding:20px; transition:.3s; }
+.event-card-profile:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,0,0,.1); }
+.event-header-profile { display:flex; align-items:center; gap:15px; margin-bottom:15px; padding-bottom:15px; border-bottom:2px solid #e5e7eb; }
+.event-icon-profile { font-size:36px; }
+.event-header-text h4 { margin:0 0 5px 0; font-size:18px; color:#333; }
+.event-header-text p { margin:0; font-size:13px; color:#6366f1; font-weight:600; }
+.event-body-profile { }
+.event-info-row { padding:8px 0; color:#555; font-size:14px; }
+.event-info-row strong { color:#333; }
+.event-badge-profile { display:inline-block; margin-top:10px; padding:6px 12px; border-radius:6px; font-size:12px; font-weight:600; }
+.badge-upcoming-profile { background:#e0f2fe; color:#0369a1; }
+.badge-past-profile { background:#d1fae5; color:#065f46; }
+.empty-events { text-align:center; padding:60px 20px; }
+.empty-events-icon { font-size:80px; margin-bottom:20px; }
+.empty-events h3 { font-size:24px; color:#333; margin:0 0 10px 0; }
+.empty-events p { color:#666; margin:0 0 25px 0; }
+.empty-events a { display:inline-block; padding:12px 30px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; text-decoration:none; border-radius:8px; font-weight:600; transition:.3s; }
+.empty-events a:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(102,126,234,.4); }
+@media (max-width:968px){ .profile-grid{ grid-template-columns:1fr; } .achievements-grid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); } .stats-grid{ grid-template-columns:repeat(2,1fr); } .events-grid-profile{ grid-template-columns:1fr; } }
 @media (max-width:576px){ .level-card{ flex-direction:column; text-align:center; } .points-display{ margin-left:0; margin-top:15px; } .stats-grid{ grid-template-columns:1fr; } }
 </style>
 </head>
@@ -498,6 +512,9 @@ textarea { resize:vertical; min-height:100px; font-family:inherit; }
     <!-- Секция с мероприятиями -->
     <div class="bonus-section">
         <h3 class="section-title-bonus">🎉 Mani pasākumi</h3>
+        <?php if (!empty($events_error)): ?>
+            <div class="alert alert-error" style="margin-top:20px;">⚠️ <?php echo htmlspecialchars($events_error); ?></div>
+        <?php endif; ?>
         <?php if (count($user_events) > 0): ?>
             <div class="events-grid-profile">
                 <?php 
